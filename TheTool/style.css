@@ -1,0 +1,15 @@
+h1 {
+	font-size: 300%;
+	text-align: center;
+}
+
+h2 {
+	text-align: center;
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+.result {
+	margin: auto;
+	width: 700px;
+}

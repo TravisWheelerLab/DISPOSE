@@ -1,0 +1,5 @@
+SCC java
+SCC python
+strongly connected components
+Kosaraju algorithm implementation
+Roughgarden Kosaraju
