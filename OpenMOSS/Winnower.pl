@@ -11,6 +11,8 @@ my $KSIZE = 5;
 my $WSIZE = $ARGV[1];
 
 (my $name) = ($file =~ /\/.+\/(.+)\..+/);
+(my $fullName) = ($file =~ /\/.+\/(.+\..+)/);
+
 my $printFile = "./printFiles/" . $name . "_print.txt"; 
 
 # Replace whitespace, capitalization, tokenize variables
@@ -78,8 +80,8 @@ while ($charIndex <= $lineSize-$KSIZE) {
 open(my $fh2, ">", $printFile)
 	or die "Failed to open file: '$printFile'!\n";
 
-for my $key ( sort {$a<=>$b} keys %fingerprint) {
-           print $fh2 "$fingerprint{$key} $key\n";
+for my $key (sort {$a<=>$b} keys %fingerprint) {
+           print $fh2 "$fingerprint{$key} $fullName $key\n";
 }
 
 close $fh2;
