@@ -4,15 +4,15 @@
 
 my $file = $ARGV[0];
 
-(my $name) = ($file =~ /(.+)\.java$/);
+(my $name) = ($file =~ /\/.+\/(.+)\.java$/);
 
-my $tokenFile = $name . "_token" . ".java";
+my $tokenFile = "./tokenFiles/" . $name . "_token" . ".java";
 
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
 
 open(my $fh2, ">", $tokenFile)
-	or die "Failed to open file: '$tokenFile'!\n";
+	or die "Failed to open file (test): '$tokenFile'!\n";
 
 while(<$fh>)
 {
