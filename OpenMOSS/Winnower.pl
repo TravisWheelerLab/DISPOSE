@@ -84,8 +84,8 @@ for my $key ( sort {$a<=>$b} keys %fingerprint) {
 
 close $fh2;
 
-my $size = keys %fingerprint;
-print("\n" . $lineSize . " ". $size . "\n");
+# my $size = keys %fingerprint;
+# print("\n" . $lineSize . " ". $size . "\n");
 
 # Hash function
 sub hash {

@@ -12,7 +12,7 @@ open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
 
 open(my $fh2, ">", $tokenFile)
-	or die "Failed to open file (test): '$tokenFile'!\n";
+	or die "Failed to open file: '$tokenFile'!\n";
 
 while(<$fh>)
 {
