@@ -23,64 +23,62 @@ my $lineSize = length($tokenLine);
 close $fh;
 
 my $kgram;
-my $charIndex;
-my $winIndex;
+my $charIndex = 0;
 my $minVal;
 my $minPos;
+my $hashVal;
 my @hashWindow;
-my @fingerprint;
-my @globPos;
+my %fingerprint;
 
-# Winnowing
-$charIndex = 0; # Position in file
-$winIndex = 0; # Position in window
-
-while ($charIndex < $lineSize-$KSIZE) {
-	# Windowing
+# Initial window
+for (my $i=1; $i < $WSIZE; $i = $i+1) {
 	$kgram = substr($tokenLine, $charIndex, $KSIZE);
-	print("\n" . $kgram . " " . hash($kgram) . "\n");
+	# print("\n" . $kgram . " " . hash($kgram) . "\n");
 
-	my $hashVal = hash($kgram);
-	$hashWindow[$winIndex] = $hashVal;
-	$winIndex = $winIndex + 1;
+	$hashVal = hash($kgram);
+	push @hashWindow, $hashVal;
 	$minVal = $hashVal;
 
+	$charIndex = $charIndex+1;
+}
+
+while ($charIndex <= $lineSize-$KSIZE) {
+	# Windowing
+	$kgram = substr($tokenLine, $charIndex, $KSIZE);
+	# print("\n" . $kgram . " " . hash($kgram) . "\n");
+
+	$hashVal = hash($kgram);
+	push @hashWindow, $hashVal;
+	$minVal = $hashVal;
+	$minPos = $charIndex;
+
+	# foreach (@hashWindow) {
+	#   print "$_ ";
+	# }
+	# print ("\n");
+
 	# Winnowing
-	if ($winIndex == $WSIZE) {
-
-		print ("\n");
-		foreach (@hashWindow) {
-		  print "$_ ";
+	for (my $i = 0; $i < $WSIZE; $i = $i+1) {
+		if ($hashWindow[$WSIZE - $i - 1] < $minVal) {
+			$minVal = $hashWindow[$WSIZE - $i - 1];
+			$minPos = $charIndex - $i;
 		}
-		print ("\n");
-
-		for (my $i = $WSIZE-1; $i > 0; $i = $i-1) {
-			if ($hashWindow[$i] < $minVal) {
-				$minVal = $hashWindow[$i];
-				$minPos = $charIndex - $i;
-			}
-		}
-		unless ($charIndex ~~ @globPos) {
-			push @fingerprint, $minVal;
-			push @globPos, $charIndex;
-		}
-		$winIndex = 0;
 	}
+
+	unless (exists $fingerprint{$minPos}) {
+		$fingerprint{$minPos} = $minVal;
+		# print ($minVal . " " . $minPos . "\n");
+	}
+
 	$charIndex = $charIndex + 1;
+	shift @hashWindow;
 }
 
-print ("\n");
-foreach (@fingerprint) {
-  print "$_ ";
+for my $key ( sort {$a<=>$b} keys %fingerprint) {
+           print "\n($key)->($fingerprint{$key})";
 }
-print ("\n");
 
-print ("\n");
-foreach (@globPos) {
-  print "$_ ";
-}
-print ("\n");
-
+print("\n");
 
 # Hash function
 sub hash {
