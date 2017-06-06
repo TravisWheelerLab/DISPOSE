@@ -13,9 +13,10 @@ chdir("..");
 mkdir "tokenFiles" unless -d "tokenFiles";
 mkdir "printFiles" unless -d "printFiles";
 
+
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
-	system("perl Winnower.pl './$origin/$sub' 50");
+	system("perl Winnower.pl './$origin/$sub' 10");
 }
 
 chdir("printFiles");
@@ -75,12 +76,22 @@ foreach my $sub_fp (@sub_fps) {
 }
 
 # Show specific match index
-# my @test = sort { $a <=> $b } @{ $matchIndex{"48_17_Question1.java"}{"21_46_Board.java"} };
+# my $testFile = "wut.txt";
+# open(my $fh, ">", $testFile)
+# 	or die "Failed to open file: '$testFile'!\n";
+# my @test = sort { ($a =~ /.+ (.+) .+/)[0] <=> ($b =~ /.+ (.+) .+/)[0] } @{ $matchIndex{"63_240_IntersectionOfTwoArrays.java"}{"63_241_IntersectionOfTwoArrays2.java"} };
 # foreach (@test) {
-#   print "$_";
+#   print $fh "$_";
 # }
-# print ("\n");
+# print $fh ("\n");
 
+# my @test2 = sort { ($a =~ /.+ .+ (.+)/)[0] <=> ($b =~ /.+ .+ (.+)/)[0] } @{ $matchIndex{"63_240_IntersectionOfTwoArrays.java"}{"63_241_IntersectionOfTwoArrays2.java"} };
+# foreach (@test2) {
+#   print $fh "$_";
+# }
+# print $fh ("\n");
+
+close $fh;
 
 my $threshold = 100;
 my @suspects;
@@ -95,11 +106,13 @@ for my $key (keys %matchIndex) {
 	}
 }
 
-# print("\n\nSUSPECTS\n\n");
+print("\n\nSUSPECTS\n\n");
 
-# my @suspects_sort = sort { ($a =~ /.+\ (.+)/)[0] <=> ($b =~ /.+\ (.+)/)[0] } @suspects;
+my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
 
-# foreach (@suspects_sort) {
-#   print "$_\n";
-# }
-# print ("\n");
+my $SUSLIMIT = 250;
+
+for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
+  print "$suspects_sort[$i]\n";
+}
+print ("\n");
