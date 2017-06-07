@@ -3,6 +3,7 @@
 # Usage: perl OpenMOSS.pl [file_dir]
 
 my $origin = $ARGV[0];
+my $matchLim = 10;
 my %hashIndex;
 my %matchIndex;
 
@@ -12,11 +13,11 @@ chdir("..");
 
 mkdir "tokenFiles" unless -d "tokenFiles";
 mkdir "printFiles" unless -d "printFiles";
-
+mkdir "matchFiles" unless -d "matchFiles";
 
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
-	system("perl Winnower.pl './$origin/$sub' 10");
+	system("perl Winnower.pl './$origin/$sub' 50");
 }
 
 chdir("printFiles");
@@ -76,24 +77,11 @@ foreach my $sub_fp (@sub_fps) {
 }
 
 # Show specific match index
-# my $testFile = "wut.txt";
-# open(my $fh, ">", $testFile)
-# 	or die "Failed to open file: '$testFile'!\n";
-# my @test = sort { ($a =~ /.+ (.+) .+/)[0] <=> ($b =~ /.+ (.+) .+/)[0] } @{ $matchIndex{"63_240_IntersectionOfTwoArrays.java"}{"63_241_IntersectionOfTwoArrays2.java"} };
-# foreach (@test) {
-#   print $fh "$_";
-# }
-# print $fh ("\n");
-
-# my @test2 = sort { ($a =~ /.+ .+ (.+)/)[0] <=> ($b =~ /.+ .+ (.+)/)[0] } @{ $matchIndex{"63_240_IntersectionOfTwoArrays.java"}{"63_241_IntersectionOfTwoArrays2.java"} };
-# foreach (@test2) {
-#   print $fh "$_";
-# }
-# print $fh ("\n");
+# createMatchFile("file1", "file2")
 
 close $fh;
 
-my $threshold = 100;
+my $threshold = 10;
 my @suspects;
 
 for my $key (keys %matchIndex) {
@@ -113,6 +101,37 @@ my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @susp
 my $SUSLIMIT = 250;
 
 for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
-  print "$suspects_sort[$i]\n";
+
+	print "$suspects_sort[$i]\n";
+
+	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
+
+	createMatchFile($name1, $name2);
+
+	system(`perl Highlighter.pl ./$origin/$name1 ./$origin/$name2`);
+
 }
 print ("\n");
+
+sub createMatchFile {
+	my $name1 = $_[0];
+	my $name2 = $_[1];
+
+	my $matchFile = "./matchFiles/" . $name1 . "_" . $name2 . "_match.txt";
+	
+	open(my $fh2, ">", $matchFile)
+		or die "Failed to open file: '$matchFile'!\n";
+
+	my @order1 = sort { ($a =~ /.+ (.+) .+/)[0] <=> ($b =~ /.+ (.+) .+/)[0] } @{ $matchIndex{$name1}{$name2} };
+	foreach (@order1) {
+	  print $fh2 "$_";
+	}
+	print $fh2 ("\n");
+
+	my @order2 = sort { ($a =~ /.+ .+ (.+)/)[0] <=> ($b =~ /.+ .+ (.+)/)[0] } @{ $matchIndex{$name1}{$name2} };
+	foreach (@order2) {
+	  print $fh2 "$_";
+	}
+
+	close $fh2;
+}
