@@ -33,48 +33,59 @@ my $hashVal;
 my @hashWindow;
 my %fingerprint;
 
-# Initial window
-for (my $i=1; $i < $WSIZE; $i = $i+1) {
-	$kgram = substr($tokenLine, $charIndex, $KSIZE);
-	# print("\n" . $kgram . " " . hash($kgram) . "\n");
+if (defined $tokenLine) {
 
-	$hashVal = hash($kgram);
-	push @hashWindow, $hashVal;
-	$minVal = $hashVal;
+	# Sets window size to the maximum line length
+	if ($lineSize-$KSIZE < $WSIZE) {
+		$WSIZE = $lineSize-$KSIZE;
+	}
 
-	$charIndex = $charIndex+1;
-}
+	# Initial window
+	for (my $i=1; $i < $WSIZE; $i = $i+1) {
+		$kgram = substr($tokenLine, $charIndex, $KSIZE);
+		# print("\n" . $kgram . " " . hash($kgram) . "\n");
 
-while ($charIndex <= $lineSize-$KSIZE) {
-	# Windowing
-	$kgram = substr($tokenLine, $charIndex, $KSIZE);
-	# print("\n" . $kgram . " " . hash($kgram) . "\n");
+		$hashVal = hash($kgram);
+		push @hashWindow, $hashVal;
+		$minVal = $hashVal;
 
-	$hashVal = hash($kgram);
-	push @hashWindow, $hashVal;
-	$minVal = $hashVal;
-	$minPos = $charIndex;
+		$charIndex = $charIndex+1;
+	}
 
-	# foreach (@hashWindow) {
-	#   print "$_ ";
-	# }
-	# print ("\n");
+	while ($charIndex <= $lineSize-$KSIZE) {
+		# Windowing
+		$kgram = substr($tokenLine, $charIndex, $KSIZE);
+		# print("\n" . $kgram . " " . hash($kgram) . "\n");
 
-	# Winnowing
-	for (my $i = 0; $i < $WSIZE; $i = $i+1) {
-		if ($hashWindow[$WSIZE - $i - 1] < $minVal) {
-			$minVal = $hashWindow[$WSIZE - $i - 1];
-			$minPos = $charIndex - $i;
+		$hashVal = hash($kgram);
+		push @hashWindow, $hashVal;
+		$minVal = $hashVal;
+		$minPos = $charIndex;
+
+		# foreach (@hashWindow) {
+		#   print "$_ ";
+		# }
+		# print ("\n");
+
+		# Winnowing
+		for (my $i = 0; $i < $WSIZE; $i = $i+1) {
+			if ($hashWindow[$WSIZE - $i - 1] < $minVal) {
+				$minVal = $hashWindow[$WSIZE - $i - 1];
+				$minPos = $charIndex - $i;
+			}
 		}
-	}
 
-	unless (exists $fingerprint{$minPos}) {
-		$fingerprint{$minPos} = $minVal;
-		# print ($minVal . " " . $minPos . "\n");
-	}
+		unless (exists $fingerprint{$minPos}) {
+			$fingerprint{$minPos} = $minVal;
+			# print ($minVal . " " . $minPos . "\n");
+		}
 
-	$charIndex = $charIndex + 1;
-	shift @hashWindow;
+		$charIndex = $charIndex + 1;
+		shift @hashWindow;
+	}
+}
+else {
+	print("Empty tokenized file: $file_token\n");
 }
 
 open(my $fh2, ">", $printFile)
