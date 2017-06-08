@@ -56,7 +56,7 @@ foreach my $sub_fp (@sub_fps) {
 	open($fh, "<", "./printFiles/$sub_fp")
 	    or die "Failed to open file: $sub_fp!\n";
 
-	my %checkedHash;
+	my %checkedHash = ();
 
 	while($hashLine = <$fh>) { 
 	    ($hashVal, $hashFile, $hashPos) = split(/ /,$hashLine);
@@ -73,7 +73,7 @@ foreach my $sub_fp (@sub_fps) {
 
 			$checkedHash{$hashVal} = 1;
 		}
-	} 
+	}
 }
 
 # Show specific match index
@@ -87,8 +87,9 @@ my @suspects;
 for my $key (keys %matchIndex) {
 	for my $key2 (keys $matchIndex{$key}) {
 	    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
+	    my $matchNum2 = scalar @{$matchIndex{$key2}{$key}};
 	    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-	    if ($matchNum >= $threshold) {
+	    if ($matchNum >= $threshold && $matchNum >= $matchNum2) {
 	    	push @suspects, $key . " " . $key2 . " " . $matchNum;
 	    }
 	}
