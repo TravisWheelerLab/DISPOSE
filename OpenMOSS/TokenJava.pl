@@ -3,6 +3,7 @@
 # Usage: perl TokenJava.pl [java file]
 
 use Regexp::Common qw /comment/;
+use Text::ParseWords;
 
 my $file = $ARGV[0];
 
@@ -21,7 +22,8 @@ open(my $fh2, ">", $tokenFile)
 while(<$fh>)
 {
 	$_ =~ s/$RE{comment}{Java}//g; # Remove in-line comments
-    $_ =~ s/\s+//g; # Remove whitespace
+    my @no_space = shellwords($_); # Removes spaces except in strings
+    $_ = join "", @no_space;
     $_ = lc $_; # All lowercase
     $tokenizedStr = $tokenizedStr . $_;
 }

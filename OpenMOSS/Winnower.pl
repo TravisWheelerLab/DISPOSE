@@ -77,6 +77,9 @@ if (defined $tokenLine) {
 
 		unless (exists $fingerprint{$minPos}) {
 			$fingerprint{$minPos} = $minVal;
+			# if ($minVal == 42138561) {
+			# 	print("Found one: $fullName\n");
+			# }
 			# print ($minVal . " " . $minPos . "\n");
 		}
 

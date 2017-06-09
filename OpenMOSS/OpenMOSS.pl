@@ -2,6 +2,8 @@
 
 # Usage: perl OpenMOSS.pl [file_dir]
 
+use List::MoreUtils qw(uniq);
+
 my $origin = $ARGV[0];
 my $matchLim = 10;
 my %hashIndex;
@@ -49,6 +51,9 @@ foreach my $sub_fp (@sub_fps) {
 # 	}
 # }
 
+open(my $fh3, ">", "wut.txt")
+		or die "Failed to open file: 'wut.txt'!\n";
+
 # Create lists of matching fingerprints by doc
 foreach my $sub_fp (@sub_fps) {
 
@@ -64,10 +69,25 @@ foreach my $sub_fp (@sub_fps) {
 
 	    unless (exists $checkedHash{$hashVal}) {
 
+	    	my @potHashFiles;
+
+			# Number of files with hashed kgram
 		    foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
 				(my $potFile, my $potPos) = split(/ /, $potMatch);
-				unless ($hashFile eq $potFile) {
-					push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos";
+
+				push @potHashFiles, $potFile;
+
+			}
+
+			print $fh3 ($hashVal . " " . (scalar uniq @potHashFiles) . " $matchLim\n");
+
+			unless ((scalar uniq @potHashFiles) > $matchLim) {
+				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
+					(my $potFile, my $potPos) = split(/ /, $potMatch);
+
+					unless ($hashFile eq $potFile) {
+						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos";
+					}
 				}
 			}
 
@@ -77,9 +97,10 @@ foreach my $sub_fp (@sub_fps) {
 }
 
 # Show specific match index
-# createMatchFile("file1", "file2")
+# createMatchFile("146_1_BFS.java", "146_5_DFS.java");
 
 close $fh;
+close $fh3;
 
 my $threshold = 10;
 my @suspects;
@@ -100,6 +121,9 @@ print("\n\nSUSPECTS\n\n");
 my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
 
 my $SUSLIMIT = 250;
+if (scalar @suspects_sort < $SUSLIMIT) {
+	$SUSLIMIT = scalar @suspects_sort;
+}
 
 for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
