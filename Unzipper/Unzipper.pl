@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag]
 
 use strict;
 use warnings;
@@ -12,8 +12,9 @@ use File::Path qw(remove_tree);;
 
 my $origin = $ARGV[0];
 my $SINGLE_DIR = $ARGV[1];
+my $SEPARATE_LANG = $ARGV[2];
 
-my @targetTypes = ("rb", "scala", "py", "c", "h", "cpp", "java");
+my @targetTypes = ("c","java","py");
 my @nameFields;
 
 if (-d $origin) {
@@ -81,6 +82,18 @@ foreach (@submissions) {
         
             foreach my $type (@targetTypes) {
 
+                my $filterFolder;
+
+                if ($type eq "java") {
+                    $filterFolder = "Java";
+                }
+                elsif ($type eq "c") {
+                    $filterFolder = "C";
+                }
+                elsif ($type eq "py") {
+                    $filterFolder = "Python";
+                }
+
                 if ($suffix eq $type and $ext eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
 
@@ -95,12 +108,26 @@ foreach (@submissions) {
                     my $newName = $subIndex . "_" . $subIndex2 . "_" . $name . $suffix;
 
                     if ($SINGLE_DIR) {
+
                         chdir("..");
-                        rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+
+                        if ($SEPARATE_LANG) {
+                            mkdir $filterFolder unless -d $filterFolder;
+                            rename(getcwd . "/$subIndex/" . substr($candidate,2), getcwd . "/$filterFolder" . "/$newName");
+                        }
+                        else {
+                            rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+                        }
                         chdir($subIndex);
                     }
                     else {
-                        rename($candidate, getcwd . "/$newName");
+                        if ($SEPARATE_LANG) {
+                            mkdir $filterFolder unless -d $filterFolder;
+                            rename($candidate, getcwd . "/$filterFolder" . "/$newName");
+                        }
+                        else {
+                            rename($candidate, getcwd . "/$newName");
+                        }
                     }
                     $subIndex2++;
                }
@@ -113,7 +140,7 @@ foreach (@submissions) {
         my @junk = `ls`;
         foreach(@junk) {
             s/\s*$//;
-            if (-d "$_") {
+            if (-d "$_" && "$_" ne "Java" && "$_" ne "C" && "$_" ne "Python") {
                 system("rm -rf \"$_\"");
             }
         }
