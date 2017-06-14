@@ -3,23 +3,29 @@
 # Usage: perl OpenMOSS.pl [file_dir]
 
 use List::MoreUtils qw(uniq);
+use Cwd qw(getcwd);
+use Winnower;
 
 my $origin = $ARGV[0];
 my $matchLim = 10;
 my %hashIndex;
 my %matchIndex;
+my %countIndex;
+
+my $workDir = getcwd;
 
 chdir($origin);
 my @submissions = `ls`;
-chdir("..");
+chdir($workDir);
 
 mkdir "tokenFiles" unless -d "tokenFiles";
 mkdir "printFiles" unless -d "printFiles";
 mkdir "matchFiles" unless -d "matchFiles";
 
+
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
-	system("perl Winnower.pl './$origin/$sub' 50");
+	winnow("./$origin/$sub", 50, \%countIndex);
 }
 
 chdir("printFiles");
@@ -51,8 +57,15 @@ foreach my $sub_fp (@sub_fps) {
 # 	}
 # }
 
+
 open(my $fh3, ">", "wut.txt")
 		or die "Failed to open file: 'wut.txt'!\n";
+
+for my $key ( sort {$a<=>$b} keys %countIndex) {
+	print $fh3 ($key . " " . $countIndex{$key} . "\n");
+}
+
+close $fh3;
 
 # Create lists of matching fingerprints by doc
 foreach my $sub_fp (@sub_fps) {
@@ -69,19 +82,7 @@ foreach my $sub_fp (@sub_fps) {
 
 	    unless (exists $checkedHash{$hashVal}) {
 
-	    	my @potHashFiles;
-
-			# Number of files with hashed kgram
-		    foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
-				(my $potFile, my $potPos) = split(/ /, $potMatch);
-
-				push @potHashFiles, $potFile;
-
-			}
-
-			print $fh3 ($hashVal . " " . (scalar uniq @potHashFiles) . " $matchLim\n");
-
-			unless ((scalar uniq @potHashFiles) > $matchLim) {
+			unless ($countIndex{$hashVal} > $matchLim) {
 				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
 					(my $potFile, my $potPos) = split(/ /, $potMatch);
 
@@ -100,7 +101,6 @@ foreach my $sub_fp (@sub_fps) {
 # createMatchFile("146_1_BFS.java", "146_5_DFS.java");
 
 close $fh;
-close $fh3;
 
 my $threshold = 10;
 my @suspects;
@@ -137,6 +137,7 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 }
 print ("\n");
+
 
 sub createMatchFile {
 	my $name1 = $_[0];
