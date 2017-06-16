@@ -5,6 +5,7 @@
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
 use Winnower;
+use TokenScraper;
 
 my $origin = $ARGV[0];
 my $matchLim = 1000000;
@@ -29,18 +30,18 @@ mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
 # Use ANTLR to determine tokens
 system("java -jar ./tokenizers/Java8/DISPOSE_tokenizer.jar ./$origin");
 
-chdir("./TokenFiles/Java8");
-my @tokenFiles = `ls`;
-chdir($workDir);
 
-# Remove whitespace and comments from tokens
-foreach my $tokenFile (@tokenFiles) {
-	system("perl TokenScraper.pl ./TokenFiles/Java8/$tokenFile");
-}
+my %tokPos;
 
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
-	winnow("./$origin/$sub", 50, \%countIndex);
+	chomp $sub;
+	(my $name) = ($sub =~ /(.+)\..+/);
+	chomp $name;
+	# print($sub . " " . $name . "\n");
+	my $tokenFile = "./TokenFiles/Java8/" . $name . "_token.txt";
+	tokScrape("$tokenFile", \%tokPos);
+	winnow("./$origin/$sub", 50, \%countIndex, \%tokPos);
 }
 
 chdir("printFiles");
@@ -51,6 +52,7 @@ my $fh;
 my $hashLine;
 my $hashVal;
 my $hashPos;
+my $hashLinePos;
 my $hashFile;
 
 # Create hash index
@@ -59,8 +61,8 @@ foreach my $sub_fp (@sub_fps) {
 	open($fh, "<", "./printFiles/$sub_fp")
 	    or die "Failed to open file: $sub_fp!\n";
 	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos) = split(/ /,$hashLine);
-	    push @{ $hashIndex{$hashVal} }, $hashFile . " " . $hashPos;
+	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
+	    push @{ $hashIndex{$hashVal} }, $hashFile . " " . $hashPos . " " . $hashLinePos;
 	}
 }
 
@@ -92,18 +94,18 @@ foreach my $sub_fp (@sub_fps) {
 	my %checkedHash = ();
 
 	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos) = split(/ /,$hashLine);
-	    chomp $hashPos;
+	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
+	    chomp $hashLinePos;
 
 	    unless (exists $checkedHash{$hashVal}) {
 
 			unless ($countIndex{$hashVal} > $matchLim) {
 				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
-					(my $potFile, my $potPos) = split(/ /, $potMatch);
-					chomp $potPos;
+					my ($potFile, $potPos, $potHashLinePos) = split(/ /, $potMatch);
+					chomp $potHashLinePos;
 
 					unless ($hashFile eq $potFile) {
-						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $countIndex{$hashVal}\n";
+						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos\n";
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Winnower.pl [file] [window size] [count_hash]
+# Usage: perl Winnower.pl [file] [window size] [count_hash] [token_pos hash]
 
 package Winnower;
 
@@ -12,17 +12,20 @@ use base 'Exporter';
 our @EXPORT = qw(winnow);
 
 sub winnow {
-	my ($file, $WSIZE, $countHash) = @_;
+	my ($file, $WSIZE, $countHash, $posHash) = @_;
 
 	my $KSIZE = 5;
 	my %seenHash;
+
+	my @locArray = keys %$posHash;
+	@locArray = sort { $a <=> $b } @locArray;
 
 	(my $name) = ($file =~ /\/.+\/(.+)\..+/);
 	(my $fullName) = ($file =~ /\/.+\/(.+\..+)/);
 
 	my $printFile = "./printFiles/" . $name . "_print.txt"; 
 
-	# Grab version without whitespace or comments
+	# Grab version that's one line
 	my $file_token = "./TokenFiles2/Java8/" . $name . "_token2.txt";
 
 	# Retrieve tokenized version of file
@@ -117,7 +120,10 @@ sub winnow {
 		or die "Failed to open file: '$printFile'!\n";
 
 	for my $key (sort {$a<=>$b} keys %fingerprint) {
-	           print $fh2 "$fingerprint{$key} $fullName $key\n";
+		my $trueLoc = binSearch(\@locArray, $key);
+		$trueLoc = $locArray[$trueLoc];
+		# print ("$fingerprint{$key} $fullName $key $posHash->{$trueLoc}\n");
+	    print $fh2 "$fingerprint{$key} $fullName $key $posHash->{$trueLoc}\n";
 	}
 
 	close $fh2;
@@ -133,6 +139,43 @@ sub hash {
 		$hash = 31*$hash+ord($_);
 	}
 	return $hash;
+}
+
+# Binary search function
+sub binSearch {
+	
+	my $found = 0;
+	my $loc;
+
+	my ($arrayRef, $searchVal) = @_;
+	my @array =  @{ $arrayRef };
+
+	my $highPos = $#array;
+	my $lowPos = 0;
+	my $midPos;
+
+	while (!$found && $lowPos <= $highPos) {
+	  $midPos = ($lowPos + $highPos) / 2;
+	  if ($searchVal == $array[$midPos]) {
+	    $found = 1;
+	    $loc = $midPos;
+	  }
+
+	  elsif ($searchVal < $array[$midPos]) {
+	    $highPos = $midPos - 1;
+	  }
+
+	  else {
+	    $lowPos = $midPos + 1;
+	  }
+	}
+
+	if ($found) {
+	  return $loc;
+	}
+	else {
+	  return $lowPos; 
+	}
 }
 
 1;
