@@ -22,8 +22,8 @@ sub winnow {
 
 	my $printFile = "./printFiles/" . $name . "_print.txt"; 
 
-	# Replace whitespace, capitalization, tokenize variables
-	my $file_token = `perl TokenJava.pl $file`;
+	# Grab version without whitespace or comments
+	my $file_token = "./TokenFiles2/Java8/" . $name . "_token2.txt";
 
 	# Retrieve tokenized version of file
 	open(my $fh, "<", $file_token)
@@ -56,6 +56,10 @@ sub winnow {
 			push @hashWindow, $hashVal;
 			$minVal = $hashVal;
 
+			# if ($minVal == 42389382) {
+			# 	print("Found one: $fullName\n");
+			# }
+
 			unless (exists $seenHash{$hashVal}) {	
 				$countHash->{$hashVal} += 1;
 				$seenHash{$hashVal} = 1;
@@ -73,6 +77,10 @@ sub winnow {
 			push @hashWindow, $hashVal;
 			$minVal = $hashVal;
 			$minPos = $charIndex;
+
+			# if ($minVal == 42389382) {
+			# 	print("Found one: $fullName\n");
+			# }
 
 			unless (exists $seenHash{$hashVal}) {	
 				$countHash->{$hashVal}++;
@@ -94,9 +102,6 @@ sub winnow {
 
 			unless (exists $fingerprint{$minPos}) {
 				$fingerprint{$minPos} = $minVal;
-				# if ($minVal == 42138561) {
-				# 	print("Found one: $fullName\n");
-				# }
 				# print ($minVal . " " . $minPos . "\n");
 			}
 

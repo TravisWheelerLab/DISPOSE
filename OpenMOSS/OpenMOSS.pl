@@ -7,7 +7,7 @@ use Cwd qw(getcwd);
 use Winnower;
 
 my $origin = $ARGV[0];
-my $matchLim = 10;
+my $matchLim = 1000000;
 my %hashIndex;
 my %matchIndex;
 my %countIndex;
@@ -18,10 +18,25 @@ chdir($origin);
 my @submissions = `ls`;
 chdir($workDir);
 
-mkdir "tokenFiles" unless -d "tokenFiles";
+mkdir "TokenFiles" unless -d "TokenFiles";
+mkdir "TokenFiles2" unless -d "TokenFiles2";
 mkdir "printFiles" unless -d "printFiles";
 mkdir "matchFiles" unless -d "matchFiles";
 
+mkdir "TokenFiles/Java8" unless -d "TokenFiles/Java8";
+mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
+
+# Use ANTLR to determine tokens
+system("java -jar ./tokenizers/Java8/DISPOSE_tokenizer.jar ./$origin");
+
+chdir("./TokenFiles/Java8");
+my @tokenFiles = `ls`;
+chdir($workDir);
+
+# Remove whitespace and comments from tokens
+foreach my $tokenFile (@tokenFiles) {
+	system("perl TokenScraper.pl ./TokenFiles/Java8/$tokenFile");
+}
 
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
@@ -85,9 +100,10 @@ foreach my $sub_fp (@sub_fps) {
 			unless ($countIndex{$hashVal} > $matchLim) {
 				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
 					(my $potFile, my $potPos) = split(/ /, $potMatch);
+					chomp $potPos;
 
 					unless ($hashFile eq $potFile) {
-						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos";
+						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $countIndex{$hashVal}\n";
 					}
 				}
 			}
@@ -148,13 +164,13 @@ sub createMatchFile {
 	open(my $fh2, ">", $matchFile)
 		or die "Failed to open file: '$matchFile'!\n";
 
-	my @order1 = sort { ($a =~ /.+ (.+) .+/)[0] <=> ($b =~ /.+ (.+) .+/)[0] } @{ $matchIndex{$name1}{$name2} };
+	my @order1 = sort { ($a =~ /.+ (.+) .+ .+/)[0] <=> ($b =~ /.+ (.+) .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };
 	foreach (@order1) {
 	  print $fh2 "$_";
 	}
 	print $fh2 ("\n");
 
-	my @order2 = sort { ($a =~ /.+ .+ (.+)/)[0] <=> ($b =~ /.+ .+ (.+)/)[0] } @{ $matchIndex{$name1}{$name2} };
+	my @order2 = sort { ($a =~ /.+ .+ (.+) .+/)[0] <=> ($b =~ /.+ .+ (.+) .+/)[0] } @{ $matchIndex{$name1}{$name2} };
 	foreach (@order2) {
 	  print $fh2 "$_";
 	}
