@@ -24,10 +24,13 @@ sub tokScrape {
 	open(my $fh2, ">", $tokFile2)
 			or die "Failed to open file: '$tokFile2'!\n";
 
+	my $curPos = 0;
+
 	while(<$fh>)
 	{
 		my @tokParams = ($_ =~ m/(.+) (.+) (.+) (.+)$/);
-		$tokPos->{$tokParams[1]} = $tokParams[2];
+		$tokPos->{$curPos} = $tokParams[2];
+		$curPos += length($tokParams[0]);
 		print $fh2 ("$tokParams[0]");
 	}
 
