@@ -149,9 +149,9 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
 
-	createMatchFile($name1, $name2);
+	my $matchFile = createMatchFile($name1, $name2);
 
-	system(`perl Highlighter.pl ./$origin/$name1 ./$origin/$name2`);
+	system(`perl Highlighter.pl $matchFile`);
 
 }
 print ("\n");
@@ -166,16 +166,104 @@ sub createMatchFile {
 	open(my $fh2, ">", $matchFile)
 		or die "Failed to open file: '$matchFile'!\n";
 
-	my @order1 = sort { ($a =~ /.+ (.+) .+ .+/)[0] <=> ($b =~ /.+ (.+) .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };
-	foreach (@order1) {
-	  print $fh2 "$_";
-	}
-	print $fh2 ("\n");
+	print $fh2 "$name1 $name2 \n";
 
-	my @order2 = sort { ($a =~ /.+ .+ (.+) .+/)[0] <=> ($b =~ /.+ .+ (.+) .+/)[0] } @{ $matchIndex{$name1}{$name2} };
-	foreach (@order2) {
-	  print $fh2 "$_";
+	my @order1 = sort { ($a =~ /.+ (.+) .+ .+ .+/)[0] <=> ($b =~ /.+ (.+) .+ .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };
+	my @order2 = sort { ($a =~ /.+ .+ (.+) .+ .+/)[0] <=> ($b =~ /.+ .+ (.+) .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };
+
+	my @posIndex;
+	my @posIndex2;
+
+	foreach my $k (0 .. (scalar @order1)-1) {
+		push (@posIndex, ($order1[$k] =~ /.+ (.+) .+ .+ .+/)[0]);
+	}
+
+	foreach my $k (0 .. (scalar @order2)-1) {
+		push (@posIndex2, ($order2[$k] =~ /.+ .+ (.+) .+ .+/)[0]);
+	}
+
+	my %matchChains;
+
+	foreach my $i (0 .. (scalar @posIndex)-1) {
+		my $matching = 1;
+
+		# print($i . "\n");
+
+		my $indexNext = $i;
+		my $chainOld = $posIndex[$i];
+		my $chainOld2 = ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0];
+		my $indexNext2 = binSearch(\@posIndex2, $chainOld2);
+
+		push (@{$matchChains{$i}}, ($indexNext . " " . $chainOld . " " . $indexNext2 . " " . $chainOld2));
+		# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
+
+		# print($order1[$indexNext] . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . "\n");
+		# print("TEST: " . $chainOld2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainOld . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n\n");
+
+		while ($matching && $indexNext < (scalar @posIndex) && $indexNext2 < (scalar @posIndex2)) {
+
+			$indexNext += 1;
+			my $chainNext = $posIndex[$indexNext];
+			while ($chainOld == $chainNext) {
+				$indexNext += 1;
+				$chainNext = $posIndex[$indexNext];
+			}
+			$chainOld = $chainNext;
+			my $indexOld = $indexNext;
+
+			$indexNext2 += 1;
+			my $chainNext2 = $posIndex2[$indexNext2];
+			while ($chainOld2 == $chainNext2) {
+				$indexNext2 += 1;
+				$chainNext2 = $posIndex2[$indexNext2];
+			}
+			$chainOld2 = $chainNext2;
+			my $indexOld2 = $indexNext2;
+
+			# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
+
+			if ($chainOld2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0] && $chainOld == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0]) {
+				push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2));
+				# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
+			}
+			else  {
+				$matching = 0;
+
+				while (!$matching && ($chainNext == $chainOld) && $indexNext < (scalar @posIndex)) {
+					$indexNext += 1;
+					$chainNext = $posIndex[$indexNext];
+
+					$indexNext2 = $indexOld2;
+					$chainNext2 = $chainOld2;
+
+					while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2)) {
+						
+
+						$indexNext2 += 1;
+						$chainNext2 = $posIndex2[$indexNext2];
+
+						# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
+
+						if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
+							$matching = 1;
+							push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2));
+							# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	foreach my $matchChain (keys %matchChains) {
+		my @chainArray = @{$matchChains{$matchChain}};
+		foreach my $j (0 .. (scalar @chainArray)) {
+			print $fh2 ($chainArray[$j] . "\n");
+		}
+		print $fh2 ("\n");
 	}
 
 	close $fh2;
+
+	return $matchFile;
 }

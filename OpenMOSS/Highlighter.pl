@@ -1,24 +1,25 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [file1] [file2]
+# Usage: perl Highlighter.pl [match file]
 
 use warnings;
 use strict;
 
-my $file1 = $ARGV[0];
-my $file2 = $ARGV[1];
+my $file = $ARGV[0];
 
-(my $name1) = ($file1 =~ /\/.+\/(.+\..+)/);
-(my $name2) = ($file2 =~ /\/.+\/(.+\..+)/);
+open(my $fh, "<", $file)
+	or die "Failed to open file: '$file'!\n";
+
+my ($name1, $name2) = split(/ /, <$fh>);
 
 mkdir "outFiles" unless -d "outFiles";
 
 my $outFile = "./outFiles/" . $name1 . "_" . $name2 . ".html";
 
-open(my $fh, ">", $outFile)
+open(my $fh2, ">", $outFile)
 	or die "Failed to open file: '$outFile'!\n";
 
-print($fh 
+print($fh2 
 "<html>
 	<head>
 		<title>DISPOSE Results</title>
@@ -30,4 +31,4 @@ print($fh
 	</body>
 </html>");
 
-close($fh);
+close($fh2);

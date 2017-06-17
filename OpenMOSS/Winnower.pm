@@ -9,7 +9,7 @@ use strict;
 
 use base 'Exporter';
 
-our @EXPORT = qw(winnow);
+our @EXPORT = qw(winnow binSearch);
 
 sub winnow {
 	my ($file, $WSIZE, $countHash, $posHash) = @_;
@@ -150,12 +150,12 @@ sub binSearch {
 	my ($arrayRef, $searchVal) = @_;
 	my @array =  @{ $arrayRef };
 
-	my $highPos = $#array;
+	my $highPos = scalar @array;
 	my $lowPos = 0;
 	my $midPos;
 
 	while (!$found && $lowPos <= $highPos) {
-	  $midPos = ($lowPos + $highPos) / 2;
+	  $midPos = int(($lowPos + $highPos) / 2);
 	  if ($searchVal == $array[$midPos]) {
 	    $found = 1;
 	    $loc = $midPos;
