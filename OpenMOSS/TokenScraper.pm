@@ -25,13 +25,20 @@ sub tokScrape {
 			or die "Failed to open file: '$tokFile2'!\n";
 
 	my $curPos = 0;
+	my $nextPart;
 
 	while(<$fh>)
 	{
-		my @tokParams = ($_ =~ m/(.+) (.+) (.+) (.+)$/);
+		my @tokParams = ($_ =~ m/(.+) (.+) (.+) (.+)\n/);
 		$tokPos->{$curPos} = $tokParams[2];
-		$curPos += length($tokParams[0]);
-		print $fh2 ("$tokParams[0]");
+		# if ($tokParams[3] eq "IntegerLiteral") {
+		# 	$nextPart  = "I";
+		# }
+		# else {
+		$nextPart = $tokParams[0];
+		# }
+		$curPos += length($nextPart);
+		print $fh2 ("$nextPart");
 	}
 
 	close $fh;

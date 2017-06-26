@@ -35,6 +35,7 @@ my %tokPos;
 
 # Create a fingerprint for each file
 foreach my $sub (@submissions) {
+	undef %tokPos;
 	chomp $sub;
 	(my $name) = ($sub =~ /(.+)\..+/);
 	chomp $name;
@@ -173,13 +174,18 @@ sub createMatchFile {
 
 	my @posIndex;
 	my @posIndex2;
+	my %lineIndex;
+	my %lineIndex2;
 
 	foreach my $k (0 .. (scalar @order1)-1) {
 		push (@posIndex, ($order1[$k] =~ /.+ (.+) .+ .+ .+/)[0]);
+		$lineIndex{$k} = ($order1[$k] =~ /.+ .+ .+ (.+) .+/)[0];
 	}
 
 	foreach my $k (0 .. (scalar @order2)-1) {
 		push (@posIndex2, ($order2[$k] =~ /.+ .+ (.+) .+ .+/)[0]);
+		$lineIndex2{$k} = ($order2[$k] =~ /.+ .+ .+ .+ (.+)/)[0];
+		chomp $lineIndex2{$k};
 	}
 
 	my %matchChains;
@@ -194,13 +200,13 @@ sub createMatchFile {
 		my $chainOld2 = ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0];
 		my $indexNext2 = binSearch(\@posIndex2, $chainOld2);
 
-		push (@{$matchChains{$i}}, ($indexNext . " " . $chainOld . " " . $indexNext2 . " " . $chainOld2));
+		push (@{$matchChains{$i}}, ($indexNext . " " . $chainOld . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainOld2 . ":$lineIndex2{$indexNext2}"));
 		# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
 
 		# print($order1[$indexNext] . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . "\n");
 		# print("TEST: " . $chainOld2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainOld . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n\n");
 
-		while ($matching && $indexNext < (scalar @posIndex) && $indexNext2 < (scalar @posIndex2)) {
+		while ($matching && $indexNext < (scalar @posIndex) - 1 && $indexNext2 < (scalar @posIndex2) - 1) {
 
 			$indexNext += 1;
 			my $chainNext = $posIndex[$indexNext];
@@ -223,20 +229,20 @@ sub createMatchFile {
 			# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
 
 			if ($chainOld2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0] && $chainOld == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0]) {
-				push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2));
+				push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
 				# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
 			}
 			else  {
 				$matching = 0;
 
-				while (!$matching && ($chainNext == $chainOld) && $indexNext < (scalar @posIndex)) {
+				while (!$matching && ($chainNext == $chainOld) && $indexNext < (scalar @posIndex) - 1) {
 					$indexNext += 1;
 					$chainNext = $posIndex[$indexNext];
 
 					$indexNext2 = $indexOld2;
 					$chainNext2 = $chainOld2;
 
-					while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2)) {
+					while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2) - 1) {
 						
 
 						$indexNext2 += 1;
@@ -246,7 +252,7 @@ sub createMatchFile {
 
 						if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
 							$matching = 1;
-							push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2));
+							push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
 							# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
 						}
 					}
@@ -255,12 +261,11 @@ sub createMatchFile {
 		}
 	}
 
-	foreach my $matchChain (keys %matchChains) {
+	foreach my $matchChain (sort {$a <=> $b} keys %matchChains) {
 		my @chainArray = @{$matchChains{$matchChain}};
 		foreach my $j (0 .. (scalar @chainArray)) {
 			print $fh2 ($chainArray[$j] . "\n");
 		}
-		print $fh2 ("\n");
 	}
 
 	close $fh2;
