@@ -1,0 +1,23 @@
+[%  INCLUDE templates/header.html
+	title = 'DISPOSE Match Results';
+%]
+
+	<h1>Some Interesting Matches</h1>
+	<table>
+		<tr>
+			<td><h2>[% file1.name %]</h2></td>
+			<td><h2>[% file2.name %]</h2></td>
+		</tr>
+		[%  FOREACH match IN matches %]
+		<tr>
+			<td><h3>[% match.linestext1 %]</h3></td>
+			<td><h3>[% match.linestext2 %]</h3></td>
+		</tr>
+		<tr>
+			<td><pre>[% match.text1 %]</pre></td>
+			<td><pre>[% match.text2 %]</pre></td>
+		</tr>
+		[%  END %]
+	</table>
+
+[% INCLUDE templates/footer.html %]

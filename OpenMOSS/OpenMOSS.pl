@@ -152,8 +152,6 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 	my $matchFile = createMatchFile($name1, $name2);
 
-	system(`perl Highlighter.pl $matchFile`);
-
 }
 print ("\n");
 
