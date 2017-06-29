@@ -106,7 +106,7 @@ foreach my $sub_fp (@sub_fps) {
 					chomp $potHashLinePos;
 
 					unless ($hashFile eq $potFile) {
-						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos\n";
+						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
 					}
 				}
 			}
@@ -183,7 +183,6 @@ sub createMatchFile {
 	foreach my $k (0 .. (scalar @order2)-1) {
 		push (@posIndex2, ($order2[$k] =~ /.+ .+ (.+) .+ .+/)[0]);
 		$lineIndex2{$k} = ($order2[$k] =~ /.+ .+ .+ .+ (.+)/)[0];
-		chomp $lineIndex2{$k};
 	}
 
 	my %matchChains;
@@ -204,7 +203,8 @@ sub createMatchFile {
 		# print($order1[$indexNext] . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . "\n");
 		# print("TEST: " . $chainOld2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainOld . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n\n");
 
-		while ($matching && $indexNext < (scalar @posIndex) - 1 && $indexNext2 < (scalar @posIndex2) - 1) {
+
+		MATCH: while ($matching && $indexNext < (scalar @posIndex) - 1 && $indexNext2 < (scalar @posIndex2) - 1) {
 
 			$indexNext += 1;
 			my $chainNext = $posIndex[$indexNext];
@@ -226,35 +226,30 @@ sub createMatchFile {
 
 			# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
 
-			if ($chainOld2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0] && $chainOld == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0]) {
-				push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
-				# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
-			}
-			else  {
-				$matching = 0;
+			$matching = 0;
 
-				while (!$matching && ($chainNext == $chainOld) && $indexNext < (scalar @posIndex) - 1) {
-					$indexNext += 1;
-					$chainNext = $posIndex[$indexNext];
+			while (!$matching && ($chainNext == $chainOld) && $indexNext < (scalar @posIndex) - 1) {
 
-					$indexNext2 = $indexOld2;
-					$chainNext2 = $chainOld2;
+				$indexNext2 = $indexOld2;
+				$chainNext2 = $chainOld2;
 
-					while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2) - 1) {
-						
+				while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2) - 1) {
 
-						$indexNext2 += 1;
-						$chainNext2 = $posIndex2[$indexNext2];
+					# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
 
-						# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
-
-						if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
-							$matching = 1;
-							push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
-							# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
-						}
+					if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
+						$matching = 1;
+						push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
+						# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
+						next MATCH;
 					}
+
+					$indexNext2 += 1;
+					$chainNext2 = $posIndex2[$indexNext2];
 				}
+
+				$indexNext += 1;
+				$chainNext = $posIndex[$indexNext];
 			}
 		}
 	}
