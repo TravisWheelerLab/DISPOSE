@@ -35,7 +35,7 @@ sub tokScrape {
 		# 	$nextPart  = "I";
 		# }
 		# else {
-		$nextPart = $tokParams[0];
+		$nextPart = lc $tokParams[0];
 		# }
 		$curPos += length($nextPart);
 		print $fh2 ("$nextPart");

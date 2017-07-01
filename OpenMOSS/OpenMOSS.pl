@@ -76,14 +76,14 @@ foreach my $sub_fp (@sub_fps) {
 # }
 
 
-open(my $fh3, ">", "wut.txt")
-		or die "Failed to open file: 'wut.txt'!\n";
+# open(my $fh3, ">", "wut.txt")
+# 		or die "Failed to open file: 'wut.txt'!\n";
 
-for my $key ( sort {$a<=>$b} keys %countIndex) {
-	print $fh3 ($key . " " . $countIndex{$key} . "\n");
-}
+# for my $key ( sort {$a<=>$b} keys %countIndex) {
+# 	print $fh3 ($key . " " . $countIndex{$key} . "\n");
+# }
 
-close $fh3;
+# close $fh3;
 
 # Create lists of matching fingerprints by doc
 foreach my $sub_fp (@sub_fps) {
@@ -92,7 +92,7 @@ foreach my $sub_fp (@sub_fps) {
 	open($fh, "<", "./printFiles/$sub_fp")
 	    or die "Failed to open file: $sub_fp!\n";
 
-	my %checkedHash = ();
+	my %checkedHash;
 
 	while($hashLine = <$fh>) { 
 	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
@@ -115,9 +115,6 @@ foreach my $sub_fp (@sub_fps) {
 		}
 	}
 }
-
-# Show specific match index
-# createMatchFile("146_1_BFS.java", "146_5_DFS.java");
 
 close $fh;
 
@@ -151,8 +148,12 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
 
 	my $matchFile = createMatchFile($name1, $name2);
-
+	system("perl Highlighter.pl $matchFile");
 }
+
+my $matchFile = createMatchFile("6_22_PS3Q1.java", "6_23_PS3Q2.java");
+system("perl Highlighter.pl $matchFile");
+
 print ("\n");
 
 
@@ -186,8 +187,9 @@ sub createMatchFile {
 	}
 
 	my %matchChains;
+	my %checkedNext;
 
-	foreach my $i (0 .. (scalar @posIndex)-1) {
+	CHAIN: foreach my $i (0 .. (scalar @posIndex)-1) {
 		my $matching = 1;
 
 		# print($i . "\n");
@@ -197,7 +199,13 @@ sub createMatchFile {
 		my $chainOld2 = ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0];
 		my $indexNext2 = binSearch(\@posIndex2, $chainOld2);
 
+		# print("$indexNext $indexNext2\n");
+		if (exists $checkedNext{$indexNext}{$indexNext2}) {
+			next CHAIN;
+		}
+		
 		push (@{$matchChains{$i}}, ($indexNext . " " . $chainOld . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainOld2 . ":$lineIndex2{$indexNext2}"));
+		$checkedNext{$indexNext}{$indexNext2} = 1;
 		# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
 
 		# print($order1[$indexNext] . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . "\n");
@@ -235,11 +243,12 @@ sub createMatchFile {
 
 				while (!$matching && ($chainNext2 == $chainOld2) && $indexNext2 < (scalar @posIndex2) - 1) {
 
-					# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/) . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/) . "\n");
+					# print("TEST: " . $chainNext2 . " " . ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0] . " " . $chainNext . " " . ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] . "\n");
 
 					if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
 						$matching = 1;
 						push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
+						$checkedNext{$indexNext}{$indexNext2} = 1;
 						# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
 						next MATCH;
 					}
