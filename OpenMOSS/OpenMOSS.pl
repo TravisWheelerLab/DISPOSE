@@ -140,12 +140,12 @@ print("\n\nSUSPECTS\n\n");
 
 my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
 
-my $SUSLIMIT = 250;
+my $SUSLIMIT = 100;
 if (scalar @suspects_sort < $SUSLIMIT) {
 	$SUSLIMIT = scalar @suspects_sort;
 }
 
-@suspects;
+my @suspects_hashes;
 
 for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
@@ -153,7 +153,7 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
 
-	$suspects[$i] = {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i};
+	$suspects_hashes[$i] = {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i};
 
 	my $matchFile = createMatchFile($name1, $name2);
 	system("perl Highlighter.pl $matchFile $i");
@@ -164,7 +164,7 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 # system("perl Highlighter.pl $matchFile");
 
 my $vars = {
-      matches => \@suspects
+      matches => \@suspects_hashes
 };
 
 my $template = Template->new();
