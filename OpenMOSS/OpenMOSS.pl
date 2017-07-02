@@ -92,26 +92,26 @@ foreach my $sub_fp (@sub_fps) {
 	open($fh, "<", "./printFiles/$sub_fp")
 	    or die "Failed to open file: $sub_fp!\n";
 
-	my %checkedHash;
-
 	while($hashLine = <$fh>) { 
 	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
 	    chomp $hashLinePos;
 
-	    unless (exists $checkedHash{$hashVal}) {
 
-			unless ($countIndex{$hashVal} > $matchLim) {
-				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
-					my ($potFile, $potPos, $potHashLinePos) = split(/ /, $potMatch);
-					chomp $potHashLinePos;
+		unless ($countIndex{$hashVal} > $matchLim) {
+			foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
+				my ($potFile, $potPos, $potHashLinePos) = split(/ /, $potMatch);
+				chomp $potHashLinePos;
 
-					unless ($hashFile eq $potFile) {
+				unless ($hashFile eq $potFile) {
+					if ($hashFile le $potFile) {
 						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
+				
+					} 
+					else {
+						push @{ $matchIndex{$potFile}{$hashFile} }, "$hashVal $potPos $hashPos $potHashLinePos $hashLinePos \n";
 					}
 				}
 			}
-
-			$checkedHash{$hashVal} = 1;
 		}
 	}
 }
@@ -247,6 +247,9 @@ sub createMatchFile {
 
 					if ($chainNext == ($order2[$indexNext2] =~ /.+ (.+) .+ .+ .+/)[0] && $chainNext2 == ($order1[$indexNext] =~ /.+ .+ (.+) .+ .+/)[0]) {
 						$matching = 1;
+						if (exists $checkedNext{$indexNext}{$indexNext2}) {
+							next CHAIN;
+						}
 						push (@{$matchChains{$i}}, ($indexNext . " " . $chainNext . ":$lineIndex{$indexNext}" . " " . $indexNext2 . " " . $chainNext2 . ":$lineIndex2{$indexNext2}"));
 						$checkedNext{$indexNext}{$indexNext2} = 1;
 						# print("MATCH: " . ($indexNext . " " . $chainNext . " " . $indexNext2 . " " . $chainNext2) . "\n");
