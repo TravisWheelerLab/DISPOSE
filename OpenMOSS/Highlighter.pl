@@ -1,20 +1,21 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file]
+# Usage: perl Highlighter.pl [match file] [match index]
 
 use warnings;
 use strict;
 use Template;
 use HTML::Entities qw(encode_entities);
 
+my $matchIndex = $ARGV[1];
 my $file = $ARGV[0];
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
 my ($name1, $name2) = split(/ /, <$fh>);
 chomp $name2;
 mkdir "outFiles" unless -d "outFiles";
-my $outFile = "./outFiles/" . $name1 . "_" . $name2 . "_match.html";
-my $outFile2 = "./outFiles/" . $name1 . "_" . $name2 . "_text.html";
+my $outFile = "./outFiles/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "./outFiles/match" . "$matchIndex" . "_text.html";
 
 my $fileTemp = "templates/matchTemp.html";
 my $fullTextTemp = "templates/fullTextTemp.html";
@@ -52,7 +53,7 @@ while (<$fh2>) {
 close $fh2;
 
 my $curRun = 0;
-my $MINRUN = 2;
+my $MINRUN = 3;
 
 
 my @matches;

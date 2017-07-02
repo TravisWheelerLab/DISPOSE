@@ -1,0 +1,30 @@
+[%  INCLUDE templates/header2.html
+	title = 'DISPOSE Results';
+%]
+
+	<h1>Your DISPOSE Results</h1>
+	<table>
+		<tr>
+			<td><h2>File 1</h2></td>
+			<td><h2>File 2</h2></td>
+			<td><h2>Score</h2></td>
+		</tr>
+		[%  FOREACH match IN matches %]
+		<tr>
+			<td>
+				<a href="./outFiles/match[% match.matchIndex %]_match.html">
+					[% match.file1 %]
+				</a>
+			</td>
+			<td>
+				<a href="./outFiles/match[% match.matchIndex %]_match.html">
+					[% match.file2 %]
+				</a>
+			</td>
+			<td>[% match.matchNum %]</td>
+		</tr>
+		[%  END %]
+
+	</table>
+
+[% INCLUDE templates/footer.html %]

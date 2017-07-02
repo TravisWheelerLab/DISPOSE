@@ -6,6 +6,7 @@ use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
 use Winnower;
 use TokenScraper;
+use Template;
 
 my $origin = $ARGV[0];
 my $matchLim = 1000000;
@@ -26,6 +27,9 @@ mkdir "matchFiles" unless -d "matchFiles";
 
 mkdir "TokenFiles/Java8" unless -d "TokenFiles/Java8";
 mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
+
+my $fileTemp = "templates/suspectsTemp.html";
+my $mainOut = "results.html";
 
 # Use ANTLR to determine tokens
 system("java -jar ./tokenizers/Java8/DISPOSE_tokenizer.jar ./$origin");
@@ -141,18 +145,31 @@ if (scalar @suspects_sort < $SUSLIMIT) {
 	$SUSLIMIT = scalar @suspects_sort;
 }
 
+@suspects;
+
 for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 	print "$suspects_sort[$i]\n";
 
 	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
 
+	$suspects[$i] = {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i};
+
 	my $matchFile = createMatchFile($name1, $name2);
-	system("perl Highlighter.pl $matchFile");
+	system("perl Highlighter.pl $matchFile $i");
 }
 
-my $matchFile = createMatchFile("6_22_PS3Q1.java", "6_23_PS3Q2.java");
-system("perl Highlighter.pl $matchFile");
+# Create a specific match file
+# my $matchFile = createMatchFile("6_22_PS3Q1.java", "6_23_PS3Q2.java");
+# system("perl Highlighter.pl $matchFile");
+
+my $vars = {
+      matches => \@suspects
+};
+
+my $template = Template->new();
+$template->process($fileTemp, $vars, $mainOut)
+    || die "Template process failed: ", $template->error(), "\n";
 
 print ("\n");
 
