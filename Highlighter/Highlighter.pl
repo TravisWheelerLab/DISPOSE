@@ -1,25 +1,33 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file]
+# Usage: perl Highlighter.pl [match file] [match index]
 
 use warnings;
 use strict;
 use Template;
+use HTML::Entities qw(encode_entities);
 
+my $matchIndex = $ARGV[1];
 my $file = $ARGV[0];
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
-my ($name1, $name2) = split(/ /, <$fh>);
+my ($name1, $name2) = (<$fh> =~ /'(.+)' '(.+)'/);
 chomp $name2;
 mkdir "outFiles" unless -d "outFiles";
-my $outFile = "./outFiles/" . $name1 . "_" . $name2 . ".html";
+my $outFile = "./outFiles/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "./outFiles/match" . "$matchIndex" . "_text.html";
 
 my $fileTemp = "templates/matchTemp.html";
+my $fullTextTemp = "templates/fullTextTemp.html";
 
 my %lineHash1;
 my %lineHash2;
-my $file1 = "./GithubResults/Java/" . "$name1";
-my $file2 = "./GithubResults/Java/" . "$name2";
+
+my $file1 = "./GithubResults/Python/" . "$name1";
+my $file2 = "./GithubResults/Python/" . "$name2";
+
+my $file1Text;
+my $file2Text;
 
 open(my $fh1, $file1)
 	or die "Failed to open file: '$file1'!\n";
@@ -27,21 +35,27 @@ open(my $fh2, $file2)
 	or die "Failed to open file: '$file2'!\n";
 
 my $lineCount = 1;
+my $htmlString;
+
 while (<$fh1>) {
-	$lineHash1{$lineCount} = $_;
+	$htmlString = encode_entities($_);
+	$lineHash1{$lineCount} = $htmlString;
+	$file1Text = $file1Text . $htmlString;
 	$lineCount++;
 }
 close $fh1;
 
 $lineCount = 1;
 while (<$fh2>) {
-	$lineHash2{$lineCount} = $_;
+	$htmlString = encode_entities($_);
+	$lineHash2{$lineCount} = $htmlString;
+	$file2Text = $file2Text . $htmlString;
 	$lineCount++;
 }
 close $fh2;
 
 my $curRun = 0;
-my $MINRUN = 2;
+my $MINRUN = 3;
 
 
 my @matches;
@@ -115,11 +129,21 @@ close $fh;
 
 my $vars = {
       matches => \@matches,
+      fullTextLink => "../" . $outFile2,
       file1 => {name => $file1},
       file2 => {name => $file2}
 };
 
+my $vars2 = {
+		file1 => {name => $file1, text => $file1Text},
+	    file2 => {name => $file2, text => $file2Text}
+};
+
 my $template = Template->new();
+my $template2 = Template->new();
     
 $template->process($fileTemp, $vars, $outFile)
     || die "Template process failed: ", $template->error(), "\n";
+
+$template2->process($fullTextTemp, $vars2, $outFile2)
+    || die "Template process failed: ", $template2->error(), "\n";

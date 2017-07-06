@@ -1,4 +1,4 @@
-// Generated from ./tokenizers/Python3/Python3.g4 by ANTLR 4.7
+// Generated from Python3.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;

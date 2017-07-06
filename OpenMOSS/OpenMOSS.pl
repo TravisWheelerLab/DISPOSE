@@ -27,12 +27,14 @@ mkdir "matchFiles" unless -d "matchFiles";
 
 mkdir "TokenFiles/Java8" unless -d "TokenFiles/Java8";
 mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
+mkdir "TokenFiles/Python3" unless -d "TokenFiles/Python3";
+mkdir "TokenFiles2/Python3" unless -d "TokenFiles2/Python3";
 
 my $fileTemp = "templates/suspectsTemp.html";
 my $mainOut = "results.html";
 
 # Use ANTLR to determine tokens
-system("java -jar ./tokenizers/Java8/DISPOSE_tokenizer.jar ./$origin");
+system("java -jar ./tokenizers/Python3/DISPOSE_tokenizer.jar ./$origin");
 
 
 my %tokPos;
@@ -44,7 +46,7 @@ foreach my $sub (@submissions) {
 	(my $name) = ($sub =~ /(.+)\..+/);
 	chomp $name;
 	# print($sub . " " . $name . "\n");
-	my $tokenFile = "./TokenFiles/Java8/" . $name . "_token.txt";
+	my $tokenFile = "./TokenFiles/Python3/" . $name . "_token.txt";
 	tokScrape("$tokenFile", \%tokPos);
 	winnow("./$origin/$sub", 50, \%countIndex, \%tokPos);
 }
@@ -66,8 +68,8 @@ foreach my $sub_fp (@sub_fps) {
 	open($fh, "<", "./printFiles/$sub_fp")
 	    or die "Failed to open file: $sub_fp!\n";
 	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
-	    push @{ $hashIndex{$hashVal} }, $hashFile . " " . $hashPos . " " . $hashLinePos;
+	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
+	    push @{ $hashIndex{$hashVal} }, "\'$hashFile\'" . " " . $hashPos . " " . $hashLinePos;
 	}
 }
 
@@ -75,7 +77,7 @@ foreach my $sub_fp (@sub_fps) {
 # for my $key ( sort {$a<=>$b} keys %hashIndex) {
 # 	print("\n" . $key . "\n");
 #     foreach (@ { $hashIndex{$key} }) {
-# 	  print("$_");
+# 	  print("$_\n");
 # 	}
 # }
 
@@ -97,16 +99,16 @@ foreach my $sub_fp (@sub_fps) {
 	    or die "Failed to open file: $sub_fp!\n";
 
 	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = split(/ /,$hashLine);
+	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
 	    chomp $hashLinePos;
-
 
 		unless ($countIndex{$hashVal} > $matchLim) {
 			foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
-				my ($potFile, $potPos, $potHashLinePos) = split(/ /, $potMatch);
+				my ($potFile, $potPos, $potHashLinePos) = ($potMatch =~ /'(.+)' (.+) (.+)/);
 				chomp $potHashLinePos;
 
 				unless ($hashFile eq $potFile) {
+
 					if ($hashFile le $potFile) {
 						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
 				
@@ -131,7 +133,7 @@ for my $key (keys %matchIndex) {
 	    my $matchNum2 = scalar @{$matchIndex{$key2}{$key}};
 	    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
 	    if ($matchNum >= $threshold && $matchNum >= $matchNum2) {
-	    	push @suspects, $key . " " . $key2 . " " . $matchNum;
+	    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
 	    }
 	}
 }
@@ -140,7 +142,7 @@ print("\n\nSUSPECTS\n\n");
 
 my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
 
-my $SUSLIMIT = 100;
+my $SUSLIMIT = 250;
 if (scalar @suspects_sort < $SUSLIMIT) {
 	$SUSLIMIT = scalar @suspects_sort;
 }
@@ -151,12 +153,13 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
 	print "$suspects_sort[$i]\n";
 
-	(my $name1, my $name2, $matchNum) = split(/ /,$suspects_sort[$i]);
+	(my $name1, my $name2, $matchNum) = ($suspects_sort[$i] =~ /'(.+)' '(.+)' (.+)/);
 
 	$suspects_hashes[$i] = {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i};
 
 	my $matchFile = createMatchFile($name1, $name2);
-	system("perl Highlighter.pl $matchFile $i");
+
+	system("perl Highlighter.pl \'$matchFile\' $i");
 }
 
 # Create a specific match file
@@ -179,11 +182,11 @@ sub createMatchFile {
 	my $name2 = $_[1];
 
 	my $matchFile = "./matchFiles/" . $name1 . "_" . $name2 . "_match.txt";
-	
+
 	open(my $fh2, ">", $matchFile)
 		or die "Failed to open file: '$matchFile'!\n";
 
-	print $fh2 "$name1 $name2 \n";
+	print $fh2 "\'$name1\' \'$name2\' \n";
 
 	my @order1 = sort { ($a =~ /.+ (.+) .+ .+ .+/)[0] <=> ($b =~ /.+ (.+) .+ .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };
 	my @order2 = sort { ($a =~ /.+ .+ (.+) .+ .+/)[0] <=> ($b =~ /.+ .+ (.+) .+ .+/)[0] } @{ $matchIndex{$name1}{$name2} };

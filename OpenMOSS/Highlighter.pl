@@ -11,7 +11,7 @@ my $matchIndex = $ARGV[1];
 my $file = $ARGV[0];
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
-my ($name1, $name2) = split(/ /, <$fh>);
+my ($name1, $name2) = (<$fh> =~ /'(.+)' '(.+)'/);
 chomp $name2;
 mkdir "outFiles" unless -d "outFiles";
 my $outFile = "./outFiles/match" . "$matchIndex" . "_match.html";
@@ -22,8 +22,10 @@ my $fullTextTemp = "templates/fullTextTemp.html";
 
 my %lineHash1;
 my %lineHash2;
-my $file1 = "./GithubResults/Java/" . "$name1";
-my $file2 = "./GithubResults/Java/" . "$name2";
+
+my $file1 = "./GithubResults/Python/" . "$name1";
+my $file2 = "./GithubResults/Python/" . "$name2";
+
 my $file1Text;
 my $file2Text;
 
