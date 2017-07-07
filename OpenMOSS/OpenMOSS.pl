@@ -29,12 +29,14 @@ mkdir "TokenFiles/Java8" unless -d "TokenFiles/Java8";
 mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
 mkdir "TokenFiles/Python3" unless -d "TokenFiles/Python3";
 mkdir "TokenFiles2/Python3" unless -d "TokenFiles2/Python3";
+mkdir "TokenFiles/C" unless -d "TokenFiles/C";
+mkdir "TokenFiles2/C" unless -d "TokenFiles2/C";
 
 my $fileTemp = "templates/suspectsTemp.html";
 my $mainOut = "results.html";
 
 # Use ANTLR to determine tokens
-system("java -jar ./tokenizers/Python3/DISPOSE_tokenizer.jar ./$origin");
+system("java -jar ./tokenizers/C/DISPOSE_tokenizer.jar ./$origin");
 
 
 my %tokPos;
@@ -46,7 +48,7 @@ foreach my $sub (@submissions) {
 	(my $name) = ($sub =~ /(.+)\..+/);
 	chomp $name;
 	# print($sub . " " . $name . "\n");
-	my $tokenFile = "./TokenFiles/Python3/" . $name . "_token.txt";
+	my $tokenFile = "./TokenFiles/C/" . $name . "_token.txt";
 	tokScrape("$tokenFile", \%tokPos);
 	winnow("./$origin/$sub", 50, \%countIndex, \%tokPos);
 }

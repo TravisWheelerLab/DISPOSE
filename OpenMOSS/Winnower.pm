@@ -26,7 +26,7 @@ sub winnow {
 	my $printFile = "./printFiles/" . $name . "_print.txt"; 
 
 	# Grab version that's one line
-	my $file_token = "./TokenFiles2/Python3/" . $name . "_token2.txt";
+	my $file_token = "./TokenFiles2/C/" . $name . "_token2.txt";
 
 	# Retrieve tokenized version of file
 	open(my $fh, "<", $file_token)

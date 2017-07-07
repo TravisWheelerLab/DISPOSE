@@ -1,4 +1,4 @@
-// Generated from ./tokenizers/C/C.g4 by ANTLR 4.7
+// Generated from C.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**

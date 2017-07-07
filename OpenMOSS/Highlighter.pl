@@ -23,8 +23,8 @@ my $fullTextTemp = "templates/fullTextTemp.html";
 my %lineHash1;
 my %lineHash2;
 
-my $file1 = "./GithubResults/Python/" . "$name1";
-my $file2 = "./GithubResults/Python/" . "$name2";
+my $file1 = "./GithubResults/C/" . "$name1";
+my $file2 = "./GithubResults/C/" . "$name2";
 
 my $file1Text;
 my $file2Text;

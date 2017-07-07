@@ -15,7 +15,7 @@ sub tokScrape {
 	my ($tokFile,$tokPos) = @_;
 
 	(my $name) = ($tokFile =~ /\/.+\/(.+)\..+/);
-	my $tokFile2 = "./TokenFiles2/Python3/" . $name . "2.txt";
+	my $tokFile2 = "./TokenFiles2/C/" . $name . "2.txt";
 	print("Scraping: $name\n");
 
 
