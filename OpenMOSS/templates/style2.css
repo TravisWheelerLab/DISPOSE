@@ -6,4 +6,5 @@ td, th {
 	padding: 5px;
 	overflow-x:auto;
     overflow-y:auto;
+    text-align: left;
 }

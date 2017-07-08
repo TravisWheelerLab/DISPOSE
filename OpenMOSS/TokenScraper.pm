@@ -12,10 +12,10 @@ use base 'Exporter';
 our @EXPORT = qw(tokScrape);
 
 sub tokScrape {
-	my ($tokFile,$tokPos) = @_;
+	my ($tokFile,$tokPos, $curLang) = @_;
 
 	(my $name) = ($tokFile =~ /\/.+\/(.+)\..+/);
-	my $tokFile2 = "./TokenFiles2/C/" . $name . "2.txt";
+	my $tokFile2 = "./TokenFiles2/$curLang/" . $name . "2.txt";
 	print("Scraping: $name\n");
 
 

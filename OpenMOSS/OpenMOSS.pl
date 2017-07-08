@@ -10,158 +10,151 @@ use Template;
 
 my $origin = $ARGV[0];
 my $matchLim = 1000000;
-my %hashIndex;
-my %matchIndex;
-my %countIndex;
 
 my $workDir = getcwd;
-
-chdir($origin);
-my @submissions = `ls`;
-chdir($workDir);
 
 mkdir "TokenFiles" unless -d "TokenFiles";
 mkdir "TokenFiles2" unless -d "TokenFiles2";
 mkdir "printFiles" unless -d "printFiles";
 mkdir "matchFiles" unless -d "matchFiles";
 
-mkdir "TokenFiles/Java8" unless -d "TokenFiles/Java8";
-mkdir "TokenFiles2/Java8" unless -d "TokenFiles2/Java8";
-mkdir "TokenFiles/Python3" unless -d "TokenFiles/Python3";
-mkdir "TokenFiles2/Python3" unless -d "TokenFiles2/Python3";
-mkdir "TokenFiles/C" unless -d "TokenFiles/C";
-mkdir "TokenFiles2/C" unless -d "TokenFiles2/C";
+opendir my $dh, $origin;
+my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
 my $fileTemp = "templates/suspectsTemp.html";
 my $mainOut = "results.html";
 
-# Use ANTLR to determine tokens
-system("java -jar ./tokenizers/C/DISPOSE_tokenizer.jar ./$origin");
+my @suspects_hashes;
 
+foreach my $curLang (@langs) {
+	my %hashIndex;
+	my %matchIndex;
+	my %countIndex;
 
-my %tokPos;
+	mkdir "TokenFiles/$curLang" unless -d "TokenFiles/$curLang";
+	mkdir "TokenFiles2/$curLang" unless -d "TokenFiles2/$curLang";
+	mkdir "printFiles/$curLang" unless -d "printFiles/$curLang";
+	mkdir "matchFiles/$curLang" unless -d "matchFiles/$curLang";
 
-# Create a fingerprint for each file
-foreach my $sub (@submissions) {
-	undef %tokPos;
-	chomp $sub;
-	(my $name) = ($sub =~ /(.+)\..+/);
-	chomp $name;
-	# print($sub . " " . $name . "\n");
-	my $tokenFile = "./TokenFiles/C/" . $name . "_token.txt";
-	tokScrape("$tokenFile", \%tokPos);
-	winnow("./$origin/$sub", 50, \%countIndex, \%tokPos);
-}
+	chdir("$origin/$curLang");
+	my @submissions = `ls`;
+	chdir($workDir);
 
-chdir("printFiles");
-my @sub_fps = `ls`;
-chdir("..");
+	# Use ANTLR to determine tokens
+	system("java -jar ./tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
 
-my $fh;
-my $hashLine;
-my $hashVal;
-my $hashPos;
-my $hashLinePos;
-my $hashFile;
+	my %tokPos;
 
-# Create hash index
-foreach my $sub_fp (@sub_fps) {
-	chomp $sub_fp;
-	open($fh, "<", "./printFiles/$sub_fp")
-	    or die "Failed to open file: $sub_fp!\n";
-	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
-	    push @{ $hashIndex{$hashVal} }, "\'$hashFile\'" . " " . $hashPos . " " . $hashLinePos;
+	# Create a fingerprint for each file
+	foreach my $sub (@submissions) {
+		undef %tokPos;
+		chomp $sub;
+		(my $name) = ($sub =~ /(.+)\..+/);
+		chomp $name;
+		# print($sub . " " . $name . "\n");
+		my $tokenFile = "./TokenFiles/$curLang/" . $name . "_token.txt";
+		tokScrape("$tokenFile", \%tokPos, $curLang);
+		winnow("./$origin/$curLang/$sub", 50, \%countIndex, \%tokPos, $curLang);
 	}
-}
 
-# Show hash index
-# for my $key ( sort {$a<=>$b} keys %hashIndex) {
-# 	print("\n" . $key . "\n");
-#     foreach (@ { $hashIndex{$key} }) {
-# 	  print("$_\n");
-# 	}
-# }
+	chdir("printFiles/$curLang");
+	my @sub_fps = `ls`;
+	chdir($workDir);
 
+	my $fh;
+	my $hashLine;
+	my $hashVal;
+	my $hashPos;
+	my $hashLinePos;
+	my $hashFile;
 
-# open(my $fh3, ">", "wut.txt")
-# 		or die "Failed to open file: 'wut.txt'!\n";
+	# Create hash index
+	foreach my $sub_fp (@sub_fps) {
+		chomp $sub_fp;
+		open($fh, "<", "./printFiles/$curLang/$sub_fp")
+		    or die "Failed to open file: $sub_fp!\n";
+		while($hashLine = <$fh>) { 
+		    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
+		    push @{ $hashIndex{$hashVal} }, "\'$hashFile\'" . " " . $hashPos . " " . $hashLinePos;
+		}
+	}
 
-# for my $key ( sort {$a<=>$b} keys %countIndex) {
-# 	print $fh3 ($key . " " . $countIndex{$key} . "\n");
-# }
+	# Show hash index
+	# for my $key ( sort {$a<=>$b} keys %hashIndex) {
+	# 	print("\n" . $key . "\n");
+	#     foreach (@ { $hashIndex{$key} }) {
+	# 	  print("$_\n");
+	# 	}
+	# }
 
-# close $fh3;
+	# Create lists of matching fingerprints by doc
+	foreach my $sub_fp (@sub_fps) {
 
-# Create lists of matching fingerprints by doc
-foreach my $sub_fp (@sub_fps) {
+		chomp $sub_fp;
+		open($fh, "<", "./printFiles/$curLang/$sub_fp")
+		    or die "Failed to open file: $sub_fp!\n";
 
-	chomp $sub_fp;
-	open($fh, "<", "./printFiles/$sub_fp")
-	    or die "Failed to open file: $sub_fp!\n";
+		while($hashLine = <$fh>) { 
+		    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
+		    chomp $hashLinePos;
 
-	while($hashLine = <$fh>) { 
-	    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
-	    chomp $hashLinePos;
+			unless ($countIndex{$hashVal} > $matchLim) {
+				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
+					my ($potFile, $potPos, $potHashLinePos) = ($potMatch =~ /'(.+)' (.+) (.+)/);
+					chomp $potHashLinePos;
 
-		unless ($countIndex{$hashVal} > $matchLim) {
-			foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
-				my ($potFile, $potPos, $potHashLinePos) = ($potMatch =~ /'(.+)' (.+) (.+)/);
-				chomp $potHashLinePos;
+					unless ($hashFile eq $potFile) {
 
-				unless ($hashFile eq $potFile) {
-
-					if ($hashFile le $potFile) {
-						push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
-				
-					} 
-					else {
-						push @{ $matchIndex{$potFile}{$hashFile} }, "$hashVal $potPos $hashPos $potHashLinePos $hashLinePos \n";
+						if ($hashFile le $potFile) {
+							push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
+					
+						} 
+						else {
+							push @{ $matchIndex{$potFile}{$hashFile} }, "$hashVal $potPos $hashPos $potHashLinePos $hashLinePos \n";
+						}
 					}
 				}
 			}
 		}
 	}
-}
 
-close $fh;
+	close $fh;
 
-my $threshold = 10;
-my @suspects;
+	my $threshold = 10;
+	my @suspects;
 
-for my $key (keys %matchIndex) {
-	for my $key2 (keys $matchIndex{$key}) {
-	    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
-	    my $matchNum2 = scalar @{$matchIndex{$key2}{$key}};
-	    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-	    if ($matchNum >= $threshold && $matchNum >= $matchNum2) {
-	    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
-	    }
+	for my $key (keys %matchIndex) {
+		for my $key2 (keys $matchIndex{$key}) {
+		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
+		    my $matchNum2 = scalar @{$matchIndex{$key2}{$key}};
+		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
+		    if ($matchNum >= $threshold && $matchNum >= $matchNum2) {
+		    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    }
+		}
 	}
-}
 
-print("\n\nSUSPECTS\n\n");
+	print("\n\nSUSPECTS\n\n");
 
-my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
+	my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
 
-my $SUSLIMIT = 250;
-if (scalar @suspects_sort < $SUSLIMIT) {
-	$SUSLIMIT = scalar @suspects_sort;
-}
+	my $SUSLIMIT = 250;
+	if (scalar @suspects_sort < $SUSLIMIT) {
+		$SUSLIMIT = scalar @suspects_sort;
+	}
 
-my @suspects_hashes;
+	for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 
-for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
+		print "$suspects_sort[$i]\n";
 
-	print "$suspects_sort[$i]\n";
+		(my $name1, my $name2, $matchNum) = ($suspects_sort[$i] =~ /'(.+)' '(.+)' (.+)/);
 
-	(my $name1, my $name2, $matchNum) = ($suspects_sort[$i] =~ /'(.+)' '(.+)' (.+)/);
+		push (@suspects_hashes, {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i, lang => $curLang});
 
-	$suspects_hashes[$i] = {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i};
+		my $matchFile = createMatchFile($name1, $name2, $curLang, \%matchIndex);
 
-	my $matchFile = createMatchFile($name1, $name2);
-
-	system("perl Highlighter.pl \'$matchFile\' $i");
+		system("perl Highlighter.pl \'$matchFile\' $curLang $i");
+	}
 }
 
 # Create a specific match file
@@ -169,7 +162,8 @@ for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
 # system("perl Highlighter.pl $matchFile");
 
 my $vars = {
-      matches => \@suspects_hashes
+      matches => \@suspects_hashes,
+      langs => \@langs
 };
 
 my $template = Template->new();
@@ -182,8 +176,11 @@ print ("\n");
 sub createMatchFile {
 	my $name1 = $_[0];
 	my $name2 = $_[1];
+	my $curLang = $_[2];
+	my $miRef = $_[3];
+	my %matchIndex = %$miRef;
 
-	my $matchFile = "./matchFiles/" . $name1 . "_" . $name2 . "_match.txt";
+	my $matchFile = "./matchFiles/$curLang/" . $name1 . "_" . $name2 . "_match.txt";
 
 	open(my $fh2, ">", $matchFile)
 		or die "Failed to open file: '$matchFile'!\n";

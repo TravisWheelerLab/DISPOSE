@@ -12,7 +12,7 @@ use base 'Exporter';
 our @EXPORT = qw(winnow binSearch);
 
 sub winnow {
-	my ($file, $WSIZE, $countHash, $posHash) = @_;
+	my ($file, $WSIZE, $countHash, $posHash, $curLang) = @_;
 
 	my $KSIZE = 5;
 	my %seenHash;
@@ -23,10 +23,10 @@ sub winnow {
 	(my $name) = ($file =~ /\/.+\/(.+)\..+/);
 	(my $fullName) = ($file =~ /\/.+\/(.+\..+)/);
 
-	my $printFile = "./printFiles/" . $name . "_print.txt"; 
+	my $printFile = "./printFiles/$curLang/" . $name . "_print.txt"; 
 
 	# Grab version that's one line
-	my $file_token = "./TokenFiles2/C/" . $name . "_token2.txt";
+	my $file_token = "./TokenFiles2/$curLang/" . $name . "_token2.txt";
 
 	# Retrieve tokenized version of file
 	open(my $fh, "<", $file_token)
