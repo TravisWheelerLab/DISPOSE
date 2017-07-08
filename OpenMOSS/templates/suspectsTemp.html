@@ -55,7 +55,7 @@
 		$( "select#langSelect" ).change(function() {
 			if ($("select#langSelect").val() == "all") {
 				[%  FOREACH lang IN langs %]
-				$(".[% lang2 %]_result").css("display","none");
+				$(".[% lang %]_result").css("display","none");
 				$(".[% lang %]_result").toggle();
 				[%  END %]
 			}
