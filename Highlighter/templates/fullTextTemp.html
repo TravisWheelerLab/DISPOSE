@@ -1,0 +1,18 @@
+[%  INCLUDE templates/header.html
+	title = 'DISPOSE Match Results';
+%]
+
+	<h1>Full Text for [% file1.name %] and [% file2.name %]</h1>
+	<table>
+		<tr>
+			<td><h2>[% file1.name %]</h2></td>
+			<td><h2>[% file2.name %]</h2></td>
+		</tr>
+		<tr>
+			<td><pre><code>[% file1.text %]</code></pre></td>
+			<td><pre><code>[% file2.text %]</code></pre></td>
+		</tr>
+
+	</table>
+
+[% INCLUDE templates/footer.html %]

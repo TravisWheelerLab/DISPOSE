@@ -1,21 +1,23 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file] [match index]
+# Usage: perl Highlighter.pl [match file] [lang] [match index]
 
 use warnings;
 use strict;
 use Template;
 use HTML::Entities qw(encode_entities);
 
-my $matchIndex = $ARGV[1];
+my $matchIndex = $ARGV[2];
 my $file = $ARGV[0];
+my $curLang = $ARGV[1];
+
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
 my ($name1, $name2) = (<$fh> =~ /'(.+)' '(.+)'/);
 chomp $name2;
 mkdir "outFiles" unless -d "outFiles";
-my $outFile = "./outFiles/match" . "$matchIndex" . "_match.html";
-my $outFile2 = "./outFiles/match" . "$matchIndex" . "_text.html";
+my $outFile = "./outFiles/$curLang/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "./outFiles/$curLang/match" . "$matchIndex" . "_text.html";
 
 my $fileTemp = "templates/matchTemp.html";
 my $fullTextTemp = "templates/fullTextTemp.html";
@@ -23,8 +25,8 @@ my $fullTextTemp = "templates/fullTextTemp.html";
 my %lineHash1;
 my %lineHash2;
 
-my $file1 = "./GithubResults/Python/" . "$name1";
-my $file2 = "./GithubResults/Python/" . "$name2";
+my $file1 = "./GithubResults/$curLang/" . "$name1";
+my $file2 = "./GithubResults/$curLang/" . "$name2";
 
 my $file1Text;
 my $file2Text;
@@ -129,7 +131,7 @@ close $fh;
 
 my $vars = {
       matches => \@matches,
-      fullTextLink => "../" . $outFile2,
+      fullTextLink => "../../" . $outFile2,
       file1 => {name => $file1},
       file2 => {name => $file2}
 };
