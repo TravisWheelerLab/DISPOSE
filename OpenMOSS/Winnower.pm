@@ -12,9 +12,8 @@ use base 'Exporter';
 our @EXPORT = qw(winnow binSearch);
 
 sub winnow {
-	my ($file, $WSIZE, $countHash, $posHash, $curLang) = @_;
+	my ($file, $WSIZE, $KSIZE, $matchLim, $countHash, $posHash, $curLang) = @_;
 
-	my $KSIZE = 5;
 	my %seenHash;
 
 	my @locArray = keys %$posHash;
@@ -55,7 +54,13 @@ sub winnow {
 			$kgram = substr($tokenLine, $charIndex, $KSIZE);
 			# print("\n" . $kgram . " " . hash($kgram) . "\n");
 
-			$hashVal = hash($kgram);
+			# print("$kgram $countHash->{$kgram} \n");
+			if ($countHash->{$kgram} > $matchLim) {
+				$hashVal = 2000000000;
+			}
+			else {
+				$hashVal = hash($kgram);
+			}
 			push @hashWindow, $hashVal;
 			$minVal = $hashVal;
 
@@ -63,10 +68,11 @@ sub winnow {
 			# 	print("Found one: $fullName\n");
 			# }
 
-			unless (exists $seenHash{$hashVal}) {	
-				$countHash->{$hashVal} += 1;
-				$seenHash{$hashVal} = 1;
-			}
+			# Count unique file occurences
+			# unless (exists $seenHash{$hashVal}) {	
+			# 	$countHash->{$hashVal} += 1;
+			# 	$seenHash{$hashVal} = 1;
+			# }
 
 			$charIndex = $charIndex+1;
 		}
@@ -76,7 +82,13 @@ sub winnow {
 			$kgram = substr($tokenLine, $charIndex, $KSIZE);
 			# print("\n" . $kgram . " " . hash($kgram) . "\n");
 
-			$hashVal = hash($kgram);
+
+			if ($countHash->{$kgram} > $matchLim) {
+				$hashVal = 2000000000;
+			}
+			else {
+				$hashVal = hash($kgram);
+			}
 			push @hashWindow, $hashVal;
 			$minVal = $hashVal;
 			$minPos = $charIndex;
@@ -85,10 +97,11 @@ sub winnow {
 			# 	print("Found one: $fullName\n");
 			# }
 
-			unless (exists $seenHash{$hashVal}) {	
-				$countHash->{$hashVal}++;
-				$seenHash{$hashVal} = 1;
-			}
+			# Count unique file occurences
+			# unless (exists $seenHash{$hashVal}) {	
+			# 	$countHash->{$hashVal}++;
+			# 	$seenHash{$hashVal} = 1;
+			# }
 
 			# foreach (@hashWindow) {
 			#   print "$_ ";
@@ -103,7 +116,7 @@ sub winnow {
 				}
 			}
 
-			unless (exists $fingerprint{$minPos}) {
+			unless (exists $fingerprint{$minPos} || $minVal == 2000000000) {
 				$fingerprint{$minPos} = $minVal;
 				# print ($minVal . " " . $minPos . "\n");
 			}

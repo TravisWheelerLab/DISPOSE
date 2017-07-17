@@ -9,7 +9,8 @@ use TokenScraper;
 use Template;
 
 my $origin = $ARGV[0];
-my $matchLim = 1000000;
+my $matchLim = 10;
+my $KSIZE = 5;
 
 my $workDir = getcwd;
 
@@ -31,6 +32,10 @@ foreach my $curLang (@langs) {
 	my %matchIndex;
 	my %countIndex;
 
+	# undef %hashIndex;
+	# undef %matchIndex;
+	# undef %countIndex;
+
 	mkdir "TokenFiles/$curLang" unless -d "TokenFiles/$curLang";
 	mkdir "TokenFiles2/$curLang" unless -d "TokenFiles2/$curLang";
 	mkdir "printFiles/$curLang" unless -d "printFiles/$curLang";
@@ -45,6 +50,9 @@ foreach my $curLang (@langs) {
 
 	my %tokPos;
 
+	# Count number of hash occurences to remove "uninterested"
+	preCount(\%countIndex, \@submissions, \%tokPos, $origin, $curLang);
+
 	# Create a fingerprint for each file
 	foreach my $sub (@submissions) {
 		undef %tokPos;
@@ -54,7 +62,7 @@ foreach my $curLang (@langs) {
 		# print($sub . " " . $name . "\n");
 		my $tokenFile = "./TokenFiles/$curLang/" . $name . "_token.txt";
 		tokScrape("$tokenFile", \%tokPos, $curLang);
-		winnow("./$origin/$curLang/$sub", 50, \%countIndex, \%tokPos, $curLang);
+		winnow("./$origin/$curLang/$sub", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
 	}
 
 	chdir("printFiles/$curLang");
@@ -98,13 +106,12 @@ foreach my $curLang (@langs) {
 		    ($hashVal, $hashFile, $hashPos, $hashLinePos) = ($hashLine =~ /(.+) '(.+)' (.+) (.+)/);
 		    chomp $hashLinePos;
 
-			unless ($countIndex{$hashVal} > $matchLim) {
+			# unless ($hashVal eq 2000000000) {
 				foreach my $potMatch (@ { $hashIndex{$hashVal} }) {
 					my ($potFile, $potPos, $potHashLinePos) = ($potMatch =~ /'(.+)' (.+) (.+)/);
 					chomp $potHashLinePos;
 
 					unless ($hashFile eq $potFile) {
-
 						if ($hashFile le $potFile) {
 							push @{ $matchIndex{$hashFile}{$potFile} }, "$hashVal $hashPos $potPos $hashLinePos $potHashLinePos \n";
 					
@@ -114,7 +121,7 @@ foreach my $curLang (@langs) {
 						}
 					}
 				}
-			}
+			# }
 		}
 	}
 
@@ -125,12 +132,10 @@ foreach my $curLang (@langs) {
 
 	for my $key (keys %matchIndex) {
 		for my $key2 (keys $matchIndex{$key}) {
+			@{$matchIndex{$key}{$key2}} = uniq @{$matchIndex{$key}{$key2}};
 		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
-		    my $matchNum2 = scalar @{$matchIndex{$key2}{$key}};
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-		    if ($matchNum >= $threshold && $matchNum >= $matchNum2) {
-		    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
-		    }
+		    push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
 		}
 	}
 
@@ -295,4 +300,44 @@ sub createMatchFile {
 	close $fh2;
 
 	return $matchFile;
+}
+
+sub preCount {
+	my ($countHash, $subArrayRef, $tokPosRef, $origin, $curLang) = @_;
+	my @submissions = @$subArrayRef;
+	my %tokPos = $tokPosRef;
+
+	foreach my $sub (@submissions) {
+		undef %tokPos;
+		chomp $sub;
+		(my $name) = ($sub =~ /(.+)\..+/);
+		chomp $name;
+
+		my $tokenFile = "./TokenFiles/$curLang/" . $name . "_token.txt";
+		tokScrape("$tokenFile", \%tokPos, $curLang);
+
+		my $tokFile2 = "./TokenFiles2/$curLang/" . $name . "_token2.txt";
+		open(my $fh, "<", $tokFile2)
+			or die "Failed to open file: '$tokFile2'!\n";
+
+		my $tokenLine = <$fh>;
+		my $lineSize = length($tokenLine);
+		close $fh;
+
+		my %seenHash;
+
+		for (my $i=0; $i <= $lineSize-$KSIZE; $i = $i+1) {
+			my $kgram = substr($tokenLine, $i, $KSIZE);
+			unless (exists $seenHash{$kgram}) {	
+				$countHash->{$kgram} += 1;
+				$seenHash{$kgram} = 1;
+			}
+		}
+	}
+
+	open(my $fh2, ">", "wut.txt")
+			or die "Failed to open file: 'wut.txt'!\n";
+	foreach $key (keys %$countHash) {
+		print $fh2 ("$key $countHash->{$key} \n");
+	}
 }

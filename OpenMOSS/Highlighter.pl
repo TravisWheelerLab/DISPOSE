@@ -138,7 +138,8 @@ my $vars = {
 
 my $vars2 = {
 		file1 => {name => $file1, text => $file1Text},
-	    file2 => {name => $file2, text => $file2Text}
+	    file2 => {name => $file2, text => $file2Text},
+	    backLink => $outFile
 };
 
 my $template = Template->new();
