@@ -11,6 +11,7 @@ use Template;
 my $origin = $ARGV[0];
 my $matchLim = 10;
 my $KSIZE = 5;
+my $MINRUN = 3;
 
 my $workDir = getcwd;
 
@@ -26,6 +27,7 @@ my $fileTemp = "templates/suspectsTemp.html";
 my $mainOut = "results.html";
 
 my @suspects_hashes;
+my %scoreHash;
 
 foreach my $curLang (@langs) {
 	my %hashIndex;
@@ -127,6 +129,7 @@ foreach my $curLang (@langs) {
 
 	my $threshold = 10;
 	my @suspects;
+	my @suspectScores;
 
 	for my $key (keys %matchIndex) {
 		for my $key2 (keys $matchIndex{$key}) {
@@ -137,27 +140,47 @@ foreach my $curLang (@langs) {
 		}
 	}
 
-	print("\n\nSUSPECTS\n\n");
 
-	my @suspects_sort = sort { ($b =~ /.+ (.+)/)[0] <=> ($a =~ /.+ (.+)/)[0] } @suspects;
+	foreach my $suspect (@suspects) {
+		(my $name1, my $name2, $matchNum) = ($suspect =~ /'(.+)' '(.+)' (.+)/);
+		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN);
+	}
+
+	for my $key (keys %scoreHash) {
+		for my $key2 (keys $scoreHash{$key}) {
+		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
+		    push @suspectScores, "$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2};
+		    # print ("$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2} . "\n");
+		}
+	}
+	foreach my $x (@suspectScores) {
+		print("$x\n");
+	}
+
+	my @suspects_sort = sort { ($b =~ /.+ .+ (.+)/)[0] <=> ($a =~ /.+ .+ (.+)/)[0] } @suspectScores;
 
 	my $SUSLIMIT = 250;
 	if (scalar @suspects_sort < $SUSLIMIT) {
 		$SUSLIMIT = scalar @suspects_sort;
 	}
 
-	for (my $i = 0; $i < $SUSLIMIT; $i = $i+1) {
+	print("\n\nSUSPECTS\n\n");
 
-		print "$suspects_sort[$i]\n";
+	for (my $i = 0; $i < $SUSLIMIT; $i += 1) {
 
-		(my $name1, my $name2, $matchNum) = ($suspects_sort[$i] =~ /'(.+)' '(.+)' (.+)/);
+		print("$suspects_sort[$i]\n");
 
-		push (@suspects_hashes, {file1 => $name1, file2 => $name2, matchNum => $matchNum, matchIndex => $i, lang => $curLang});
+		(my $name1, my $name2, my $score) = ($suspects_sort[$i] =~ /(.+) (.+) (.+)/);
+		(my $shortName1) = ($name1 =~ /(.+)\..+/);
+		(my $shortName2) = ($name2 =~ /(.+)\..+/);
 
-		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex);
+		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
+		push (@suspects_hashes, {file1 => $name1, file2 => $name2, matchNum => $score, matchIndex => $i, lang => $curLang});
 
-		system("perl Highlighter.pl \'$matchFile\' $curLang $i");
+		system("perl Highlighter.pl \'$matchFile\' $curLang $i $MINRUN");
 	}
+
+	system("perl Highlighter.pl \'$matchFile\' $curLang $i $MINRUN");
 }
 
 # Create a specific match file
@@ -183,8 +206,10 @@ sub createMatchFile {
 	my $origin = $_[2];
 	my $curLang = $_[3];
 	my $miRef = $_[4];
-	my %matchIndex = %$miRef;
+	my $scoreRef = $_[5];
+	my $MINRUN = $_[6];
 
+	my %matchIndex = %$miRef;
 
 	(my $shortName1) = ($name1 =~ /(.+)\..+/);
 	(my $shortName2) = ($name2 =~ /(.+)\..+/);
@@ -248,6 +273,7 @@ sub createMatchFile {
 		my $arrayIndex1 = $fpHash1{$hashPos1};
 		my $arrayIndex2 = $fpHash2{$hashPos2};
 
+		my $curRun = 0;
 		
 		while ($fpArray1[$arrayIndex1] eq $fpArray2[$arrayIndex2] && $arrayIndex1 < scalar(@fpArray1)-1 && $arrayIndex2 < scalar(@fpArray2)-1 ) {
 
@@ -261,9 +287,13 @@ sub createMatchFile {
 
 			push (@{$matchChains{$i}}, ($arrayIndex1 . " " . $hashPos1 . ":$lineHash1{$hashPos1}" . " " . $arrayIndex2 . " " . $hashPos2 . ":$lineHash2{$hashPos2}"));
 			$checkedNext{$arrayIndex1}{$arrayIndex2} = 1;
+			if ($curRun >= $MINRUN) {
+				$scoreRef->{$name1}{$name2} += 1;
+			}
 
 			$arrayIndex1 += 1;
 			$arrayIndex2 += 1;
+			$curRun += 1;
 		}
 
 		$i += 1;

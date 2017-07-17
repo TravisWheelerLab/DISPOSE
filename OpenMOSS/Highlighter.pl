@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file] [lang] [match index]
+# Usage: perl Highlighter.pl [match file] [lang] [match index] [MINRUN]
 
 use warnings;
 use strict;
@@ -10,6 +10,8 @@ use HTML::Entities qw(encode_entities);
 my $matchIndex = $ARGV[2];
 my $file = $ARGV[0];
 my $curLang = $ARGV[1];
+my $MINRUN = $ARGV[3];
+
 
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
@@ -57,7 +59,6 @@ while (<$fh2>) {
 close $fh2;
 
 my $curRun = 0;
-my $MINRUN = 3;
 
 
 my @matches;
