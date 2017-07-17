@@ -27,12 +27,13 @@ my $fileTemp = "templates/suspectsTemp.html";
 my $mainOut = "results.html";
 
 my @suspects_hashes;
-my %scoreHash;
 
 foreach my $curLang (@langs) {
 	my %hashIndex;
 	my %matchIndex;
 	my %countIndex;
+
+	my %scoreHash;
 
 	# undef %hashIndex;
 	# undef %matchIndex;
@@ -127,7 +128,7 @@ foreach my $curLang (@langs) {
 
 	close $fh;
 
-	my $threshold = 10;
+	my $threshold = 5;
 	my @suspects;
 	my @suspectScores;
 
@@ -136,7 +137,9 @@ foreach my $curLang (@langs) {
 			@{$matchIndex{$key}{$key2}} = uniq @{$matchIndex{$key}{$key2}};
 		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-		    push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    if ($matchNum >= $threshold) {
+		    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    }
 		}
 	}
 
@@ -152,9 +155,6 @@ foreach my $curLang (@langs) {
 		    push @suspectScores, "$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2};
 		    # print ("$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2} . "\n");
 		}
-	}
-	foreach my $x (@suspectScores) {
-		print("$x\n");
 	}
 
 	my @suspects_sort = sort { ($b =~ /.+ .+ (.+)/)[0] <=> ($a =~ /.+ .+ (.+)/)[0] } @suspectScores;
