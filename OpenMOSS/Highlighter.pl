@@ -1,16 +1,17 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file] [lang] [match index] [MINRUN]
+# Usage: perl Highlighter.pl [match file] [origin] [lang] [match index] [MINRUN]
 
 use warnings;
 use strict;
 use Template;
 use HTML::Entities qw(encode_entities);
 
-my $matchIndex = $ARGV[2];
+my $matchIndex = $ARGV[3];
 my $file = $ARGV[0];
-my $curLang = $ARGV[1];
-my $MINRUN = $ARGV[3];
+my $origin = $ARGV[1];
+my $curLang = $ARGV[2];
+my $MINRUN = $ARGV[4];
 
 
 open(my $fh, "<", $file)
@@ -27,8 +28,8 @@ my $fullTextTemp = "templates/fullTextTemp.html";
 my %lineHash1;
 my %lineHash2;
 
-my $file1 = "./GithubResults/$curLang/" . "$name1";
-my $file2 = "./GithubResults/$curLang/" . "$name2";
+my $file1 = "$origin/$curLang/" . "$name1";
+my $file2 = "$origin/$curLang/" . "$name2";
 
 my $file1Text;
 my $file2Text;

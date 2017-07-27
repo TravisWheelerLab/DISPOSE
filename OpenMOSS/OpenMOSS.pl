@@ -177,10 +177,8 @@ foreach my $curLang (@langs) {
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, matchNum => $score, matchIndex => $i, lang => $curLang});
 
-		system("perl Highlighter.pl \'$matchFile\' $curLang $i $MINRUN");
+		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN");
 	}
-
-	system("perl Highlighter.pl \'$matchFile\' $curLang $i $MINRUN");
 }
 
 # Create a specific match file
@@ -286,14 +284,17 @@ sub createMatchFile {
 			$hashPos2 = $posHash2{$arrayIndex2};
 
 			push (@{$matchChains{$i}}, ($arrayIndex1 . " " . $hashPos1 . ":$lineHash1{$hashPos1}" . " " . $arrayIndex2 . " " . $hashPos2 . ":$lineHash2{$hashPos2}"));
+
+			$curRun += 1;
+
 			$checkedNext{$arrayIndex1}{$arrayIndex2} = 1;
+			
 			if ($curRun >= $MINRUN) {
 				$scoreRef->{$name1}{$name2} += 1;
 			}
 
 			$arrayIndex1 += 1;
 			$arrayIndex2 += 1;
-			$curRun += 1;
 		}
 
 		$i += 1;
