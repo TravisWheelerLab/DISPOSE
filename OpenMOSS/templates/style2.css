@@ -9,12 +9,19 @@ td, th {
     text-align: left;
 }
 
+.hasTooltip {
+    display: inline-block;
+}
 
 .hasTooltip span {
     display: none;
     color: #000;
     text-decoration: none;
     padding: 3px;
+
+    word-wrap: break-word;
+    max-width: 45%;
+
 }
 
 .hasTooltip:hover span {
@@ -28,4 +35,10 @@ td, th {
     text-align: center;
     border-radius: 6px;
 
+    max-width: 45%;
+}
+
+.addToolCenter {
+    left: 50%;
+    transform: translateX(-50%);
 }

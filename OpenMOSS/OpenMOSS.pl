@@ -152,7 +152,8 @@ foreach my $curLang (@langs) {
 
 	while (<$fh4>) {
 		my ($subNum, $subName) = ($_ =~ /(.+) (.+)/);
-		chomp $subName;
+		$subName =~ s/^\s+|\s+$//g;
+
 		$nameLookup->{$subNum} = $subName;
 	}
 
@@ -160,7 +161,7 @@ foreach my $curLang (@langs) {
 
 	while (<$fh3>) {
 		my ($subNum, $fileNum, $filePath) = ($_ =~ /(.+) (.+) \.\/(.+)/);
-		chomp $fileName;
+		$filePath =~ s/^\s+|\s+$//g;;
 		$dirLookup->{$subNum}->{$fileNum} = "./$origin/" . $nameLookup->{$subNum} . "/$filePath";
 	}
 
@@ -168,7 +169,14 @@ foreach my $curLang (@langs) {
 
 	foreach my $suspect (@suspects) {
 		(my $name1, my $name2, $matchNum) = ($suspect =~ /'(.+)' '(.+)' (.+)/);
-		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN);
+
+		# Recreate file names
+		my ($subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.+)/);
+		my $fullName1 = $dirLookup->{$subNum}->{$dirNum};
+		my ($subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.+)/);
+		my $fullName2 = $dirLookup->{$subNum}->{$dirNum};
+
+		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN, $fullName1, $fullName2);
 	}
 
 	for my $key (keys %scoreHash) {
@@ -206,7 +214,7 @@ foreach my $curLang (@langs) {
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang});
 
-		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN");
+		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN \Q$fullName1\E \Q$fullName2\E");
 	}
 }
 
@@ -235,6 +243,8 @@ sub createMatchFile {
 	my $miRef = $_[4];
 	my $scoreRef = $_[5];
 	my $MINRUN = $_[6];
+	my $fullName1 = $_[7];
+	my $fullName2 = $_[8];
 
 	my %matchIndex = %$miRef;
 
@@ -253,7 +263,7 @@ sub createMatchFile {
 	open(my $mfh2, "<", $fp2)
 		or die "Failed to open file: '$fp2'!\n";
 
-	print $mfh "\'$name1\' \'$name2\' \n";
+	print $mfh "\'$name1\' \'$name2\' \'$fullName1\' \'$fullName2\'\n";
 
 	my %fpHash1;
 	my %lineHash1;

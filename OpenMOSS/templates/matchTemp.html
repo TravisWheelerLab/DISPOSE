@@ -6,8 +6,16 @@
 	<h1>Some Interesting Matches</h1>
 	<table>
 		<tr>
-			<td><h2><a href="[% fullTextLink %]">[% file1.name %]</a></h2></td>
-			<td><h2><a href="[% fullTextLink %]">[% file2.name %]</a></h2></td>
+			<td><h2>
+				<a href="[% fullTextLink %]" class="hasTooltip">[% file1.name %]
+					<span>[% file1.fullName %]</span>
+				</a>
+			</h2></td>
+			<td><h2>
+				<a href="[% fullTextLink %]" class="hasTooltip">[% file2.name %]
+					<span>[% file2.fullName %]</span>
+				</a>
+			</h2></td>
 		</tr>
 		[%  FOREACH match IN matches %]
 		<tr>

@@ -16,8 +16,9 @@ my $MINRUN = $ARGV[4];
 
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
-my ($name1, $name2) = (<$fh> =~ /'(.+)' '(.+)'/);
-chomp $name2;
+my ($name1, $name2, $fullName1, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)'/);
+$fullName2 =~ s/^\s+|\s+$//g;
+
 mkdir "outFiles" unless -d "outFiles";
 my $outFile = "./outFiles/$curLang/match" . "$matchIndex" . "_match.html";
 my $outFile2 = "./outFiles/$curLang/match" . "$matchIndex" . "_text.html";
@@ -134,13 +135,13 @@ close $fh;
 my $vars = {
       matches => \@matches,
       fullTextLink => "../../" . $outFile2,
-      file1 => {name => $file1},
-      file2 => {name => $file2}
+      file1 => {name => $file1, fullName => "$fullName1"},
+      file2 => {name => $file2, fullName => "$fullName2"}
 };
 
 my $vars2 = {
-		file1 => {name => $file1, text => $file1Text},
-	    file2 => {name => $file2, text => $file2Text},
+		file1 => {name => $file1, fullName => "$fullName1", text => $file1Text},
+	    file2 => {name => $file2, fullName => "$fullName2", text => $file2Text},
 	    backLink => $outFile
 };
 

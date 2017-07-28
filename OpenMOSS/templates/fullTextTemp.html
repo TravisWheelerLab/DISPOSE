@@ -2,11 +2,23 @@
 	title = 'DISPOSE Match Results';
 %]
 	<a href="../../[% backLink %]">< Back</a>
-	<h1>Full Text for [% file1.name %] and [% file2.name %]</h1>
+	<h1>
+		Full Text for 
+		<div class="hasTooltip">[% file1.name %]<span class="addToolCenter">[% file1.fullName %]</span></div> and 
+		<div class="hasTooltip">[% file2.name %]<span class="addToolCenter">[% file2.fullName %]</span></div>
+	</h1>
 	<table>
 		<tr>
-			<td><h2>[% file1.name %]</h2></td>
-			<td><h2>[% file2.name %]</h2></td>
+			<td><h2>
+				<div class="hasTooltip">[% file1.name %]
+				<span>[% file1.fullName %]</span>
+				</div>
+			</h2></td>
+			<td><h2>
+				<div class="hasTooltip">[% file2.name %]
+				<span>[% file2.fullName %]</span>
+				</div>
+			</h2></td>
 		</tr>
 		<tr>
 			<td><pre><code>[% file1.text %]</code></pre></td>
