@@ -28,13 +28,15 @@
 		[%  FOREACH match IN matches %]
 		<tr class="[% match.lang %]_result">
 			<td>
-				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html">
+				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html" class="hasTooltip">
 					[% match.file1 %]
+					<span>[% match.fullName1 %]</span>
 				</a>
 			</td>
 			<td>
-				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html">
+				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html" class="hasTooltip">
 					[% match.file2 %]
+					<span>[% match.fullName2 %]</span>
 				</a>
 			</td>
 			<td>[% match.matchNum %]</td>

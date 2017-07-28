@@ -20,7 +20,7 @@ sub winnow {
 	(my $name) = ($file =~ /\/.+\/(.+)\..+/);
 	(my $fullName) = ($file =~ /\/.+\/(.+\..+)/);
 
-	my $posHash = $posHash->{$fullName};
+	$posHash = $posHash->{$fullName};
 
 	my @locArray = keys %$posHash;
 	@locArray = sort { $a <=> $b } @locArray;

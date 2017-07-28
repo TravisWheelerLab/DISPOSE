@@ -138,6 +138,33 @@ foreach my $curLang (@langs) {
 		}
 	}
 
+	# Prepare to recreate file names
+	my %dirLookup;
+	my %nameLookup;
+
+	my $dirNumFile = "./$origin/Directories.txt";
+	my $nameNumFile = "./$origin/Names.txt";
+
+	open(my $fh3, $dirNumFile)
+		or die "Failed to open file: '$dirNumFile'!\n";
+	open(my $fh4, $nameNumFile)
+		or die "Failed to open file: '$nameNumFile'!\n";
+
+	while (<$fh4>) {
+		my ($subNum, $subName) = ($_ =~ /(.+) (.+)/);
+		chomp $subName;
+		$nameLookup->{$subNum} = $subName;
+	}
+
+	close $fh4;
+
+	while (<$fh3>) {
+		my ($subNum, $fileNum, $filePath) = ($_ =~ /(.+) (.+) \.\/(.+)/);
+		chomp $fileName;
+		$dirLookup->{$subNum}->{$fileNum} = "./$origin/" . $nameLookup->{$subNum} . "/$filePath";
+	}
+
+	close $fh3;
 
 	foreach my $suspect (@suspects) {
 		(my $name1, my $name2, $matchNum) = ($suspect =~ /'(.+)' '(.+)' (.+)/);
@@ -169,15 +196,22 @@ foreach my $curLang (@langs) {
 		(my $shortName1) = ($name1 =~ /(.+)\..+/);
 		(my $shortName2) = ($name2 =~ /(.+)\..+/);
 
+		# Recreate file names
+		my ($subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.+)/);
+		my $fullName1 = $dirLookup->{$subNum}->{$dirNum};
+		my ($subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.+)/);
+		my $fullName2 = $dirLookup->{$subNum}->{$dirNum};
+
+
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
-		push (@suspects_hashes, {file1 => $name1, file2 => $name2, matchNum => $score, matchIndex => $i, lang => $curLang});
+		push (@suspects_hashes, {file1 => $name1, file2 => $name2, fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang});
 
 		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN");
 	}
 }
 
 # Create a specific match file
-# my $matchFile = createMatchFile("6_22_PS3Q1.java", "6_23_PS3Q2.java");
+# my $matchFile = createMatchFile("0_1_file1.java", "0_2_file2.java");
 # system("perl Highlighter.pl $matchFile");
 
 my $vars = {
