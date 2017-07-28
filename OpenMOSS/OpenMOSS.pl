@@ -58,13 +58,8 @@ foreach my $curLang (@langs) {
 
 	# Create a fingerprint for each file
 	foreach my $sub (@submissions) {
-		undef %tokPos;
 		chomp $sub;
-		(my $name) = ($sub =~ /(.+)\..+/);
-		chomp $name;
-		# print($sub . " " . $name . "\n");
-		my $tokenFile = "./TokenFiles/$curLang/" . $name . "_token.txt";
-		tokScrape("$tokenFile", \%tokPos, $curLang);
+
 		winnow("./$origin/$curLang/$sub", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
 	}
 
@@ -317,16 +312,14 @@ sub createMatchFile {
 sub preCount {
 	my ($countHash, $subArrayRef, $tokPosRef, $origin, $curLang) = @_;
 	my @submissions = @$subArrayRef;
-	my %tokPos = $tokPosRef;
 
 	foreach my $sub (@submissions) {
-		undef %tokPos;
 		chomp $sub;
 		(my $name) = ($sub =~ /(.+)\..+/);
 		chomp $name;
 
 		my $tokenFile = "./TokenFiles/$curLang/" . $name . "_token.txt";
-		tokScrape("$tokenFile", \%tokPos, $curLang);
+		tokScrape("$tokenFile", $tokPosRef, $curLang, $sub);
 
 		my $tokFile2 = "./TokenFiles2/$curLang/" . $name . "_token2.txt";
 		open(my $fh, "<", $tokFile2)

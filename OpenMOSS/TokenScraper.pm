@@ -12,12 +12,12 @@ use base 'Exporter';
 our @EXPORT = qw(tokScrape);
 
 sub tokScrape {
-	my ($tokFile, $tokPos, $curLang) = @_;
+	my ($tokFile, $tokPos, $curLang, $sub) = @_;
+	chomp $sub;
 
 	(my $name) = ($tokFile =~ /\/.+\/(.+)\..+/);
 	my $tokFile2 = "./TokenFiles2/$curLang/" . $name . "2.txt";
-	print("Scraping: $name\n");
-
+	print("Scraping: $name $sub\n");
 
 	open(my $fh, "<", $tokFile)
 			or die "Failed to open file: '$tokFile'!\n";
@@ -31,7 +31,7 @@ sub tokScrape {
 	while(<$fh>)
 	{
 		my @tokParams = ($_ =~ m/(.+) (.+) (.+) (.+)\n/);
-		$tokPos->{$curPos} = $tokParams[2];
+		$tokPos->{$sub}->{$curPos} = $tokParams[2];
 		# if ($tokParams[3] eq "IntegerLiteral") {
 		# 	$nextPart  = "I";
 		# }

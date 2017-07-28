@@ -16,11 +16,14 @@ sub winnow {
 
 	my %seenHash;
 
-	my @locArray = keys %$posHash;
-	@locArray = sort { $a <=> $b } @locArray;
-
+	chomp $file;
 	(my $name) = ($file =~ /\/.+\/(.+)\..+/);
 	(my $fullName) = ($file =~ /\/.+\/(.+\..+)/);
+
+	my $posHash = $posHash->{$fullName};
+
+	my @locArray = keys %$posHash;
+	@locArray = sort { $a <=> $b } @locArray;
 
 	my $printFile = "./printFiles/$curLang/" . $name . "_print.txt"; 
 
