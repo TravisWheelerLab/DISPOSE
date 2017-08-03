@@ -186,7 +186,7 @@ foreach my $curLang (@langs) {
 		or die "Failed to open file: '$nameNumFile'!\n";
 
 	while (<$fh4>) {
-		my ($subNum, $subName) = ($_ =~ /(.+) (.+)/);
+		my ($subNum, $subName) = ($_ =~ /(.*?) (.+)/);
 		$subName =~ s/^\s+|\s+$//g;
 
 		$nameLookup->{$subNum} = $subName;
@@ -194,7 +194,7 @@ foreach my $curLang (@langs) {
 	close $fh4;
 
 	while (<$fh3>) {
-		my ($subNum, $fileNum, $filePath) = ($_ =~ /(.+) (.+) \.\/(.+)/);
+		my ($subNum, $fileNum, $filePath) = ($_ =~ /(.*?) (.*?) \.\/(.+)/);
 		$filePath =~ s/^\s+|\s+$//g;;
 		$dirLookup->{$subNum}->{$fileNum} = "./$origin/" . $nameLookup->{$subNum} . "/$filePath";
 	}
@@ -214,7 +214,7 @@ foreach my $curLang (@langs) {
 			or die "Failed to open file: '$nameNumFile'!\n";
 
 		while (<$fh4>) {
-			my ($subNum, $subName) = ($_ =~ /(.+) (.+)/);
+			my ($subNum, $subName) = ($_ =~ /(.*?) (.+)/);
 			$subName =~ s/^\s+|\s+$//g;
 
 			$nameLookup2->{$subNum} = $subName;
@@ -222,7 +222,7 @@ foreach my $curLang (@langs) {
 		close $fh4;
 
 		while (<$fh3>) {
-			my ($subNum, $fileNum, $filePath) = ($_ =~ /(.+) (.+) \.\/(.+)/);
+			my ($subNum, $fileNum, $filePath) = ($_ =~ /(.*?) (.*?) \.\/(.+)/);
 			$filePath =~ s/^\s+|\s+$//g;;
 			$dirLookup2->{$subNum}->{$fileNum} = "./$sourcesDir/" . $nameLookup2->{$subNum} . "/$filePath";
 		}
