@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl OpenMOSS.pl [file_dir detect] [fire_dir sources]
+# Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [fire_dir sources]
 
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
@@ -8,13 +8,14 @@ use Winnower;
 use TokenScraper;
 use Template;
 
-my $origin = $ARGV[0];
+my $INT_FLAG = $ARGV[0];
+
+my $origin = $ARGV[1];
 my $sourcesGroup = 999;
 my $sourcesDir;
 
-
-if (defined $ARGV[1]) {
-	$sourcesDir = $ARGV[1];
+if (defined $ARGV[2]) {
+	$sourcesDir = $ARGV[2];
 	$sourcesGroup = 1;
 }
 my $matchLim = 10;
@@ -162,11 +163,19 @@ foreach my $curLang (@langs) {
 			@{$matchIndex{$key}{$key2}} = uniq @{$matchIndex{$key}{$key2}};
 		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-		    (my $group1) = ($key =~ /(.*?)_.+/);
-		    (my $group2) = ($key2 =~ /(.*?)_.+/);
+		    my ($group1, $subNum) = ($key =~ /(.*?)_(.*?)_.+/);
+		    my ($group2, $subNum2) = ($key2 =~ /(.*?)_(.*?)_.+/);
 
 		    if ($matchNum >= $threshold && ($group1 != $sourcesGroup || $group2 != $sourcesGroup)) {
-		    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    	if ($INT_FLAG) {
+		    		unless ($subNum eq $subNum2) {
+		    			push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    		}
+		    	}
+		    	else {
+		    		push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
+		    	}
+		    	
 		    }
 		}
 	}
