@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl OpenMOSS.pl [file_dir]
+# Usage: perl OpenMOSS.pl [file_dir detect] [fire_dir sources]
 
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
@@ -9,6 +9,14 @@ use TokenScraper;
 use Template;
 
 my $origin = $ARGV[0];
+my $sourcesGroup = 999;
+my $sourcesDir;
+
+
+if (defined $ARGV[1]) {
+	$sourcesDir = $ARGV[1];
+	$sourcesGroup = 1;
+}
 my $matchLim = 10;
 my $KSIZE = 5;
 my $MINRUN = 3;
@@ -48,13 +56,27 @@ foreach my $curLang (@langs) {
 	my @submissions = `ls`;
 	chdir($workDir);
 
+	my @sources;
+
+	if (-d "$sourcesDir/$curLang") {
+		chdir("$sourcesDir/$curLang");
+		@sources = `ls`;
+		chdir($workDir);
+	}
+
 	# Use ANTLR to determine tokens
 	system("java -jar ./tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
+	if (-d "$sourcesDir/$curLang") {
+		system("java -jar ./tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
+	}
 
 	my %tokPos;
 
 	# Count number of hash occurences to remove "uninterested"
 	preCount(\%countIndex, \@submissions, \%tokPos, $origin, $curLang);
+	if (-d "$sourcesDir/$curLang") {
+		preCount(\%countIndex, \@sources, \%tokPos, $sourcesDir, $curLang);
+	}
 
 	# Create a fingerprint for each file
 	foreach my $sub (@submissions) {
@@ -62,6 +84,14 @@ foreach my $curLang (@langs) {
 
 		winnow("./$origin/$curLang/$sub", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
 	}
+	if (-d "$sourcesDir/$curLang") {
+		foreach my $source (@sources) {
+			chomp $source;
+
+			winnow("./$sourcesDir/$curLang/$source", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
+		}
+	}
+
 
 	chdir("printFiles/$curLang");
 	my @sub_fps = `ls`;
@@ -132,11 +162,16 @@ foreach my $curLang (@langs) {
 			@{$matchIndex{$key}{$key2}} = uniq @{$matchIndex{$key}{$key2}};
 		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
-		    if ($matchNum >= $threshold) {
+		    (my $group1) = ($key =~ /(.*?)_.+/);
+		    (my $group2) = ($key2 =~ /(.*?)_.+/);
+
+		    if ($matchNum >= $threshold && ($group1 != $sourcesGroup || $group2 != $sourcesGroup)) {
 		    	push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
 		    }
 		}
 	}
+
+
 
 	# Prepare to recreate file names
 	my %dirLookup;
@@ -156,7 +191,6 @@ foreach my $curLang (@langs) {
 
 		$nameLookup->{$subNum} = $subName;
 	}
-
 	close $fh4;
 
 	while (<$fh3>) {
@@ -164,19 +198,69 @@ foreach my $curLang (@langs) {
 		$filePath =~ s/^\s+|\s+$//g;;
 		$dirLookup->{$subNum}->{$fileNum} = "./$origin/" . $nameLookup->{$subNum} . "/$filePath";
 	}
-
 	close $fh3;
+
+	# Sources
+	if (defined $sourcesDir) {
+		my %dirLookup2;
+		my %nameLookup2;
+
+		my $dirNumFile = "./$sourcesDir/Directories.txt";
+		my $nameNumFile = "./$sourcesDir/Names.txt";
+
+		open(my $fh3, $dirNumFile)
+			or die "Failed to open file: '$dirNumFile'!\n";
+		open(my $fh4, $nameNumFile)
+			or die "Failed to open file: '$nameNumFile'!\n";
+
+		while (<$fh4>) {
+			my ($subNum, $subName) = ($_ =~ /(.+) (.+)/);
+			$subName =~ s/^\s+|\s+$//g;
+
+			$nameLookup2->{$subNum} = $subName;
+		}
+		close $fh4;
+
+		while (<$fh3>) {
+			my ($subNum, $fileNum, $filePath) = ($_ =~ /(.+) (.+) \.\/(.+)/);
+			$filePath =~ s/^\s+|\s+$//g;;
+			$dirLookup2->{$subNum}->{$fileNum} = "./$sourcesDir/" . $nameLookup2->{$subNum} . "/$filePath";
+		}
+		close $fh3;
+	}
+
+
 
 	foreach my $suspect (@suspects) {
 		(my $name1, my $name2, $matchNum) = ($suspect =~ /'(.+)' '(.+)' (.+)/);
 
 		# Recreate file names
-		my ($subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.+)/);
-		my $fullName1 = $dirLookup->{$subNum}->{$dirNum};
-		my ($subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.+)/);
-		my $fullName2 = $dirLookup->{$subNum}->{$dirNum};
+		my ($groupNum, $subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
+		
+		my $fullName1;
+		my $fullName2;
+		my $dirName1;
+		my $dirName2;
 
-		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN, $fullName1, $fullName2);
+		if ($groupNum eq $sourcesGroup) {
+			$fullName1 = $dirLookup2->{$subNum}->{$dirNum};
+			$dirName1 = "./$sourcesDir/$curLang/$name1";
+		}
+		else {
+			$fullName1 = $dirLookup->{$subNum}->{$dirNum};
+			$dirName1 = "./$origin/$curLang/$name1";
+		}
+		my ($groupNum, $subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
+		if ($groupNum eq $sourcesGroup) {
+			$fullName2 = $dirLookup2->{$subNum}->{$dirNum};
+			$dirName2 = "./$sourcesDir/$curLang/$name2";
+		}
+		else {
+			$fullName2 = $dirLookup->{$subNum}->{$dirNum};
+			$dirName2 = "./$origin/$curLang/$name2";
+		}
+
+		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN, $fullName1, $fullName2, $dirName1, $dirName2);
 	}
 
 	for my $key (keys %scoreHash) {
@@ -205,10 +289,24 @@ foreach my $curLang (@langs) {
 		(my $shortName2) = ($name2 =~ /(.+)\..+/);
 
 		# Recreate file names
-		my ($subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.+)/);
-		my $fullName1 = $dirLookup->{$subNum}->{$dirNum};
-		my ($subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.+)/);
-		my $fullName2 = $dirLookup->{$subNum}->{$dirNum};
+		my ($groupNum, $subNum, $dirNum, $origName) = ($name1 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
+		
+		my $fullName1;
+		my $fullName2;
+
+		if ($groupNum eq $sourcesGroup) {
+			$fullName1 = $dirLookup2->{$subNum}->{$dirNum};
+		}
+		else {
+			$fullName1 = $dirLookup->{$subNum}->{$dirNum};
+		}
+		my ($groupNum, $subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
+		if ($groupNum eq $sourcesGroup) {
+			$fullName2 = $dirLookup2->{$subNum}->{$dirNum};
+		}
+		else {
+			$fullName2 = $dirLookup->{$subNum}->{$dirNum};
+		}
 
 
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
@@ -245,6 +343,8 @@ sub createMatchFile {
 	my $MINRUN = $_[6];
 	my $fullName1 = $_[7];
 	my $fullName2 = $_[8];
+	my $dirName1 = $_[9];
+	my $dirName2 = $_[10];
 
 	my %matchIndex = %$miRef;
 
@@ -263,7 +363,7 @@ sub createMatchFile {
 	open(my $mfh2, "<", $fp2)
 		or die "Failed to open file: '$fp2'!\n";
 
-	print $mfh "\'$name1\' \'$name2\' \'$fullName1\' \'$fullName2\'\n";
+	print $mfh "\'$dirName1\' \'$dirName2\' \'$fullName1\' \'$fullName2\'\n";
 
 	my %fpHash1;
 	my %lineHash1;

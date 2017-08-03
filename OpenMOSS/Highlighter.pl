@@ -29,8 +29,8 @@ my $fullTextTemp = "templates/fullTextTemp.html";
 my %lineHash1;
 my %lineHash2;
 
-my $file1 = "$origin/$curLang/" . "$name1";
-my $file2 = "$origin/$curLang/" . "$name2";
+my $file1 = "$name1";
+my $file2 = "$name2";
 
 my $file1Text;
 my $file2Text;

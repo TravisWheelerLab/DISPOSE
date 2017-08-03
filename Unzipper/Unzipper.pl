@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num]
 
 use strict;
 use warnings;
@@ -13,6 +13,7 @@ use File::Path qw(remove_tree);;
 my $origin = $ARGV[0];
 my $SINGLE_DIR = $ARGV[1];
 my $SEPARATE_LANG = $ARGV[2];
+my $dirNum = $ARGV[3];
 
 my @targetTypes = ("c","java","py");
 my @nameFields;
@@ -105,7 +106,7 @@ foreach (@submissions) {
 
                     chdir($subIndex);
 
-                    my $newName = $subIndex . "_" . $subIndex2 . "_" . $name . $suffix;
+                    my $newName = $dirNum . "_" . $subIndex . "_" . $subIndex2 . "_" . $name . $suffix;
 
                     if ($SINGLE_DIR) {
 
