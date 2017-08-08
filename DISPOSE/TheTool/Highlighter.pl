@@ -19,9 +19,9 @@ open(my $fh, "<", $file)
 my ($name1, $name2, $fullName1, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)'/);
 $fullName2 =~ s/^\s+|\s+$//g;
 
-mkdir "outFiles" unless -d "outFiles";
-my $outFile = "./outFiles/$curLang/match" . "$matchIndex" . "_match.html";
-my $outFile2 = "./outFiles/$curLang/match" . "$matchIndex" . "_text.html";
+mkdir "../../html/outFiles" unless -d "../../html/outFiles";
+my $outFile = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_text.html";
 
 my $fileTemp = "templates/matchTemp.html";
 my $fullTextTemp = "templates/fullTextTemp.html";
@@ -134,7 +134,7 @@ close $fh;
 
 my $vars = {
       matches => \@matches,
-      fullTextLink => "../../" . $outFile2,
+      fullTextLink => "../" . $outFile2,
       file1 => {name => $file1, fullName => "$fullName1"},
       file2 => {name => $file2, fullName => "$fullName2"}
 };

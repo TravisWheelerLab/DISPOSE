@@ -33,7 +33,7 @@ opendir my $dh, $origin;
 my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
 my $fileTemp = "templates/suspectsTemp.html";
-my $mainOut = "results.html";
+my $mainOut = "../../html/results.html";
 
 my @suspects_hashes;
 
