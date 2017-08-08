@@ -1,0 +1,79 @@
+[%  INCLUDE templates/header2.html
+	title = 'DISPOSE Results';
+%]
+
+	<h1>Your DISPOSE Results</h1>
+
+	<h2>Language: </h2>
+	<select id="langSelect">
+        <option disabled selected value="none"> -- select an option -- </option>
+        <option value="all">[All]</option>
+        [%  FOREACH lang IN langs %]
+        <option value="[% lang %]">[% lang %]</option>
+        [%  END %]
+    </select>
+
+    <br><br>
+
+	<table id="resultsTable">
+		<thead>
+		<tr>
+			<th><h2>File 1</h2></th>
+			<th><h2>File 2</h2></th>
+			<th><h2>Score</h2></th>
+		</tr>
+		</thead>
+
+		<tbody>
+		[%  FOREACH match IN matches %]
+		<tr class="[% match.lang %]_result">
+			<td>
+				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html" class="hasTooltip">
+					[% match.file1 %]
+					<span>[% match.fullName1 %]</span>
+				</a>
+			</td>
+			<td>
+				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html" class="hasTooltip">
+					[% match.file2 %]
+					<span>[% match.fullName2 %]</span>
+				</a>
+			</td>
+			<td>[% match.matchNum %]</td>
+		</tr>
+		[%  END %]
+		</tbody>
+	</table>
+
+	<script>
+		$().ready(function() {
+			$("table#resultsTable").tablesorter( {sortList: [[2,1]]} ); 
+			$("select#langSelect").val("none");
+
+			[%  FOREACH lang IN langs %]
+			$(".[% lang %]_result").css("display","none");
+			[%  END %]
+		});
+
+		$( "select#langSelect" ).change(function() {
+			if ($("select#langSelect").val() == "all") {
+				[%  FOREACH lang IN langs %]
+				$(".[% lang %]_result").css("display","none");
+				$(".[% lang %]_result").toggle();
+				[%  END %]
+			}
+
+			[%  FOREACH lang IN langs %]
+			if ($("select#langSelect").val() == "[% lang %]") {
+				[%  FOREACH lang2 IN langs %]
+				$(".[% lang2 %]_result").css("display","none");
+				[%  END %]
+				$(".[% lang %]_result").toggle();
+			}
+			[%  END %]
+
+		});
+    </script>
+
+
+[% INCLUDE templates/footer.html %]
