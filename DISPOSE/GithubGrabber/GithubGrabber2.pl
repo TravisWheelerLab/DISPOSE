@@ -6,7 +6,7 @@ use warnings;
 use strict;
 
 use File::Path;
-use JSON::Parse ':all';
+use JSON qw( decode_json );
 use POSIX;
 
 my $client_id = "657adaccd421d805fa12";
@@ -39,7 +39,7 @@ foreach my $query(@queries) {
 	}
 
 	my $rawJSONData = `curl -H 'Accept: application/vnd.github.v3.json' '$queryString'`;
-	my $rawPerlData = parse_json($rawJSONData);
+	my $rawPerlData = decode_json($rawJSONData);
 
 	# Gets the number of search result pages
 	my $numPages = ceil($rawPerlData->{'total_count'}/100);
@@ -50,9 +50,9 @@ foreach my $query(@queries) {
 
 	for (my $i=1; $i <= $numPages; $i++) {
 		print("\n<--------------------On page $i of $numPages--------------------> \n");
-		
+		print("$queryString&page=$i\n");
 		my $rawJSONData = `curl -H 'Accept: application/vnd.github.v3.json' "$queryString&page=$i"`;
-		my $rawPerlData = parse_json($rawJSONData);
+		my $rawPerlData = decode_json($rawJSONData);
 		
 		foreach my $repo (@{$rawPerlData->{'items'}}) {
 
