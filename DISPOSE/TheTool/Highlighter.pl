@@ -134,7 +134,7 @@ close $fh;
 
 my $vars = {
       matches => \@matches,
-      fullTextLink => "../" . $outFile2,
+      fullTextLink => "../../" . $outFile2,
       file1 => {name => $file1, fullName => "$fullName1"},
       file2 => {name => $file2, fullName => "$fullName2"}
 };
