@@ -20,8 +20,8 @@ my ($name1, $name2, $fullName1, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(
 $fullName2 =~ s/^\s+|\s+$//g;
 
 mkdir "../../html/outFiles" unless -d "../../html/outFiles";
-my $outFile = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_match.html";
-my $outFile2 = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_text.html";
+my $outFile = "outFiles/$curLang/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "outFiles/$curLang/match" . "$matchIndex" . "_text.html";
 
 my $fileTemp = "templates/matchTemp.html";
 my $fullTextTemp = "templates/fullTextTemp.html";
@@ -132,9 +132,12 @@ while (<$fh>) {
 }
 close $fh;
 
+my $fullTextLink = "../../" . $outFile2;
+my $backLink = "../../" . $outFile;
+
 my $vars = {
       matches => \@matches,
-      fullTextLink => "../../" . $outFile2,
+      fullTextLink => $fullTextLink,
       file1 => {name => $file1, fullName => "$fullName1"},
       file2 => {name => $file2, fullName => "$fullName2"}
 };
@@ -142,14 +145,14 @@ my $vars = {
 my $vars2 = {
 		file1 => {name => $file1, fullName => "$fullName1", text => $file1Text},
 	    file2 => {name => $file2, fullName => "$fullName2", text => $file2Text},
-	    backLink => $outFile
+	    backLink => $backLink
 };
 
 my $template = Template->new();
 my $template2 = Template->new();
     
-$template->process($fileTemp, $vars, $outFile)
+$template->process($fileTemp, $vars, "../../html/" . $outFile)
     || die "Template process failed: ", $template->error(), "\n";
 
-$template2->process($fullTextTemp, $vars2, $outFile2)
+$template2->process($fullTextTemp, $vars2, "../../html/" . $outFile2)
     || die "Template process failed: ", $template2->error(), "\n";
