@@ -25,15 +25,9 @@ open(my $fh, "<", $file)
 my ($name1, $name2, $fullName1, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)'/);
 $fullName2 =~ s/^\s+|\s+$//g;
 
-<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
 mkdir "../../html/$user/outFiles" unless -d "../../html/$user/outFiles";
 my $outFile = "outFiles/$curLang/match" . "$matchIndex" . "_match.html";
 my $outFile2 = "outFiles/$curLang/match" . "$matchIndex" . "_text.html";
-=======
-mkdir "../../html/outFiles" unless -d "../../html/outFiles";
-my $outFile = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_match.html";
-my $outFile2 = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_text.html";
->>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
 
 my $fileTemp = $tempFolder . "matchTemp.html";
 my $fullTextTemp = $tempFolder . "fullTextTemp.html";
@@ -144,9 +138,12 @@ while (<$fh>) {
 }
 close $fh;
 
+my $fullTextLink = "../../" . $outFile2;
+my $backLink = "../../" . $outFile;
+
 my $vars = {
       matches => \@matches,
-      fullTextLink => "../../" . $outFile2,
+      fullTextLink => $fullTextLink,
       file1 => {name => $file1, fullName => "$fullName1"},
       file2 => {name => $file2, fullName => "$fullName2"},
       tempFolder => $tempFolder
@@ -155,26 +152,15 @@ my $vars = {
 my $vars2 = {
 		file1 => {name => $file1, fullName => "$fullName1", text => $file1Text},
 	    file2 => {name => $file2, fullName => "$fullName2", text => $file2Text},
-<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
 	    backLink => $backLink,
 	    tempFolder => $tempFolder
-=======
-	    backLink => $outFile
->>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
 };
 
 my $template = Template->new(RELATIVE => 1);
 my $template2 = Template->new(RELATIVE => 1);
     
-<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
 $template->process($fileTemp, $vars, "../../html/$user/" . $outFile)
     || die "Template process failed: ", $template->error(), "\n";
 
 $template2->process($fullTextTemp, $vars2, "../../html/$user/" . $outFile2)
-=======
-$template->process($fileTemp, $vars, $outFile)
-    || die "Template process failed: ", $template->error(), "\n";
-
-$template2->process($fullTextTemp, $vars2, $outFile2)
->>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
     || die "Template process failed: ", $template2->error(), "\n";
