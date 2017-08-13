@@ -9,6 +9,7 @@ use File::Basename;
 use Email::Valid;
 use Cwd;
 
+
 $CGI::POST_MAX = 1024 * 5000 * 500; # 500 MB limit
 my $safe_filename_characters = "a-zA-Z0-9_.-@";
 
@@ -39,6 +40,14 @@ if ( Email::Valid->address( -address => $email, -mxcheck => 1 ) ) { $email = $em
 
 my $upload_dir = "../workFiles/" . $email;
 my $output_dir = "../html/" . $email;
+
+if (-d $upload_dir) {
+	system("rm -rf $upload_dir");
+}
+if (-d $output_dir) {
+	system("rm -rf $output_dir");
+}
+
 mkdir $upload_dir unless -d $upload_dir;
 mkdir $output_dir unless -d $output_dir;
 
