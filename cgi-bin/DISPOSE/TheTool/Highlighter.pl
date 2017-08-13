@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter.pl [match file] [origin] [lang] [match index] [MINRUN]
+# Usage: perl Highlighter.pl [match file] [origin] [lang] [match index] [MINRUN] [full name 1] [full name 2] [user folder] [user]
 
 use warnings;
 use strict;
@@ -12,6 +12,12 @@ my $file = $ARGV[0];
 my $origin = $ARGV[1];
 my $curLang = $ARGV[2];
 my $MINRUN = $ARGV[4];
+my $userFolder = $ARGV[5];
+my $user = $ARGV[6];
+
+chdir($userFolder);
+
+my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
 
 
 open(my $fh, "<", $file)
@@ -19,12 +25,18 @@ open(my $fh, "<", $file)
 my ($name1, $name2, $fullName1, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)'/);
 $fullName2 =~ s/^\s+|\s+$//g;
 
-mkdir "../../html/outFiles" unless -d "../../html/outFiles";
+<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
+mkdir "../../html/$user/outFiles" unless -d "../../html/$user/outFiles";
 my $outFile = "outFiles/$curLang/match" . "$matchIndex" . "_match.html";
 my $outFile2 = "outFiles/$curLang/match" . "$matchIndex" . "_text.html";
+=======
+mkdir "../../html/outFiles" unless -d "../../html/outFiles";
+my $outFile = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_match.html";
+my $outFile2 = "../../html/outFiles/$curLang/match" . "$matchIndex" . "_text.html";
+>>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
 
-my $fileTemp = "templates/matchTemp.html";
-my $fullTextTemp = "templates/fullTextTemp.html";
+my $fileTemp = $tempFolder . "matchTemp.html";
+my $fullTextTemp = $tempFolder . "fullTextTemp.html";
 
 my %lineHash1;
 my %lineHash2;
@@ -132,27 +144,37 @@ while (<$fh>) {
 }
 close $fh;
 
-my $fullTextLink = "../../" . $outFile2;
-my $backLink = "../../" . $outFile;
-
 my $vars = {
       matches => \@matches,
-      fullTextLink => $fullTextLink,
+      fullTextLink => "../../" . $outFile2,
       file1 => {name => $file1, fullName => "$fullName1"},
-      file2 => {name => $file2, fullName => "$fullName2"}
+      file2 => {name => $file2, fullName => "$fullName2"},
+      tempFolder => $tempFolder
 };
 
 my $vars2 = {
 		file1 => {name => $file1, fullName => "$fullName1", text => $file1Text},
 	    file2 => {name => $file2, fullName => "$fullName2", text => $file2Text},
-	    backLink => $backLink
+<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
+	    backLink => $backLink,
+	    tempFolder => $tempFolder
+=======
+	    backLink => $outFile
+>>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
 };
 
-my $template = Template->new();
-my $template2 = Template->new();
+my $template = Template->new(RELATIVE => 1);
+my $template2 = Template->new(RELATIVE => 1);
     
-$template->process($fileTemp, $vars, "../../html/" . $outFile)
+<<<<<<< HEAD:cgi-bin/DISPOSE/TheTool/Highlighter.pl
+$template->process($fileTemp, $vars, "../../html/$user/" . $outFile)
     || die "Template process failed: ", $template->error(), "\n";
 
-$template2->process($fullTextTemp, $vars2, "../../html/" . $outFile2)
+$template2->process($fullTextTemp, $vars2, "../../html/$user/" . $outFile2)
+=======
+$template->process($fileTemp, $vars, $outFile)
+    || die "Template process failed: ", $template->error(), "\n";
+
+$template2->process($fullTextTemp, $vars2, $outFile2)
+>>>>>>> parent of e2a7ac0... Fix directory pathing for html output:DISPOSE/TheTool/Highlighter.pl
     || die "Template process failed: ", $template2->error(), "\n";

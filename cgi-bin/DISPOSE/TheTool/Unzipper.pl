@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder]
 
 use strict;
 use warnings;
@@ -14,6 +14,9 @@ my $origin = $ARGV[0];
 my $SINGLE_DIR = $ARGV[1];
 my $SEPARATE_LANG = $ARGV[2];
 my $dirNum = $ARGV[3];
+my $userFolder = $ARGV[4];
+
+chdir($userFolder);
 
 my @targetTypes = ("c","java","py");
 my @nameFields;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [fire_dir sources]
+# Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [fire_dir sources] [user folder] [user]
 
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
@@ -9,6 +9,8 @@ use TokenScraper;
 use Template;
 
 my $INT_FLAG = $ARGV[0];
+my $userFolder = $ARGV[3];
+my $user = $ARGV[4];
 
 my $origin = $ARGV[1];
 my $sourcesGroup = 999;
@@ -22,6 +24,10 @@ my $matchLim = 10;
 my $KSIZE = 5;
 my $MINRUN = 3;
 
+my $mainDir = getcwd;
+
+chdir($userFolder);
+
 my $workDir = getcwd;
 
 mkdir "TokenFiles" unless -d "TokenFiles";
@@ -32,12 +38,17 @@ mkdir "matchFiles" unless -d "matchFiles";
 opendir my $dh, $origin;
 my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
-my $fileTemp = "templates/suspectsTemp.html";
-my $mainOut = "../../html/results.html";
+my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
+
+my $fileTemp = $tempFolder . "suspectsTemp.html";
+my $mainOut = "../../html/$user/results.html";
 
 my @suspects_hashes;
 
 foreach my $curLang (@langs) {
+
+	chdir($workDir);
+
 	my %hashIndex;
 	my %matchIndex;
 	my %countIndex;
@@ -66,9 +77,9 @@ foreach my $curLang (@langs) {
 	}
 
 	# Use ANTLR to determine tokens
-	system("java -jar ./tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
+	system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
 	if (-d "$sourcesDir/$curLang") {
-		system("java -jar ./tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
+		system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
 	}
 
 	my %tokPos;
@@ -289,6 +300,9 @@ foreach my $curLang (@langs) {
 
 	print("\n\nSUSPECTS\n\n");
 
+
+	chdir($mainDir);
+
 	for (my $i = 0; $i < $SUSLIMIT; $i += 1) {
 
 		print("$suspects_sort[$i]\n");
@@ -321,7 +335,7 @@ foreach my $curLang (@langs) {
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang});
 
-		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN \Q$fullName1\E \Q$fullName2\E");
+		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN $userFolder $user");
 	}
 }
 
@@ -331,10 +345,13 @@ foreach my $curLang (@langs) {
 
 my $vars = {
       matches => \@suspects_hashes,
-      langs => \@langs
+      langs => \@langs,
+      tempFolder => $tempFolder
 };
 
-my $template = Template->new();
+chdir($workDir);
+
+my $template = Template->new(RELATIVE => 1);
 $template->process($fileTemp, $vars, $mainOut)
     || die "Template process failed: ", $template->error(), "\n";
 

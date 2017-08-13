@@ -1,7 +1,7 @@
-[%  INCLUDE templates/header.html
+[%  INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/header.html'
 	title = 'DISPOSE Match Results';
 %]
-	<a href="[% backLink %]">< Back</a>
+	<a href="../[% backLink %]">< Back</a>
 	<h1>
 		Full Text for 
 		<div class="hasTooltip">[% file1.name %]<span class="addToolCenter">[% file1.fullName %]</span></div> and 
@@ -27,4 +27,4 @@
 
 	</table>
 
-[% INCLUDE templates/footer.html %]
+[% INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/footer.html' %]

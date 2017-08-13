@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-# Usage: perl GithubGrabber2.pl [query file]
+# Usage: perl GithubGrabber2.pl [query file] [user folder]
 
 use warnings;
 use strict;
@@ -11,6 +11,10 @@ use POSIX;
 
 my $client_id = "657adaccd421d805fa12";
 my $client_secret = "f99e3744393dc21379bcecb8018634af0a32480b";
+
+my $userFolder = $ARGV[1];
+
+chdir("$userFolder");
 
 my $queryFile = $ARGV[0];
 my @queries;
