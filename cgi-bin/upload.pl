@@ -39,7 +39,7 @@ if ( $email =~ /^([$safe_filename_characters]+)$/ ) { $email = $1; } else { die 
 if ( Email::Valid->address( -address => $email, -mxcheck => 1 ) ) { $email = $email} else { die "Invalid email"; }
 
 my $upload_dir = "../workFiles/" . $email;
-my $output_dir = "../html/" . $email;
+my $output_dir = "../results/" . $email;
 
 if (-d $upload_dir) {
 	system("rm -rf $upload_dir");
@@ -71,7 +71,7 @@ open (UPLOADFILE, ">$upload_dir/$subsFile") or die "$!";
 close UPLOADFILE;
 
 if (fork()){
-   print("Location: ../received.html\n\n"); 
+   print("Location: ../received.php\n\n"); 
    exit 0;
 } else {
 	close(STDOUT); close(STDIN); close(STDERR);

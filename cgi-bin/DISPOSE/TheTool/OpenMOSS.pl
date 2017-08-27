@@ -40,8 +40,8 @@ my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
 my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
 
-my $fileTemp = $tempFolder . "suspectsTemp.html";
-my $mainOut = "../../html/$user/results.html";
+my $fileTemp = $tempFolder . "suspectsTemp.php";
+my $mainOut = "../../results/$user/results.php";
 
 my @suspects_hashes;
 
