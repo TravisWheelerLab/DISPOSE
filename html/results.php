@@ -15,7 +15,9 @@
 
 	    $result = $mysqli->query("SELECT last_job FROM users WHERE email='$email'") or die($mysqli->error());
 
-		if ($result->num_rows == 0 ) {
+	    $row = mysqli_fetch_row($result);
+
+		if ($row[0] === NULL) {
 			$_SESSION['error'] = "No submission results waiting!";
 		  	header("location: /login/profile.php");
 		}

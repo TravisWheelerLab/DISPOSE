@@ -42,3 +42,7 @@ td, th {
     left: 50%;
     transform: translateX(-50%);
 }
+
+.lang_result {
+    display: none;
+}

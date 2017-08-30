@@ -7,10 +7,10 @@
 
 	<h2>Language: </h2>
 	<select id="langSelect">
-        <option disabled selected value="none"> -- select an option -- </option>
-        <option value="all">[All]</option>
+        <option disabled value="none"> -- select an option -- </option>
+        <option <?php if($_GET['lang'] == "all"){echo "selected";} ?> value="all">[All]</option>
         [%  FOREACH lang IN langs %]
-        <option value="[% lang %]">[% lang %]</option>
+        <option <?php if($_GET['lang'] == [% lang %]){echo "selected";} ?> value="[% lang %]">[% lang %]</option>
         [%  END %]
     </select>
 
@@ -27,7 +27,7 @@
 
 		<tbody>
 		[%  FOREACH match IN matches %]
-		<tr class="[% match.lang %]_result">
+		<tr class="[% match.lang %]_result lang_result">
 			<td>
 				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file1 %]
@@ -53,37 +53,40 @@
 			$("table#resultsTable").tablesorter( {sortList: [[2,1]]} ); 
 			$("select#langSelect").val("none");
 
-			[%  FOREACH lang IN langs %]
-			$(".[% lang %]_result").css("display","none");
-			[%  END %]
-
 			if (lang) {
 				$("select#langSelect").val(lang);
-				$("select#langSelect").trigger('change');
+
+				if ($("select#langSelect").val() == "all") {
+					[%  FOREACH lang IN langs %]
+					$(".[% lang %]_result").toggle();
+					[%  END %]
+				}
+
+				[%  FOREACH lang IN langs %]
+				else if ($("select#langSelect").val() == "[% lang %]") {
+					$(".[% lang %]_result").toggle();
+				}
+				[%  END %]
+
+				else {
+					window.location.href="results.php";
+				}
 			}
+
+			$("select#langSelect").trigger('change');
+
 		});
 
 		$("select#langSelect").change(function() {
 
-			if (lang.length == 0) {
+			if ($("select#langSelect").val().length == 0) {
+					window.location.href="results.php";
+				}
+
+			if (lang !== $("select#langSelect").val()) {
 				window.location.href="results.php?lang="+$("select#langSelect").val();
 			}
 
-			if ($("select#langSelect").val() == "all") {
-				[%  FOREACH lang IN langs %]
-				$(".[% lang %]_result").css("display","none");
-				$(".[% lang %]_result").toggle();
-				[%  END %]
-			}
-
-			[%  FOREACH lang IN langs %]
-			if ($("select#langSelect").val() == "[% lang %]") {
-				[%  FOREACH lang2 IN langs %]
-				$(".[% lang2 %]_result").css("display","none");
-				[%  END %]
-				$(".[% lang %]_result").toggle();
-			}
-			[%  END %]
 
 		});
     </script>
