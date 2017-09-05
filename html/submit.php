@@ -1,9 +1,14 @@
 <?php
 	session_start();
 
-	if ( $_SESSION['logged_in'] != 1 ) {
+	if ($_SESSION['logged_in'] != 1) {
 		$_SESSION['error'] = "Log in to make a submission!";
 		header("location: /login/index.php");    
+	}
+
+	if ($_SESSION['active'] != 1) {
+		$_SESSION['error'] = "Activate your account to make a submission!";
+		header("location: /login/profile.php");
 	}
 
 ?>

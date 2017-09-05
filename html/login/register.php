@@ -36,6 +36,14 @@ else { // Email doesn't already exist in a database, proceed...
 
         $_SESSION['active'] = 0; //0 until user activates their account with verify.php
         $_SESSION['logged_in'] = true; // So we know the user has logged in
+
+        if (isset($_SERVER['HTTPS'])) {
+            $https = "https://";
+        }
+        else {
+            $https = "http://";
+        }
+
         $_SESSION['message'] =
                 
                  "Confirmation link has been sent to $email, please verify
@@ -49,9 +57,9 @@ else { // Email doesn't already exist in a database, proceed...
 
         Thank you for signing up!
 
-        Please click this link to activate your account:
+        Please click this link to activate your account:'.
 
-        http://'.$_SERVER['SERVER_NAME'].'/login/verify.php?email='.$email.'&hash='.$hash;  
+        $https.$_SERVER['SERVER_NAME'].'/login/verify.php?email='.$email.'&hash='.$hash;  
 
         system(" echo " . "'$message_body'" . " | mail -s '$subject' " . "$to");
 
