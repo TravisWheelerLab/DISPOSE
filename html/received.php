@@ -6,8 +6,26 @@
 	  header("location: /login/index.php");    
 	}
 	else {
-    	$email = $_SESSION['email'];
-		$result = $mysqli->query("UPDATE users SET last_job = CURRENT_TIMESTAMP WHERE email='$email'") or die($mysqli->error());
+
+		if (isset($_SERVER['HTTPS'])) {
+            $https = "https://";
+        }
+        else {
+            $https = "http://";
+        }
+
+		if (isset($_SERVER['HTTP_REFERER'])) {
+		  if ($_SERVER['HTTP_REFERER'] === $https.$_SERVER['SERVER_NAME'].'/submit.php') {
+		  	$email = $_SESSION['email'];
+			$result = $mysqli->query("UPDATE users SET last_job = CURRENT_TIMESTAMP WHERE email='$email'") or die($mysqli->error());
+		  }
+		  else {
+		  	header("location: /submit.php");
+		  }
+		}
+		else {
+			header("location: /submit.php");
+		}
 	}
 ?>
 
