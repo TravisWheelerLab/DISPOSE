@@ -61,7 +61,7 @@ foreach (@submissions) {
             my $candidate = "$_";
             unless (-d $candidate) {
                 my @testFields = split('((\.[^.\s]+)+)$', $candidate, 2);
-                   if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2)$/) {
+                   if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2|rar)$/) {
                             handleArchive("$_");
                             system("rm -f \"$candidate\"");
                             $foundMore = 1;
@@ -169,26 +169,33 @@ sub handleArchive {
     # print(@nameFields);
 
     system('mkdir', $nameFields[0]);
+    $archiveFile = $nameFields[0] . $nameFields[1];
+    print("\n\n\n" . $archiveFile . "\n");
 
     if ($nameFields[1] =~ m/(zip)$/) {
         system('unzip', $archiveFile, '-d', $nameFields[0]);
     }
     elsif($nameFields[1] =~ m/(tar)$/) {
-        system('tar -xvf', $archiveFile, $nameFields[0]);
+        system("tar -xvf \"$archiveFile\" -C \"$nameFields[0]\"");
+    }
+    elsif($nameFields[1] =~ m/(tgz)/) {
+        system("tar -xvzf \"$archiveFile\" -C \"$nameFields[0]\"");
     }
     elsif($nameFields[1] =~ m/(gz)$/) {
-        system('tar -xzvf', $archiveFile, $nameFields[0]);
+        system("tar -xzvf \"$archiveFile\" -C \"$nameFields[0]\"");
+    }
+    elsif($nameFields[1] =~ m/(rar)$/) {
+        system("unrar e \"$archiveFile\" \"$nameFields[0]\"");
     }
     elsif($nameFields[1] =~ m/(bz2)$/) {
-        system('tar -xjvf', $archiveFile, $nameFields[0]);
+        system("tar -xjvf \"$archiveFile\" -C \"$nameFields[0]\"");
     } 
     elsif($nameFields[1] =~ m/(7z)$/) {
-        print($archiveFile);
         system('7z', 'x', $archiveFile);
     }
     else {
         print("\nUnsupported archive format. \n
-        Supported: 7z, zip, tar, tar.gz, tar.bz2 \n
+        Supported: 7z, zip, rar, tar, tar.gz, tar.bz2, tgz \n
         Received: $nameFields[1]\n");
     }
 }
