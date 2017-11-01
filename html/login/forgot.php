@@ -28,17 +28,18 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 
         // Send registration confirmation link (reset.php)
         $to      = $email;
-        $subject = 'Password Reset Link ( clevertechie.com )';
+        $subject = 'DISPOSE Password Reset Link';
+        $headers = "From: DISPOSE <DISPOSE@dispose.cs.umt.edu>";
         $message_body = '
         Hello '.$first_name.',
 
-        You have requested password reset!
+        You have requested a password reset!
 
         Please click this link to reset your password:
 
-        http://localhost/login-system/reset.php?email='.$email.'&hash='.$hash;  
+        https://dispose.cs.umt.edu/login/reset.php?email='.$email.'&hash='.$hash;  
 
-        mail($to, $subject, $message_body);
+        mail($to, $subject, $message_body, $headers);
 
         header("location: success.php");
   }
