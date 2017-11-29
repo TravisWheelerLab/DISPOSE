@@ -10,7 +10,7 @@ my $submissions = $ARGV[1];
 my $user = $ARGV[2];
 my $userFolder = "../../../workFiles/$user";
 
-system("perl GithubGrabber2.pl $queryFile $userFolder");
+system("perl GithubGrabber3.pl $queryFile $userFolder");
 system("perl Unzipper.pl GithubResults 1 1 1 $userFolder");
 system("perl Unzipper.pl $submissions 1 1 2 $userFolder");
 
