@@ -58,7 +58,7 @@ foreach my $query(@queries) {
 		print("\n<--------------------On page $i of $numPages--------------------> \n");
 		$curPage = "$queryString&start=" . (($i-1)*10 + 1);
 		print("$curPage\n");
-		my $rawJSONData = `curl "$curPage"`;
+		my $rawJSONData = `curl --referer dispose.cs.umt.edu "$curPage"`;
 		my $rawPerlData = decode_json($rawJSONData);
 		
 		foreach my $result (@{$rawPerlData->{'items'}}) {
