@@ -33,12 +33,28 @@
 					[% match.file1 %]
 					<span>[% match.fullName1 %]</span>
 				</a>
+				[% IF match.srcType1 == "1" %]
+				<?php
+				$fullName1 = "[% match.fullName1 %]";
+				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName1, $matches);
+				$repoName = $matches[1];
+				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				?>
+				[% END %]
 			</td>
 			<td>
 				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file2 %]
 					<span>[% match.fullName2 %]</span>
 				</a>
+				[% IF match.srcType2 == "1" %]
+				<?php
+				$fullName2 = "[% match.fullName2 %]";
+				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName2, $matches);
+				$repoName = $matches[1];
+				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				?>
+				[% END %]
 			</td>
 			<td>[% match.matchNum %]</td>
 		</tr>
