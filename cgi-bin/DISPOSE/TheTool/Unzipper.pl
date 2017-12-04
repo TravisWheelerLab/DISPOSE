@@ -98,7 +98,7 @@ foreach (@submissions) {
                     $filterFolder = "Python";
                 }
 
-                if ($suffix eq $type and $ext eq $type and -T $candidate) {
+                if ($suffix eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
 
                     chdir("..");
@@ -165,32 +165,32 @@ sub handleArchive {
 
     my($archiveFile) = @_;
 
-    @nameFields = split('((\.[^.\s]+)+)$', $archiveFile, 2);
-    # print(@nameFields);
+    (my $archiveDir, my $archiveExt) = ($archiveFile =~ /(.+)\.(.+)$/);
+    # print("AFTER SPLIT: " . $archiveFile . " " . $archiveDir .  " " . $archiveExt . "\n");
 
-    system('mkdir', $nameFields[0]);
-    $archiveFile = $nameFields[0] . $nameFields[1];
+    system('mkdir', $archiveDir);
+    $archiveFile = $archiveDir . "." . $archiveExt;
     print("\n\n\n" . $archiveFile . "\n");
 
-    if ($nameFields[1] =~ m/(zip)$/) {
-        system('unzip', $archiveFile, '-d', $nameFields[0]);
+    if ($archiveExt =~ m/(zip)$/) {
+        system('unzip', $archiveFile, '-d', $archiveDir);
     }
-    elsif($nameFields[1] =~ m/(tar)$/) {
-        system("tar -xvf \"$archiveFile\" -C \"$nameFields[0]\"");
+    elsif($archiveExt =~ m/(tar)$/) {
+        system("tar -xvf \"$archiveFile\" -C \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(tgz)/) {
-        system("tar -xvzf \"$archiveFile\" -C \"$nameFields[0]\"");
+    elsif($archiveExt =~ m/(tgz)/) {
+        system("tar -xvzf \"$archiveFile\" -C \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(gz)$/) {
-        system("tar -xzvf \"$archiveFile\" -C \"$nameFields[0]\"");
+    elsif($archiveExt =~ m/(gz)$/) {
+        system("tar -xzvf \"$archiveFile\" -C \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(rar)$/) {
-        system("unrar e \"$archiveFile\" \"$nameFields[0]\"");
+    elsif($archiveExt =~ m/(rar)$/) {
+        system("unrar e \"$archiveFile\" \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(bz2)$/) {
-        system("tar -xjvf \"$archiveFile\" -C \"$nameFields[0]\"");
+    elsif($archiveExt =~ m/(bz2)$/) {
+        system("tar -xjvf \"$archiveFile\" -C \"$archiveDir\"");
     } 
-    elsif($nameFields[1] =~ m/(7z)$/) {
+    elsif($archiveExt =~ m/(7z)$/) {
         system('7z', 'x', $archiveFile);
     }
     else {
