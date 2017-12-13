@@ -56,14 +56,14 @@ foreach (@submissions) {
     # Looking for more archive files buried
     while($foundMore) {
         $foundMore = 0;
-        @moreArchives = `find`;
+        @moreArchives = `find .`;
         foreach(@moreArchives) {
             s/\s*$//;
             my $candidate = "$_";
             unless (-d $candidate) {
                 my @testFields = split('((\.[^.\s]+)+)$', $candidate, 2);
                    if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2|rar)$/) {
-                            handleArchive("$_");
+                            handleArchive("$candidate");
                             system("rm -f \"$candidate\"");
                             $foundMore = 1;
                    }
@@ -71,7 +71,7 @@ foreach (@submissions) {
         }
     }
     
-    my @rawFiles = `find`;
+    my @rawFiles = `find .`;
 
     # Getting target file type
     foreach (@rawFiles) {
@@ -99,7 +99,7 @@ foreach (@submissions) {
                     $filterFolder = "Python";
                 }
 
-                if ($suffix eq $type and -T $candidate) {
+                if ($suffix eq $type and $ext eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
 
                     chdir("..");
