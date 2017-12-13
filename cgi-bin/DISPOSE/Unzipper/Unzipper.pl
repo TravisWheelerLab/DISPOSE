@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder]
 
 use strict;
 use warnings;
@@ -14,6 +14,9 @@ my $origin = $ARGV[0];
 my $SINGLE_DIR = $ARGV[1];
 my $SEPARATE_LANG = $ARGV[2];
 my $dirNum = $ARGV[3];
+my $userFolder = $ARGV[4];
+
+chdir($userFolder);
 
 my @targetTypes = ("c","java","py");
 my @nameFields;
@@ -58,7 +61,7 @@ foreach (@submissions) {
             my $candidate = "$_";
             unless (-d $candidate) {
                 my @testFields = split('((\.[^.\s]+)+)$', $candidate, 2);
-                   if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2)$/) {
+                   if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2|rar)$/) {
                             handleArchive("$_");
                             system("rm -f \"$candidate\"");
                             $foundMore = 1;
@@ -95,7 +98,7 @@ foreach (@submissions) {
                     $filterFolder = "Python";
                 }
 
-                if ($suffix eq $type and $ext eq $type and -T $candidate) {
+                if ($suffix eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
 
                     chdir("..");
@@ -162,30 +165,37 @@ sub handleArchive {
 
     my($archiveFile) = @_;
 
-    @nameFields = split('((\.[^.\s]+)+)$', $archiveFile, 2);
-    # print(@nameFields);
+    (my $archiveDir, my $archiveExt) = ($archiveFile =~ /(.+)\.(.+)$/);
+    # print("AFTER SPLIT: " . $archiveFile . " " . $archiveDir .  " " . $archiveExt . "\n");
 
-    system('mkdir', $nameFields[0]);
+    system('mkdir', $archiveDir);
+    $archiveFile = $archiveDir . "." . $archiveExt;
+    print("\n\n\n" . $archiveFile . "\n");
 
-    if ($nameFields[1] =~ m/(zip)$/) {
-        system('unzip', $archiveFile, '-d', $nameFields[0]);
+    if ($archiveExt =~ m/(zip)$/) {
+        system('unzip', $archiveFile, '-d', $archiveDir);
     }
-    elsif($nameFields[1] =~ m/(tar)$/) {
-        system('tar -xvf', $archiveFile, $nameFields[0]);
+    elsif($archiveExt =~ m/(tar)$/) {
+        system("tar -xvf \"$archiveFile\" -C \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(gz)$/) {
-        system('tar -xzvf', $archiveFile, $nameFields[0]);
+    elsif($archiveExt =~ m/(tgz)/) {
+        system("tar -xvzf \"$archiveFile\" -C \"$archiveDir\"");
     }
-    elsif($nameFields[1] =~ m/(bz2)$/) {
-        system('tar -xjvf', $archiveFile, $nameFields[0]);
+    elsif($archiveExt =~ m/(gz)$/) {
+        system("tar -xzvf \"$archiveFile\" -C \"$archiveDir\"");
+    }
+    elsif($archiveExt =~ m/(rar)$/) {
+        system("unrar e \"$archiveFile\" \"$archiveDir\"");
+    }
+    elsif($archiveExt =~ m/(bz2)$/) {
+        system("tar -xjvf \"$archiveFile\" -C \"$archiveDir\"");
     } 
-    elsif($nameFields[1] =~ m/(7z)$/) {
-        print($archiveFile);
+    elsif($archiveExt =~ m/(7z)$/) {
         system('7z', 'x', $archiveFile);
     }
     else {
         print("\nUnsupported archive format. \n
-        Supported: 7z, zip, tar, tar.gz, tar.bz2 \n
+        Supported: 7z, zip, rar, tar, tar.gz, tar.bz2, tgz \n
         Received: $nameFields[1]\n");
     }
 }
