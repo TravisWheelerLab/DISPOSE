@@ -14,8 +14,7 @@ system("perl GithubGrabber3.pl $queryFile $userFolder");
 system("perl Unzipper.pl GithubResults 1 1 1 $userFolder");
 system("perl Unzipper.pl $submissions 1 1 2 $userFolder");
 
-my @nameFields = split('((\.[^.\s]+)+)$', $submissions, 2);
-
-system("perl OpenMOSS.pl 1 $nameFields[0] GithubResults $userFolder $user");
+(my $archiveDir, my $archiveExt) = ($submissions =~ /(.+)\.(.+)$/);
+system("perl OpenMOSS.pl 1 $archiveDir GithubResults $userFolder $user");
 
 print("\n\n-----------------------------------------------\n\nYour final results can be found at results.html!\n");
