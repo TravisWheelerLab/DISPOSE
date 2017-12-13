@@ -19,17 +19,16 @@ my $userFolder = $ARGV[4];
 chdir($userFolder);
 
 my @targetTypes = ("c","java","py");
-my $archiveDir;
-my $archiveExt;
+my @nameFields;
 
 if (-d $origin) {
-    $archiveDir = $origin;
+    $nameFields[0] = $origin;
 }
 else {
     handleArchive($origin);
 }
 
-chdir($archiveDir);
+chdir($nameFields[0]);
 my @submissions = `ls`;
 
 my $subIndex = 0; # Submission level
@@ -166,7 +165,7 @@ sub handleArchive {
 
     my($archiveFile) = @_;
 
-    ($archiveDir, $archiveExt) = ($archiveFile =~ /(.+)\.(.+)$/);
+    (my $archiveDir, my $archiveExt) = ($archiveFile =~ /(.+)\.(.+)$/);
     # print("AFTER SPLIT: " . $archiveFile . " " . $archiveDir .  " " . $archiveExt . "\n");
 
     system('mkdir', $archiveDir);
@@ -197,6 +196,6 @@ sub handleArchive {
     else {
         print("\nUnsupported archive format. \n
         Supported: 7z, zip, rar, tar, tar.gz, tar.bz2, tgz \n
-        Received: $archiveExt\n");
+        Received: $nameFields[1]\n");
     }
 }
