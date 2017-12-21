@@ -39,9 +39,10 @@
 				[% IF match.srcType1 == "1" %]
 				<?php
 				$fullName1 = "[% match.fullName1 %]";
-				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName1, $matches);
+				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\/[^\/]+\/[^\/]+\/(.+)/", $fullName1, $matches);
 				$repoName = $matches[1];
-				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				$directFile = $matches[2];
+				echo '[<sub><a href="https://github.com/'.$repoName.'/blob/master/'. $directFile . '"><img src="../img/link.png" class="scaleImg" /></a></sub>]';
 				?>
 				[% END %]
 
@@ -63,9 +64,10 @@
 				[% IF match.srcType2 == "1" %]
 				<?php
 				$fullName2 = "[% match.fullName2 %]";
-				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName2, $matches);
+				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\/[^\/]+\/[^\/]+\/(.+)/", $fullName2, $matches);
 				$repoName = $matches[1];
-				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				$directFile = $matches[2];
+				echo '[<sub><a href="https://github.com/'.$repoName.'/blob/master/'. $directFile . '"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
 				?>
 				[% END %]
 
