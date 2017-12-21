@@ -91,7 +91,7 @@
 		var lang = "<?php echo $_GET['lang'] ?>";
 
 		$().ready(function() {
-			$("table#resultsTable").tablesorter( {sortList: [[2,1]]} ); 
+			$("table#resultsTable").tablesorter( {sortList: [[4,1]]} ); 
 			$("select#langSelect").val("none");
 
 			if (lang) {
