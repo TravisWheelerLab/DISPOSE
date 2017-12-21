@@ -347,10 +347,17 @@ foreach my $curLang (@langs) {
 		$authName1 =~ s/.{20}\K.*//s;
 		$authName2 =~ s/.{20}\K.*//s;
 
+		my $dirName1;
+		my $dirName2;
+
+		# Captures the first folder in the full path name
+		($dirName1) = ($fullName1 =~ /\.\/(.*?)\/.*?\//);
+		($dirName2) = ($fullName2 =~ /\.\/(.*?)\/.*?\//);
+
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, srcType1 => $srcType1, srcType2 => $srcType2, 
 			fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang,
-			authName1 => $authName1, authName2 => $authName2});
+			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
 
 		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN $userFolder $user");
 	}

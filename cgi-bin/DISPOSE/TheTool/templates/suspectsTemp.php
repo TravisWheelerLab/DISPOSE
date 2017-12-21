@@ -35,12 +35,20 @@
 					[% match.file1 %]
 					<span>[% match.fullName1 %]</span>
 				</a>
+
 				[% IF match.srcType1 == "1" %]
 				<?php
 				$fullName1 = "[% match.fullName1 %]";
 				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName1, $matches);
 				$repoName = $matches[1];
 				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				?>
+				[% END %]
+
+				[% IF match.srcType1 == "2" %]
+				<?php
+				echo '[<sub><a href="download.php?source=' . urlencode("[% match.file1 %]") . '&lang=' . urlencode("[% match.lang %]") . 
+				'&user=' . urlencode($_SESSION['email']) . '&sourceLoc=' . urlencode("[% match.dirName1 %]") . '"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
 				?>
 				[% END %]
 			</td>
@@ -58,6 +66,13 @@
 				preg_match("/\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\//", $fullName2, $matches);
 				$repoName = $matches[1];
 				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
+				?>
+				[% END %]
+
+				[% IF match.srcType2 == "2" %]
+				<?php
+				echo '[<sub><a href="download.php?source=' . urlencode("[% match.file2 %]") . '&lang=' . urlencode("[% match.lang %]") . 
+				'&user=' . urlencode($_SESSION['email']) . '&sourceLoc=' . urlencode("[% match.dirName2 %]") . '"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
 				?>
 				[% END %]
 			</td>
