@@ -20,7 +20,9 @@
 		<thead>
 		<tr>
 			<th><h2>File 1</h2></th>
+			<th><h2>Author</h2></th>
 			<th><h2>File 2</h2></th>
+			<th><h2>Author</h2></th>
 			<th><h2>Score</h2></th>
 		</tr>
 		</thead>
@@ -43,6 +45,9 @@
 				[% END %]
 			</td>
 			<td>
+				[% match.authName1 %]
+			</td>
+			<td>
 				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file2 %]
 					<span>[% match.fullName2 %]</span>
@@ -55,6 +60,9 @@
 				echo '[<sub><a href="https://github.com/'.$repoName.'/archive/master.zip"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
 				?>
 				[% END %]
+			</td>
+			<td>
+				[% match.authName2 %]
 			</td>
 			<td>[% match.matchNum %]</td>
 		</tr>

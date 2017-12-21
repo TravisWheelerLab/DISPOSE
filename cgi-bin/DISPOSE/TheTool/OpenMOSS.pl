@@ -320,13 +320,13 @@ foreach my $curLang (@langs) {
 		my $fullName1;
 		my $fullName2;
 
-
 		if ($groupNum eq $sourcesGroup) {
 			$fullName1 = $dirLookup2->{$subNum}->{$dirNum};
 		}
 		else {
 			$fullName1 = $dirLookup->{$subNum}->{$dirNum};
 		}
+
 		my ($groupNum, $subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
 		if ($groupNum eq $sourcesGroup) {
 			$fullName2 = $dirLookup2->{$subNum}->{$dirNum};
@@ -336,8 +336,21 @@ foreach my $curLang (@langs) {
 		}
 
 
+		my $authName1;
+		my $authName2;
+
+		# Captures the second folder in the full path name
+		($authName1) = ($fullName1 =~ /\.\/.*?\/(.*?)\//);
+		($authName2) = ($fullName2 =~ /\.\/.*?\/(.*?)\//);
+
+		# Shortens arbitrary string to 20 chars
+		$authName1 =~ s/.{20}\K.*//s;
+		$authName2 =~ s/.{20}\K.*//s;
+
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
-		push (@suspects_hashes, {file1 => $name1, file2 => $name2, srcType1 => $srcType1, srcType2 => $srcType2, fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang});
+		push (@suspects_hashes, {file1 => $name1, file2 => $name2, srcType1 => $srcType1, srcType2 => $srcType2, 
+			fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang,
+			authName1 => $authName1, authName2 => $authName2});
 
 		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN $userFolder $user");
 	}
