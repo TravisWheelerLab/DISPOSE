@@ -221,7 +221,7 @@ foreach my $curLang (@langs) {
 	close $fh3;
 
 	# Sources
-	if (defined $sourcesDir) {
+	if (-d "./$sourcesDir") {
 		my %dirLookup2;
 		my %nameLookup2;
 

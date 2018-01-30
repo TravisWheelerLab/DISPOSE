@@ -42,58 +42,124 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 		<script>
-		$(document).ready(function(){
 
-			$("#submitButton").attr('disabled', true);
-			$("#submitLabel").css('cursor', 'default');
+
 			var querySubmitted = false;
 			var archiveSubmitted = false;
 
-			$('#subArchive').bind('change', function() {
-				var fileName = $(this).val();
-				fileName = fileName.match(/[^\\/]+$/)[0];
+			$(document).ready(function(){
 
-				$('#subArchiveLabel').html(fileName);
-				$('#subArchiveLabel').attr('class', 'custom-but');
-				$('#subArchiveLabel').addClass('accepted');
+				$('#subForm').css('display', 'none');
+				$('#subHeader').css('visibility', 'hidden');
 
-				archiveSubmitted = true;
+				$("#submitButton").attr('disabled', true);
+				$("#submitLabel").css('cursor', 'default');
 
-				if (querySubmitted) {
-					$('#submitLabel').attr('class', 'custom-but');
-					$('#submitLabel').addClass('accepted');
-					$("#submitLabel").css('cursor', 'pointer');
-					$('#submitButton').attr('disabled', false);
-				}
+				$('#subArchive').bind('change', function() {
+					var fileName = $(this).val();
+					fileName = fileName.match(/[^\\/]+$/)[0];
+
+					$('#subArchiveLabel').html(fileName);
+					$('#subArchiveLabel').attr('class', 'custom-but accepted');
+
+					archiveSubmitted = true;
+
+					if (querySubmitted) {
+						$('#submitLabel').attr('class', 'custom-but accepted');
+						$("#submitLabel").css('cursor', 'pointer');
+						$('#submitButton').attr('disabled', false);
+					}
+				});
+
+				$('#queriesFile').bind('change', function() {
+					var fileName = $(this).val();
+					fileName = fileName.match(/[^\\/]+$/)[0];
+					$('#queriesLabel').html(fileName);
+					$('#queriesLabel').attr('class', 'custom-but accepted');
+
+					querySubmitted = true;
+
+					if (archiveSubmitted) {
+						$('#submitLabel').attr('class', 'custom-but accepted');
+						$("#submitLabel").css('cursor', 'pointer');
+						$('#submitButton').attr('disabled', false);
+					}
+				})
 			});
 
-			$('#queriesFile').bind('change', function() {
-				var fileName = $(this).val();
-				fileName = fileName.match(/[^\\/]+$/)[0];
-				$('#queriesLabel').html(fileName);
-				$('#queriesLabel').attr('class', 'custom-but');
-				$('#queriesLabel').addClass('accepted');
+			function withQueriesClick() {
+
+				querySubmitted = false;
+				archiveSubmitted = false;
+
+				$('#queriesFile').val('');
+				$('#queriesLabel').html('Upload Queries File');
+				$('#queriesLabel').attr('class', 'custom-but needed');
+				$('#subArchive').val('');
+				$('#subArchiveLabel').html('Upload Archive File');
+				$('#subArchiveLabel').attr('class', 'custom-but needed');
+
+				$('#submitButton').attr('disabled', true);
+				$('#submitLabel').css('cursor', 'default');
+				$('#submitLabel').attr('class', 'custom-but needed');
+
+				$('#withQueriesBut').attr('class', 'custom-but accepted');
+				$('#withoutQueriesBut').attr('class', 'custom-but needed');
+
+				$('#subHeader').css('visibility', 'visible');
+				$('#subForm').css('display', 'inline-block');
+				$('#queriesInfo').css('display', 'inline-block');
+				$('#queriesInput').val('TRUE');
+			};
+
+			function withoutQueriesClick() {
 
 				querySubmitted = true;
+				archiveSubmitted = false;
 
-				if (archiveSubmitted) {
-					$('#submitLabel').attr('class', 'custom-but');
-					$('#submitLabel').addClass('accepted');
-					$("#submitLabel").css('cursor', 'pointer');
-					$('#submitButton').attr('disabled', false);
-				}
-			})
-		});
+				$('#queriesFile').val('');
+
+				$('#subArchive').val('');
+				$('#subArchiveLabel').html('Upload Archive File');
+				$('#subArchiveLabel').attr('class', 'custom-but needed');
+
+				$('#submitButton').attr('disabled', true);
+				$('#submitLabel').css('cursor', 'default');
+				$('#submitLabel').attr('class', 'custom-but needed');
+
+				$('#withoutQueriesBut').attr('class', 'custom-but accepted');
+				$('#withQueriesBut').attr('class', 'custom-but needed');
+
+				$('#subHeader').css('visibility', 'visible');
+				$('#subForm').css('display', 'inline-block');
+				$('#queriesInfo').css('display', 'none');
+				$('#queriesInput').val('FALSE');
+			};
 		</script>
 	</head>
 	<body>
 		<center>
-			<h1>Welcome to DISPOSE!</h1>
-			<h2>Make your submissions here!</h2>
+			<h1>Make your submissions here!</h1>
+			<h3>Choose your submission type:</h3>
 		</center>
 
+		<div id="queriesChoice">
+			<center>
+				<button id="withQueriesBut" class="custom-but needed" onclick="withQueriesClick()">
+					With Internet Queries
+				</button>
+				<button id="withoutQueriesBut" class="custom-but needed" onclick="withoutQueriesClick()">
+					Without Internet Queries
+				</button>
+			</center>
+		</div>
+
+		<br>
+
 		<center>
-			<form action="../cgi-bin/upload.pl" method="post" enctype="multipart/form-data">
+			<h3 id="subHeader">Submit your files:</h3>
+	
+			<form id="subForm" action="../cgi-bin/upload.pl" method="post" enctype="multipart/form-data">
 				<!-- <fieldset>
 					<legend>Queries</legend>
 					<input type="text" name="queries1" />
@@ -104,10 +170,12 @@
 				</fieldset>
 				<br> -->
 
-				<label id="queriesLabel" for="queriesFile" class="custom-but needed">
-					Upload Queries File
-				</label>
-				<input id="queriesFile" type="file" name="queries" />
+				<div id="queriesInfo">
+					<label id="queriesLabel" for="queriesFile" class="custom-but needed">
+						Upload Queries File
+					</label>
+					<input id="queriesFile" type="file" name="queries" />
+				</div>
 				
 
 				<label id="subArchiveLabel" for="subArchive" class="custom-but needed">
@@ -115,7 +183,8 @@
 				</label>
 				<input id="subArchive" type="file" name="submissions" />
 				
-				<input type="hidden" name = "email" value="<?php echo $_SESSION['email'] ?>">
+				<input type="hidden" name="email" value="<?php echo $_SESSION['email'] ?>">
+				<input id="queriesInput" type="hidden" name="queriesBool" value="NULL">
 
 				<br><br>
 
@@ -125,5 +194,6 @@
 				<input type="submit" name="Submit" id="submitButton" />
 			</form>
 		</center>
+
 	</body>
 </html>
