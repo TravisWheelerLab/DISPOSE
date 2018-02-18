@@ -43,7 +43,6 @@
 
 		<script>
 
-
 			var querySubmitted = false;
 			var archiveSubmitted = false;
 
@@ -84,7 +83,33 @@
 						$("#submitLabel").css('cursor', 'pointer');
 						$('#submitButton').attr('disabled', false);
 					}
-				})
+				});
+
+				queriesLabel.ondragover = function(evt) {
+				  evt.preventDefault();
+				};
+
+				queriesLabel.ondragenter = function(evt) {
+				  evt.preventDefault();
+				};
+
+				queriesLabel.ondrop = function(evt) {
+				  queriesFile.files = evt.dataTransfer.files;
+				  evt.preventDefault();
+				};
+
+				subArchiveLabel.ondragover = function(evt) {
+				  evt.preventDefault();
+				};
+
+				subArchiveLabel.ondragenter = function(evt) {
+				  evt.preventDefault();
+				};
+
+				subArchiveLabel.ondrop = function(evt) {
+				  subArchive.files = evt.dataTransfer.files;
+				  evt.preventDefault();
+				};
 			});
 
 			function withQueriesClick() {
@@ -135,8 +160,10 @@
 				$('#queriesInfo').css('display', 'none');
 				$('#queriesInput').val('FALSE');
 			};
+
 		</script>
 	</head>
+
 	<body>
 		<center>
 			<h1>Make your submissions here!</h1>
@@ -177,11 +204,12 @@
 					<input id="queriesFile" type="file" name="queries" />
 				</div>
 				
-
-				<label id="subArchiveLabel" for="subArchive" class="custom-but needed">
-					Upload Archive File
-				</label>
-				<input id="subArchive" type="file" name="submissions" />
+				<div id="archivesInfo">
+					<label id="subArchiveLabel" for="subArchive" class="custom-but needed">
+						Upload Archives File
+					</label>
+					<input id="subArchive" type="file" name="submissions" />
+				</div>
 				
 				<input type="hidden" name="email" value="<?php echo $_SESSION['email'] ?>">
 				<input id="queriesInput" type="hidden" name="queriesBool" value="NULL">
@@ -192,6 +220,7 @@
 					Submit Job
 				</label>
 				<input type="submit" name="Submit" id="submitButton" />
+
 			</form>
 		</center>
 
