@@ -37,6 +37,9 @@
 			.accepted {
 				background-color: #4CAF50; /* Green */
 			}
+			.optional {
+				background-color: #ff9900; /* Orange */
+			}
 		</style>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -85,14 +88,30 @@
 					}
 				});
 
+				$('#pastFile').bind('change', function() {
+					var fileName = $(this).val();
+					fileName = fileName.match(/[^\\/]+$/)[0];
+					$('#pastLabel').html(fileName);
+					$('#pastLabel').attr('class', 'custom-but accepted');
+
+					$('#pastInput').val('TRUE');
+				});
+
+				$('#ignoreFile').bind('change', function() {
+					var fileName = $(this).val();
+					fileName = fileName.match(/[^\\/]+$/)[0];
+					$('#ignoreLabel').html(fileName);
+					$('#ignoreLabel').attr('class', 'custom-but accepted');
+
+					$('#ignoreInput').val('TRUE');
+				});
+
 				queriesLabel.ondragover = function(evt) {
 				  evt.preventDefault();
 				};
-
 				queriesLabel.ondragenter = function(evt) {
 				  evt.preventDefault();
 				};
-
 				queriesLabel.ondrop = function(evt) {
 				  queriesFile.files = evt.dataTransfer.files;
 				  evt.preventDefault();
@@ -101,13 +120,33 @@
 				subArchiveLabel.ondragover = function(evt) {
 				  evt.preventDefault();
 				};
-
 				subArchiveLabel.ondragenter = function(evt) {
 				  evt.preventDefault();
 				};
-
 				subArchiveLabel.ondrop = function(evt) {
 				  subArchive.files = evt.dataTransfer.files;
+				  evt.preventDefault();
+				};
+
+				pastLabel.ondragover = function(evt) {
+				  evt.preventDefault();
+				};
+				pastLabel.ondragenter = function(evt) {
+				  evt.preventDefault();
+				};
+				pastLabel.ondrop = function(evt) {
+				  pastFile.files = evt.dataTransfer.files;
+				  evt.preventDefault();
+				};
+
+				ignoreLabel.ondragover = function(evt) {
+				  evt.preventDefault();
+				};
+				ignoreLabel.ondragenter = function(evt) {
+				  evt.preventDefault();
+				};
+				ignoreLabel.ondrop = function(evt) {
+				  ignoreFile.files = evt.dataTransfer.files;
 				  evt.preventDefault();
 				};
 			});
@@ -123,6 +162,12 @@
 				$('#subArchive').val('');
 				$('#subArchiveLabel').html('Upload Archive File');
 				$('#subArchiveLabel').attr('class', 'custom-but needed');
+				$('#pastFile').val('');
+				$('#pastLabel').html('Upload Past Archive File');
+				$('#pastLabel').attr('class', 'custom-but optional');
+				$('#ignoreFile').val('');
+				$('#ignoreLabel').html('Upload Ignore List File');
+				$('#ignoreLabel').attr('class', 'custom-but optional');
 
 				$('#submitButton').attr('disabled', true);
 				$('#submitLabel').css('cursor', 'default');
@@ -135,6 +180,8 @@
 				$('#subForm').css('display', 'inline-block');
 				$('#queriesInfo').css('display', 'inline-block');
 				$('#queriesInput').val('TRUE');
+				$('#pastInput').val('FALSE');
+				$('#ignoreInput').val('FALSE');
 			};
 
 			function withoutQueriesClick() {
@@ -143,10 +190,14 @@
 				archiveSubmitted = false;
 
 				$('#queriesFile').val('');
-
 				$('#subArchive').val('');
 				$('#subArchiveLabel').html('Upload Archive File');
 				$('#subArchiveLabel').attr('class', 'custom-but needed');
+				$('#pastLabel').html('Upload Past Archive File');
+				$('#pastLabel').attr('class', 'custom-but optional');
+				$('#ignoreFile').val('');
+				$('#ignoreLabel').html('Upload Ignore List File');
+				$('#ignoreLabel').attr('class', 'custom-but optional');
 
 				$('#submitButton').attr('disabled', true);
 				$('#submitLabel').css('cursor', 'default');
@@ -159,6 +210,8 @@
 				$('#subForm').css('display', 'inline-block');
 				$('#queriesInfo').css('display', 'none');
 				$('#queriesInput').val('FALSE');
+				$('#pastInput').val('FALSE');
+				$('#ignoreInput').val('FALSE');
 			};
 
 		</script>
@@ -184,7 +237,7 @@
 		<br>
 
 		<center>
-			<h3 id="subHeader">Submit your files:</h3>
+			<h3 id="subHeader">Required files:</h3>
 	
 			<form id="subForm" action="../cgi-bin/upload.pl" method="post" enctype="multipart/form-data">
 				<!-- <fieldset>
@@ -203,16 +256,31 @@
 					</label>
 					<input id="queriesFile" type="file" name="queries" />
 				</div>
-				
 				<div id="archivesInfo">
 					<label id="subArchiveLabel" for="subArchive" class="custom-but needed">
 						Upload Archives File
 					</label>
 					<input id="subArchive" type="file" name="submissions" />
 				</div>
-				
+
+				<h3 id="optionsHeader">Optional files:</h3>
+				<div id="pastInfo">
+					<label id="pastLabel" for="pastFile" class="custom-but needed">
+						Upload Past Archive File
+					</label>
+					<input id="pastFile" type="file" name="pastArchive" />
+				</div>
+				<div id="ignoreInfo">
+					<label id="ignoreLabel" for="ignoreFile" class="custom-but needed">
+						Upload Ignore List File
+					</label>
+					<input id="ignoreFile" type="file" name="ignoreList" />
+				</div>
+
 				<input type="hidden" name="email" value="<?php echo $_SESSION['email'] ?>">
 				<input id="queriesInput" type="hidden" name="queriesBool" value="NULL">
+				<input id="pastInput" type="hidden" name="pastBool" value="NULL">
+				<input id="ignoreInput" type="hidden" name="ignoreBool" value="NULL">
 
 				<br><br>
 

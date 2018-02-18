@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder] [ignore file]
 
 use strict;
 use warnings;
@@ -15,8 +15,22 @@ my $SINGLE_DIR = $ARGV[1];
 my $SEPARATE_LANG = $ARGV[2];
 my $dirNum = $ARGV[3];
 my $userFolder = $ARGV[4];
+my $ignoreFile = $ARGV[5];
+
 
 chdir($userFolder);
+
+my %ignores;
+
+unless ($ignoreFile eq "???") {
+    open(my $fh, "<", "$ignoreFile")
+        or die "Failed to open file: $!\n";
+    while(<$fh>) { 
+        chomp; 
+        $ignores{$_} = 1;
+    } 
+    close $fh;
+}
 
 my @targetTypes = ("c","java","py");
 my $archiveDir;
@@ -112,30 +126,32 @@ foreach (@submissions) {
 
                     my $newName = $dirNum . "_" . $subIndex . "_" . $subIndex2 . "_" . $name . $suffix;
 
-                    if ($SINGLE_DIR) {
+                    unless (defined $ignores{$name . $suffix}) {
+                        if ($SINGLE_DIR) {
 
-                        chdir("..");
+                            chdir("..");
 
-                        if ($SEPARATE_LANG) {
-                            mkdir $filterFolder unless -d $filterFolder;
-                            rename(getcwd . "/$subIndex/" . substr($candidate,2), getcwd . "/$filterFolder" . "/$newName");
+                            if ($SEPARATE_LANG) {
+                                mkdir $filterFolder unless -d $filterFolder;
+                                rename(getcwd . "/$subIndex/" . substr($candidate,2), getcwd . "/$filterFolder" . "/$newName");
+                            }
+                            else {
+                                rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+                            }
+                            chdir($subIndex);
                         }
                         else {
-                            rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+                            if ($SEPARATE_LANG) {
+                                mkdir $filterFolder unless -d $filterFolder;
+                                rename($candidate, getcwd . "/$filterFolder" . "/$newName");
+                            }
+                            else {
+                                rename($candidate, getcwd . "/$newName");
+                            }
                         }
-                        chdir($subIndex);
+                        $subIndex2++;
                     }
-                    else {
-                        if ($SEPARATE_LANG) {
-                            mkdir $filterFolder unless -d $filterFolder;
-                            rename($candidate, getcwd . "/$filterFolder" . "/$newName");
-                        }
-                        else {
-                            rename($candidate, getcwd . "/$newName");
-                        }
-                    }
-                    $subIndex2++;
-               }
+                }
             }
        }
     }
