@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [fire_dir sources] [user folder] [user]
+# Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user]
 
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
@@ -9,17 +9,26 @@ use TokenScraper;
 use Template;
 
 my $INT_FLAG = $ARGV[0];
-my $userFolder = $ARGV[3];
-my $user = $ARGV[4];
+my $userFolder = $ARGV[4];
+my $user = $ARGV[5];
 
 my $origin = $ARGV[1];
+my $originsGroup = 2;
 my $sourcesGroup = 999;
 my $sourcesDir;
 
-if (defined $ARGV[2]) {
+unless ($ARGV[2] eq "???") {
 	$sourcesDir = $ARGV[2];
 	$sourcesGroup = 1;
 }
+
+my $pastGroup = 998;
+my $pastDir;
+unless ($ARGV[3] eq "???") {
+	$pastDir = $ARGV[3];
+	$pastGroup = 3;
+}
+
 my $matchLim = 10;
 my $KSIZE = 5;
 my $MINRUN = 3;
@@ -69,10 +78,17 @@ foreach my $curLang (@langs) {
 	chdir($workDir);
 
 	my @sources;
+	my @pastSources;
 
 	if (-d "$sourcesDir/$curLang") {
 		chdir("$sourcesDir/$curLang");
 		@sources = `ls`;
+		chdir($workDir);
+	}
+
+	if (-d "$pastDir/$curLang") {
+		chdir("$pastDir/$curLang");
+		@pastSources = `ls`;
 		chdir($workDir);
 	}
 
@@ -81,6 +97,9 @@ foreach my $curLang (@langs) {
 	if (-d "$sourcesDir/$curLang") {
 		system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
 	}
+	if (-d "$pastDir/$curLang") {
+		system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$pastDir/$curLang");
+	}
 
 	my %tokPos;
 
@@ -88,6 +107,9 @@ foreach my $curLang (@langs) {
 	preCount(\%countIndex, \@submissions, \%tokPos, $origin, $curLang);
 	if (-d "$sourcesDir/$curLang") {
 		preCount(\%countIndex, \@sources, \%tokPos, $sourcesDir, $curLang);
+	}
+	if (-d "$pastDir/$curLang") {
+		preCount(\%countIndex, \@pastSources, \%tokPos, $pastDir, $curLang);
 	}
 
 	# Create a fingerprint for each file
@@ -101,6 +123,13 @@ foreach my $curLang (@langs) {
 			chomp $source;
 
 			winnow("./$sourcesDir/$curLang/$source", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
+		}
+	}
+	if (-d "$pastDir/$curLang") {
+		foreach my $source (@pastSources) {
+			chomp $source;
+
+			winnow("./$pastDir/$curLang/$source", 50, $KSIZE, $matchLim, \%countIndex, \%tokPos, $curLang);
 		}
 	}
 
@@ -177,7 +206,7 @@ foreach my $curLang (@langs) {
 		    my ($group1, $subNum) = ($key =~ /(.*?)_(.*?)_.+/);
 		    my ($group2, $subNum2) = ($key2 =~ /(.*?)_(.*?)_.+/);
 
-		    if ($matchNum >= $threshold && ($group1 != $sourcesGroup || $group2 != $sourcesGroup)) {
+		    if ($matchNum >= $threshold && ($group1 == $originsGroup || $group2 == $originsGroup)) {
 		    	if ($INT_FLAG) {
 		    		unless ($subNum eq $subNum2) {
 		    			push @suspects, "\'$key\'" . " " . "\'$key2\'" . " " . $matchNum;
@@ -215,15 +244,16 @@ foreach my $curLang (@langs) {
 
 	while (<$fh3>) {
 		my ($subNum, $fileNum, $filePath) = ($_ =~ /(.*?) (.*?) \.\/(.+)/);
-		$filePath =~ s/^\s+|\s+$//g;;
+		$filePath =~ s/^\s+|\s+$//g;
 		$dirLookup->{$subNum}->{$fileNum} = "./$origin/" . $nameLookup->{$subNum} . "/$filePath";
 	}
 	close $fh3;
 
+	my %dirLookup2;
+	my %nameLookup2;
+
 	# Sources
 	if (-d "./$sourcesDir") {
-		my %dirLookup2;
-		my %nameLookup2;
 
 		my $dirNumFile = "./$sourcesDir/Directories.txt";
 		my $nameNumFile = "./$sourcesDir/Names.txt";
@@ -243,12 +273,43 @@ foreach my $curLang (@langs) {
 
 		while (<$fh3>) {
 			my ($subNum, $fileNum, $filePath) = ($_ =~ /(.*?) (.*?) \.\/(.+)/);
-			$filePath =~ s/^\s+|\s+$//g;;
+			$filePath =~ s/^\s+|\s+$//g;
 			$dirLookup2->{$subNum}->{$fileNum} = "./$sourcesDir/" . $nameLookup2->{$subNum} . "/$filePath";
 		}
 		close $fh3;
 	}
 
+	my %dirLookup3;
+	my %nameLookup3;
+
+	# Past Sources
+	if (-d "./$pastDir") {
+
+		my $dirNumFile = "./$pastDir/Directories.txt";
+		my $nameNumFile = "./$pastDir/Names.txt";
+
+		open(my $fh5, $dirNumFile)
+			or die "Failed to open file: '$dirNumFile'!\n";
+		open(my $fh6, $nameNumFile)
+			or die "Failed to open file: '$nameNumFile'!\n";
+
+		while (<$fh6>) {
+			my ($subNum, $subName) = ($_ =~ /(.*?) (.+)/);
+			$subName =~ s/^\s+|\s+$//g;
+
+			$nameLookup3->{$subNum} = $subName;
+		}
+		close $fh4;
+
+		while (<$fh5>) {
+			my ($subNum, $fileNum, $filePath) = ($_ =~ /(.*?) (.*?) \.\/(.+)/);
+			$filePath =~ s/^\s+|\s+$//g;
+			$dirLookup3->{$subNum}->{$fileNum} = "./$pastDir/" . $nameLookup3->{$subNum} . "/$filePath";
+
+			print($dirLookup3->{$subNum}->{$fileNum} . "\n");
+		}
+		close $fh5;
+	}
 
 
 	foreach my $suspect (@suspects) {
@@ -266,18 +327,27 @@ foreach my $curLang (@langs) {
 			$fullName1 = $dirLookup2->{$subNum}->{$dirNum};
 			$dirName1 = "./$sourcesDir/$curLang/$name1";
 		}
-		else {
+		elsif ($groupNum eq $originsGroup) {
 			$fullName1 = $dirLookup->{$subNum}->{$dirNum};
 			$dirName1 = "./$origin/$curLang/$name1";
 		}
+		else {
+			$fullName1 = $dirLookup3->{$subNum}->{$dirNum};
+			$dirName1 = "./$pastDir/$curLang/$name1";
+		}
+
 		my ($groupNum, $subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
 		if ($groupNum eq $sourcesGroup) {
 			$fullName2 = $dirLookup2->{$subNum}->{$dirNum};
 			$dirName2 = "./$sourcesDir/$curLang/$name2";
 		}
-		else {
+		elsif ($groupNum eq $originsGroup) {
 			$fullName2 = $dirLookup->{$subNum}->{$dirNum};
 			$dirName2 = "./$origin/$curLang/$name2";
+		}
+		else {
+			$fullName2 = $dirLookup3->{$subNum}->{$dirNum}; #idk
+			$dirName2 = "./$pastDir/$curLang/$name2";
 		}
 
 		my $matchFile = createMatchFile($name1, $name2, $origin, $curLang, \%matchIndex, \%scoreHash, $MINRUN, $fullName1, $fullName2, $dirName1, $dirName2);
@@ -323,16 +393,22 @@ foreach my $curLang (@langs) {
 		if ($groupNum eq $sourcesGroup) {
 			$fullName1 = $dirLookup2->{$subNum}->{$dirNum};
 		}
-		else {
+		elsif ($groupNum eq $originsGroup) {
 			$fullName1 = $dirLookup->{$subNum}->{$dirNum};
+		}
+		else {
+			$fullName1 = $dirLookup3->{$subNum}->{$dirNum};
 		}
 
 		my ($groupNum, $subNum, $dirNum, $origName) = ($name2 =~ /(.*?)_(.*?)_(.*?)_(.+)/);
 		if ($groupNum eq $sourcesGroup) {
 			$fullName2 = $dirLookup2->{$subNum}->{$dirNum};
 		}
-		else {
+		elsif ($groupNum eq $originsGroup) {
 			$fullName2 = $dirLookup->{$subNum}->{$dirNum};
+		}
+		else {
+			$fullName2 = $dirLookup3->{$subNum}->{$dirNum};
 		}
 
 

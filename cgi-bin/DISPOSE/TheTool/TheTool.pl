@@ -24,11 +24,18 @@ system("perl Unzipper.pl $submissions 1 1 2 $userFolder $ignoreFile");
 
 (my $archiveDir, my $archiveExt) = ($submissions =~ /(.+)\.(.+)$/);
 
+my $pastDir = "???";
+my $pastExt;
+
+unless ($pastFile eq "???") {
+	($pastDir, $pastExt) = ($pastFile =~ /(.+)\.(.+)$/);
+}
+
 if ($queryFile eq "???") {
-	system("perl OpenMOSS.pl 1 $archiveDir ??? $userFolder $user");
+	system("perl OpenMOSS.pl 1 $archiveDir ??? $pastDir $userFolder $user");
 }
 else {
-	system("perl OpenMOSS.pl 1 $archiveDir GithubResults $userFolder $user");
+	system("perl OpenMOSS.pl 1 $archiveDir GithubResults $pastDir $userFolder $user");
 }
 
 print("\n\n-----------------------------------------------\n\nYour final results can be found at results.html!\n");
