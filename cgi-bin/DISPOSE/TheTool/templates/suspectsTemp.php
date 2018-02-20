@@ -2,7 +2,8 @@
 	title = 'DISPOSE | Match Results';
 %]
 
-	<a href="./login/profile.php">< Profile</a>
+	<a href="./login/profile.php">&#8592; Profile</a> | 
+	<a href="/">Save &#8594;</a>
 	<h1>Your DISPOSE Results</h1>
 
 	<h2>Language: </h2>
@@ -46,7 +47,7 @@
 				?>
 				[% END %]
 
-				[% IF match.srcType1 == "2" %]
+				[% IF match.srcType1 == "2" || match.srcType1 == "3" %]
 				<?php
 				echo '[<sub><a href="download.php?source=' . urlencode("[% match.file1 %]") . '&lang=' . urlencode("[% match.lang %]") . 
 				'&user=' . urlencode($_SESSION['email']) . '&sourceLoc=' . urlencode("[% match.dirName1 %]") . '"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
@@ -71,7 +72,7 @@
 				?>
 				[% END %]
 
-				[% IF match.srcType2 == "2" %]
+				[% IF match.srcType2 == "2" || match.srcType2 == "3" %]
 				<?php
 				echo '[<sub><a href="download.php?source=' . urlencode("[% match.file2 %]") . '&lang=' . urlencode("[% match.lang %]") . 
 				'&user=' . urlencode($_SESSION['email']) . '&sourceLoc=' . urlencode("[% match.dirName2 %]") . '"><img src="../img/download.png" class="scaleImg" /></a></sub>]';
