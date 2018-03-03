@@ -253,7 +253,7 @@ foreach my $curLang (@langs) {
 	my %nameLookup2;
 
 	# Sources
-	if (-d "./$sourcesDir") {
+	if (-f "./$sourcesDir/Directories.txt") {
 
 		my $dirNumFile = "./$sourcesDir/Directories.txt";
 		my $nameNumFile = "./$sourcesDir/Names.txt";
@@ -283,7 +283,7 @@ foreach my $curLang (@langs) {
 	my %nameLookup3;
 
 	# Past Sources
-	if (-d "./$pastDir") {
+	if (-f"./$pastDir/Directories.txt") {
 
 		my $dirNumFile = "./$pastDir/Directories.txt";
 		my $nameNumFile = "./$pastDir/Names.txt";
