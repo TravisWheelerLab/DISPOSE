@@ -446,7 +446,8 @@ foreach my $curLang (@langs) {
 my $vars = {
       matches => \@suspects_hashes,
       langs => \@langs,
-      tempFolder => $tempFolder
+      tempFolder => $tempFolder,
+      user => $user
 };
 
 chdir($workDir);
@@ -454,6 +455,14 @@ chdir($workDir);
 my $template = Template->new(RELATIVE => 1);
 $template->process($fileTemp, $vars, $mainOut)
     || die "Template process failed: ", $template->error(), "\n";
+
+my $fileTemp2 = $tempFolder . "suspectsTemp.html";
+my $mainOut2 = "../../results/$user/results.html";
+
+my $template2 = Template->new(RELATIVE => 1);
+$template2->process($fileTemp2, $vars, $mainOut2)
+	|| die "Template process failed: ", $template2->error(), "\n";
+
 
 print ("\n");
 
