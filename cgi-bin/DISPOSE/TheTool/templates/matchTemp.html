@@ -2,17 +2,34 @@
 	title = 'DISPOSE | Match Results';
 %]
 
+	<script>
+		var loc;
+		function receiveMessage(event)
+		{
+		  loc = event.data;
+
+		  $("a.fullLink").click(function() {
+		  	window.top.location.href = loc + '/[% fullTextLink %]';
+		  });
+
+		  $("a.fullLink").attr("href", loc + '/[% fullTextLink %]');
+		}
+		window.addEventListener("message", receiveMessage, false);
+	</script>
+
 	<a href="javascript:history.back()">< Back</a>
 	<h1>Some Interesting Matches</h1>
 	<table>
 		<tr>
 			<td><h2>
-				<a href="[% fullTextLink %]" class="hasTooltip">[% file1.name %]
+				<a href="/[% fullTextLink %]" class="hasTooltip fullLink">
+					[% file1.name %]
 					<span>[% file1.fullName %]</span>
 				</a>
 			</h2></td>
 			<td><h2>
-				<a href="[% fullTextLink %]" class="hasTooltip">[% file2.name %]
+				<a href="/[% fullTextLink %]" class="hasTooltip fullLink">
+					[% file2.name %]
 					<span>[% file2.fullName %]</span>
 				</a>
 			</h2></td>

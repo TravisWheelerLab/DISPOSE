@@ -42,7 +42,7 @@
 		[%  FOREACH match IN matches %]
 		<tr class="[% match.lang %]_result lang_result">
 			<td>
-				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
+				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file1 %]
 					<span>[% match.fullName1 %]</span>
 				</a>
@@ -72,7 +72,7 @@
 				[% match.authName1 %]
 			</td>
 			<td>
-				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
+				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file2 %]
 					<span>[% match.fullName2 %]</span>
 				</a>
@@ -111,46 +111,71 @@
 		var searchParams = new URLSearchParams(urlString.search);
 		var lang = searchParams.get("lang");
 
-		$().ready(function() {
-			$("table#resultsTable").tablesorter( {sortList: [[4,1]]} ); 
-			$("select#langSelect").val("none");
+		var id = searchParams.get("id");
+		var type = searchParams.get("type");
 
-			if (lang) {
-				$("select#langSelect").val(lang);
+		if (id) {
+			if (type) {
+				$("html").html('<iframe width=100% height=100% src="' + "./outFiles/" + lang + "/match" + id + "_" + type + '.html"' + "></object>");
+			}
+			else {
+				$("html").html('<iframe width=100% height=100% src="' + "./outFiles/" + lang + "/match" + id + "_match" + '.html"' + "></object>");
+			}
 
-				if ($("select#langSelect").val() == "all") {
+			var url = window.location.href;
+			var path = url.substring(0, url.lastIndexOf("/"));
+			console.log(path);
+			
+			setTimeout(function() {
+				var match_file = document.getElementsByTagName("iframe")[0].contentWindow;
+				match_file.postMessage(path, "*");
+			}, 1000);
+			
+		}
+
+		else {
+
+			$().ready(function() {
+				$("table#resultsTable").tablesorter( {sortList: [[4,1]]} ); 
+				$("select#langSelect").val("none");
+
+				if (lang) {
+					$("select#langSelect").val(lang);
+
+					if ($("select#langSelect").val() == "all") {
+						[%  FOREACH lang IN langs %]
+						$(".[% lang %]_result").toggle();
+						[%  END %]
+					}
+
 					[%  FOREACH lang IN langs %]
-					$(".[% lang %]_result").toggle();
+					else if ($("select#langSelect").val() == "[% lang %]") {
+						$(".[% lang %]_result").toggle();
+					}
 					[%  END %]
+
+					else {
+						window.location.href="results.php";
+					}
 				}
 
-				[%  FOREACH lang IN langs %]
-				else if ($("select#langSelect").val() == "[% lang %]") {
-					$(".[% lang %]_result").toggle();
-				}
-				[%  END %]
+				$("select#langSelect").trigger('change');
 
-				else {
-					window.location.href="results.html";
-				}
-			}
+			});
 
-			$("select#langSelect").trigger('change');
+			$("select#langSelect").change(function() {
 
-		});
+				if ($("select#langSelect").val().length == 0) {
+						window.location.href="results.php";
+					}
 
-		$("select#langSelect").change(function() {
-
-			if ($("select#langSelect").val().length == 0) {
-					window.location.href="results.html";
+				if (lang !== $("select#langSelect").val()) {
+					window.location.href="results.php?lang="+$("select#langSelect").val();
 				}
 
-			if (lang !== $("select#langSelect").val()) {
-				window.location.href="results.html?lang="+$("select#langSelect").val();
-			}
 
-
-		});
+			});
+		}
     </script>
 
 
