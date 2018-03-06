@@ -8,7 +8,8 @@
 		{
 		  loc = event.data;
 
-		  $("a.fullLink").click(function() {
+		  $("a.fullLink").click(function(event) {
+		  	event.preventDefault();
 		  	window.top.location.href = loc + '/[% fullTextLink %]';
 		  });
 
