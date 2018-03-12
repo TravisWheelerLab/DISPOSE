@@ -3,7 +3,7 @@
 %]
 
 	<a href="./login/profile.php">&#8592; Profile</a> | 
-	<a href="/">Save &#8594;</a>
+	<?php echo '<a href="'. "./save.php?user=" . urlencode($_SESSION['email']) .'">'; ?>Save &#8594;</a>
 	<h1>Your DISPOSE Results</h1>
 
 	<h2>Language: </h2>
