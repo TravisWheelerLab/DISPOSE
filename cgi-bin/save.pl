@@ -30,7 +30,7 @@ dircopy("../html/css", '../results/' . $email . "/offline/" . $folderName . '/re
 dircopy("../html/img", '../results/' . $email . "/offline/" . $folderName . '/results/img') or die ("$!\n");
 dircopy("../html/js", '../results/' . $email . "/offline/" . $folderName . '/results/js') or die ("$!\n");
 
-copy("../results/" . $email . "/offline/results.php", "../results/" . $email . "/offline/" . $folderName . "/results/" . $email . "/results.php") or die ("$!\n");
+copy("../results/" . $email . "/offline/results.html", "../results/" . $email . "/offline/" . $folderName . "/results/" . $email . "/results.html") or die ("$!\n");
 
 
 my $zip = Archive::Zip->new();

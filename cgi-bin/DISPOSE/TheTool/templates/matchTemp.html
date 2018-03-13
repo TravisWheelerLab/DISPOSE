@@ -7,13 +7,14 @@
 		function receiveMessage(event)
 		{
 		  loc = event.data;
+		  console.log("HELLO " + loc);
 
 		  $("a.fullLink").click(function(event) {
 		  	event.preventDefault();
-		  	window.top.location.href = loc + '/[% fullTextLink %]';
+		  	window.top.location.href = loc + '[% fullTextLink %]';
 		  });
 
-		  $("a.fullLink").attr("href", loc + '/[% fullTextLink %]');
+		  $("a.fullLink").attr("href", loc + '[% fullTextLink %]');
 		}
 		window.addEventListener("message", receiveMessage, false);
 	</script>
@@ -23,13 +24,13 @@
 	<table>
 		<tr>
 			<td><h2>
-				<a href="/[% fullTextLink %]" class="hasTooltip fullLink">
+				<a href="/results.php[% fullTextLink %]" class="hasTooltip fullLink">
 					[% file1.name %]
 					<span>[% file1.fullName %]</span>
 				</a>
 			</h2></td>
 			<td><h2>
-				<a href="/[% fullTextLink %]" class="hasTooltip fullLink">
+				<a href="/results.php[% fullTextLink %]" class="hasTooltip fullLink">
 					[% file2.name %]
 					<span>[% file2.fullName %]</span>
 				</a>

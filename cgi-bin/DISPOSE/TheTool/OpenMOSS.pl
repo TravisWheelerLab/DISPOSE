@@ -458,7 +458,7 @@ $template->process($fileTemp, $vars, $mainOut)
 
 my $fileTemp2 = $tempFolder . "suspectsTemp.html";
 # Uses a .php extension so that the generated matchFiles can be reused
-my $mainOut2 = "../../results/$user/offline/results.php";
+my $mainOut2 = "../../results/$user/offline/results.html";
 
 mkdir "../../results/$user/offline" unless -d "../../results/$user/offline";
 

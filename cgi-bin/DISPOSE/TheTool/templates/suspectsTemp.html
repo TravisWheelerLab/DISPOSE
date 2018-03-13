@@ -42,7 +42,7 @@
 		[%  FOREACH match IN matches %]
 		<tr class="[% match.lang %]_result lang_result">
 			<td>
-				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
+				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file1 %]
 					<span>[% match.fullName1 %]</span>
 				</a>
@@ -72,7 +72,7 @@
 				[% match.authName1 %]
 			</td>
 			<td>
-				<a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
+				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file2 %]
 					<span>[% match.fullName2 %]</span>
 				</a>
@@ -114,7 +114,7 @@
 		var id = searchParams.get("id");
 		var type = searchParams.get("type");
 
-		var iframeBorder = "<style>iframe{border:0}</style>"
+		var iframeBorder = "<style>iframe{border:0}</style>";
 
 		if (id) {
 			if (type) {
@@ -125,7 +125,7 @@
 			}
 
 			var url = window.location.href;
-			var path = url.substring(0, url.lastIndexOf("/"));
+			var path = url.substring(0, url.lastIndexOf("/")) + "/results.html";
 			console.log(path);
 			
 			setTimeout(function() {
@@ -157,7 +157,7 @@
 					[%  END %]
 
 					else {
-						window.location.href="results.php";
+						window.location.href="results.html";
 					}
 				}
 
@@ -168,11 +168,11 @@
 			$("select#langSelect").change(function() {
 
 				if ($("select#langSelect").val().length == 0) {
-						window.location.href="results.php";
+						window.location.href="results.html";
 					}
 
 				if (lang !== $("select#langSelect").val()) {
-					window.location.href="results.php?lang="+$("select#langSelect").val();
+					window.location.href="results.html?lang="+$("select#langSelect").val();
 				}
 
 

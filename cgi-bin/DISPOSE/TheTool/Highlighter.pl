@@ -138,7 +138,7 @@ while (<$fh>) {
 }
 close $fh;
 
-my $fullTextLink = "results.php?lang=$curLang&id=$matchIndex&type=text";
+my $fullTextLink = "?lang=$curLang&id=$matchIndex&type=text";
 
 my $vars = {
       matches => \@matches,
