@@ -54,8 +54,9 @@ public class FlatTree {
 		}
 		
 		public void updateCounts() {
-			if (getChildCount() == 0 && leafless)
+			if (getChildCount() == 0 && leafless && !hashVal.equals("")) {
 				treeCounts.put(hashVal, 1);
+			}
 			else
 				for (Node n: children) {
 					Iterator<Entry<String, Integer>> it = n.treeCounts.entrySet().iterator();
@@ -66,13 +67,30 @@ public class FlatTree {
 				        treeCounts.put(pair.getKey(), treeCounts.get(pair.getKey())+pair.getValue());
 				        it.remove(); // avoids a ConcurrentModificationException
 				    }
-				    treeCounts.put(n.hashVal, 1);
 				}
+			if (treeCounts.get(hashVal) == null && !hashVal.equals(""))
+		    	treeCounts.put(hashVal, 1);
+		    else if (!hashVal.equals(""))
+		    	treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
 		}
 		
 		@Override
 		public int compareTo(Node other) {
 			return hashVal.compareTo(other.hashVal);
+		}
+		
+		public void printCounts() {
+			int total = 0;
+	        
+			Iterator<Entry<String, Integer>> it = treeCounts.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
+		        System.out.println(pair.getKey() + " : " + pair.getValue());
+		        total += pair.getValue();
+		        it.remove(); // avoids a ConcurrentModificationException
+		    }
+		    
+		    System.out.println("\nTotal subtrees: " + total);
 		}
 	}
 	

@@ -8,6 +8,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.print.PrintException;
@@ -25,6 +28,8 @@ import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.Trees;
+
+import Java.FlatTree.Node;
 
 public class JavaMain {
 	public static void main(String[] args) {
@@ -49,10 +54,13 @@ public class JavaMain {
         
         // Create hash values to count subtrees
         myLeaflessTree.createHashes(myLeaflessTree.firstNode);
-        //System.out.println(myLeaflessTree.firstNode.toHash());
-        // Keep track of how often a subtree appears below every node
-        myLeaflessTree.updateAllCounts(myLeaflessTree.firstNode);
+//      myTree.createHashes(myTree.firstNode);
         
+        // Keep track of how often a subtree appears below every node
+//      myTree.updateAllCounts(myTree.firstNode);
+//      myTree.firstNode.printCounts();
+        myLeaflessTree.updateAllCounts(myLeaflessTree.firstNode);
+        myLeaflessTree.firstNode.printCounts();
  		
         // Show AST in image
         TreeViewer viewr = new TreeViewer(Arrays.asList(
