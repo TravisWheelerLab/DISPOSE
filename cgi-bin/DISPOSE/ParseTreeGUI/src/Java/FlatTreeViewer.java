@@ -675,8 +675,8 @@ public class FlatTreeViewer extends JComponent {
 	public void save(String fileName) throws IOException, PrintException {
 		JFrame dialog = new JFrame();
 		Container contentPane = dialog.getContentPane();
-		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(
-				10, 10, 10, 10));
+//		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(
+//				10, 10, 10, 10));
 		contentPane.add(this);
 		contentPane.setBackground(Color.white);
 		dialog.pack();
