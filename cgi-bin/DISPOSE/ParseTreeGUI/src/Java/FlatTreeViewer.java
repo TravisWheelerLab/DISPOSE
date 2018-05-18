@@ -58,6 +58,7 @@ public class FlatTreeViewer extends JComponent {
 	public static final Color LIGHT_RED = new Color(244, 213, 211);
 
 	public static class DefaultTreeTextProvider implements TreeTextProvider {
+		@SuppressWarnings("unused")
 		private final List<String> ruleNames;
 
 		public DefaultTreeTextProvider(List<String> ruleNames) {
@@ -840,6 +841,7 @@ public class FlatTreeViewer extends JComponent {
 
 	private static class TreeNodeWrapper extends DefaultMutableTreeNode {
 
+		private static final long serialVersionUID = 1L;
 		final FlatTreeViewer viewer;
 
 		TreeNodeWrapper(Node childTree, FlatTreeViewer viewer) {
