@@ -38,8 +38,8 @@ my %lineHash2;
 my $file1 = "$name1";
 my $file2 = "$name2";
 
-my $file1Text;
-my $file2Text;
+my $file1Text = "";
+my $file2Text = "";
 
 open(my $fh1, $file1)
 	or die "Failed to open file: '$file1'!\n";
@@ -113,8 +113,8 @@ while (<$fh>) {
 		my $linesText1 = "$kgramPos1:$linePos1 " . "$kgramEnd1:$lineEnd1 $curRun";
 		# print("$kgramPos1:$linePos1 " . "$kgramEnd1:$lineEnd1 $curRun\n\n");
 
-		my $text1;
-		my $text2;
+		my $text1 = "";
+		my $text2 = "";
 
 		for (my $i = $linePos1; $i <= $lineEnd1; $i = $i+1) {
 			# print($lineHash1{$i});

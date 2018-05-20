@@ -4,6 +4,7 @@
 
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
+use lib '.';
 use Winnower;
 use TokenScraper;
 use Template;
@@ -199,7 +200,7 @@ foreach my $curLang (@langs) {
 	my @suspectScores;
 
 	for my $key (keys %matchIndex) {
-		for my $key2 (keys $matchIndex{$key}) {
+		for my $key2 (keys %{$matchIndex{$key}}) {
 			@{$matchIndex{$key}{$key2}} = uniq @{$matchIndex{$key}{$key2}};
 		    my $matchNum = scalar @{$matchIndex{$key}{$key2}};
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
@@ -354,7 +355,7 @@ foreach my $curLang (@langs) {
 	}
 
 	for my $key (keys %scoreHash) {
-		for my $key2 (keys $scoreHash{$key}) {
+		for my $key2 (keys %{$scoreHash{$key}}) {
 		    # print("\n" . $key . " " . $key2 .  " $matchNum\n");
 		    push @suspectScores, "$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2};
 		    # print ("$key" . " " . "$key2" . " " . $scoreHash{$key}{$key2} . "\n");

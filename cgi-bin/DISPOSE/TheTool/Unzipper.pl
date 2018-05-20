@@ -32,7 +32,7 @@ unless ($ignoreFile eq "???") {
     close $fh;
 }
 
-my @targetTypes = ("c","java","py");
+my @targetTypes = ("c","java","py", "cs");
 my $archiveDir;
 my $archiveExt;
 
@@ -112,6 +112,9 @@ foreach (@submissions) {
                 elsif ($type eq "py") {
                     $filterFolder = "Python";
                 }
+                elsif ($type eq "cs") {
+                    $filterFolder = "CSharp";
+                }
 
                 if ($suffix eq $type and $ext eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
@@ -161,7 +164,7 @@ foreach (@submissions) {
         my @junk = `ls`;
         foreach(@junk) {
             s/\s*$//;
-            if (-d "$_" && "$_" ne "Java" && "$_" ne "C" && "$_" ne "Python") {
+            if (-d "$_" && "$_" ne "Java" && "$_" ne "C" && "$_" ne "Python" && "$_" ne "CSharp") {
                 system("rm -rf \"$_\"");
             }
         }
