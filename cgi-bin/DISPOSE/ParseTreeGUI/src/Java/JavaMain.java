@@ -27,15 +27,20 @@ public class JavaMain {
         FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
         myLeaflessTree.leafless = true;
         
+        // Replace the subtree of an expressionStatement with in-order
+        // traversal string of leaves
+        myLeaflessTree.replaceExpr(myLeaflessTree.firstNode);
+        myTree.replaceExpr(myTree.firstNode);
+        
         // Create hash values to count subtrees
         myLeaflessTree.createHashes(myLeaflessTree.firstNode);
-//      myTree.createHashes(myTree.firstNode);
+        myTree.createHashes(myTree.firstNode);
         
         // Keep track of how often a subtree appears below every node
-//      myTree.updateAllCounts(myTree.firstNode);
-//      myTree.firstNode.printCounts();
+        myTree.updateAllCounts(myTree.firstNode);
+        myTree.firstNode.printCounts();
         myLeaflessTree.updateAllCounts(myLeaflessTree.firstNode);
-        myLeaflessTree.firstNode.printCounts();
+        //myLeaflessTree.firstNode.printCounts();
  		
         // Show AST in image
         TreeViewer viewr = new TreeViewer(Arrays.asList(

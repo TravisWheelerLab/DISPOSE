@@ -118,7 +118,7 @@ public class FlatTree {
 		firstNode = rootNode;
 		
 		TextInBox rootBox = new TextInBox(rootNode.data, 200, 50);
-    	treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
+    		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
 //    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
 		
@@ -150,7 +150,10 @@ public class FlatTree {
 		      else {
 		    	  Node childNode = new Node();
 		    	  childNode.parent = parentStack.peek();
-		    	  childNode.data = treeTokens[i];
+		    	  if (childNode.parent.data.equals("expressionName") || childNode.parent.data.equals("variableDeclaratorId"))
+		    		  childNode.data = "temp";
+		    	  else
+		    		  childNode.data = treeTokens[i];
 		    	  
 //		    	  System.out.println("PARENT: " + childNode.parent.data);
 		    
@@ -241,4 +244,31 @@ public class FlatTree {
 		}
 	}
 	
+	public void traverseLeaves(StringBuilder result, Node n) {
+		if (n.getChildCount() != 0)
+			for (Node c: n.children)
+				traverseLeaves(result, c);
+		else
+			result.append(n.data);
+	}
+	
+	public void replaceExpr(Node n) {
+		if (n.getChildCount() == 0)
+			return;
+		else {
+			for (Node nChild : n.children) {
+				if (nChild.data.equals("expressionStatement")) {
+					StringBuilder result = new StringBuilder();
+					traverseLeaves(result, nChild);
+					Node newChild = new Node();
+					newChild.parent = nChild;
+					newChild.data = result.toString();
+					nChild.children = new ArrayList<Node>();
+					nChild.children.add(newChild);
+				}
+				else
+					replaceExpr(nChild);
+			}
+		}
+	}
 }
