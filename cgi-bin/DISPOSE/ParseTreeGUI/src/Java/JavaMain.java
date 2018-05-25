@@ -42,7 +42,6 @@ public class JavaMain {
 		        if (fileCounts.get(pair.getKey()) == null)
 		        		fileCounts.put(pair.getKey(), 0);
 		        fileCounts.put(pair.getKey(), fileCounts.get(pair.getKey())+1);
-		        it.remove(); // avoids a ConcurrentModificationException
 		    }
 		}
 		
@@ -52,6 +51,8 @@ public class JavaMain {
 		stopWords.add(")");
 		
 		for (FlatTree ft: allTrees) {
+			System.out.println(ft.firstNode.hashVal);
+			//ft.firstNode.printCounts();
 			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
 		}
         

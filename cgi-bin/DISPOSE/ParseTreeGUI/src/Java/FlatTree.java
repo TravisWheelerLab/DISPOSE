@@ -59,9 +59,8 @@ public class FlatTree {
 		}
 		
 		public void updateCounts() {
-			if (getChildCount() == 0 && !hashVal.equals("")) {
+			if (getChildCount() == 0 && !hashVal.equals(""))
 				treeCounts.put(hashVal, 1);
-			}
 			else
 				for (Node n: children) {
 					Iterator<Entry<String, Integer>> it = n.treeCounts.entrySet().iterator();
@@ -92,7 +91,6 @@ public class FlatTree {
 		        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
 		        System.out.println(pair.getKey() + " : " + pair.getValue());
 		        total += pair.getValue();
-		        it.remove(); // avoids a ConcurrentModificationException
 		    }
 		    
 		    System.out.println("\nTotal subtrees: " + total);
@@ -103,13 +101,12 @@ public class FlatTree {
 				weight = 0;
 			}
 			else {
-				System.out.println(hashVal);
-				System.out.println(root.treeCounts.get(hashVal));
 				double TF = root.treeCounts.get(hashVal) /  root.size;
 				double IDF = Math.log(1 + (totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
 				
 				weight = TF * IDF;
 			}
+			
 		}
 	}
 	
