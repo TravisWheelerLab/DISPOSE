@@ -17,8 +17,9 @@ public class FlatTree {
 	class Node implements Comparable<Node>{
 		String data;
 		String hashVal;
+		int size;
 		Node parent;
-		int weight = 1;
+		double weight = 1;
 		ArrayList<Node> children = new ArrayList<Node>();
 		HashMap<String, Integer> treeCounts = new HashMap<String, Integer>();
 		
@@ -38,8 +39,11 @@ public class FlatTree {
 					hashVal = "0" + data;
 				else
 					hashVal = "";
+				size = 1;
 				return hashVal;
 			}
+			
+			size = 1;
 			
 			hashVal = "1" + data;
 			ArrayList<Node> sortedChildren = new ArrayList<Node>();
@@ -48,13 +52,14 @@ public class FlatTree {
 			
 			for (Node n: sortedChildren) {
 				hashVal += n.toHash();
+				size++;
 			}
 			
 			return hashVal;
 		}
 		
 		public void updateCounts() {
-			if (getChildCount() == 0 && leafless && !hashVal.equals("")) {
+			if (getChildCount() == 0 && !hashVal.equals("")) {
 				treeCounts.put(hashVal, 1);
 			}
 			else
@@ -63,15 +68,15 @@ public class FlatTree {
 				    while (it.hasNext()) {
 				        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
 				        if (treeCounts.get(pair.getKey()) == null)
-				        	treeCounts.put(pair.getKey(), 0);
+				        		treeCounts.put(pair.getKey(), 0);
 				        treeCounts.put(pair.getKey(), treeCounts.get(pair.getKey())+pair.getValue());
 				        it.remove(); // avoids a ConcurrentModificationException
 				    }
 				}
 			if (treeCounts.get(hashVal) == null && !hashVal.equals(""))
-		    	treeCounts.put(hashVal, 1);
+				treeCounts.put(hashVal, 1);
 		    else if (!hashVal.equals(""))
-		    	treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
+		    		treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
 		}
 		
 		@Override
@@ -91,6 +96,20 @@ public class FlatTree {
 		    }
 		    
 		    System.out.println("\nTotal subtrees: " + total);
+		}
+		
+		public void assignWeight(ArrayList<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+			if (stopWords.contains(data)) {
+				weight = 0;
+			}
+			else {
+				System.out.println(hashVal);
+				System.out.println(root.treeCounts.get(hashVal));
+				double TF = root.treeCounts.get(hashVal) /  root.size;
+				double IDF = Math.log(1 + (totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
+				
+				weight = TF * IDF;
+			}
 		}
 	}
 	
@@ -122,45 +141,76 @@ public class FlatTree {
 //    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
 		
+		boolean insideString = false;
+		
 		for (int i = 3; i < treeTokens.length; i++) {
 //			System.out.println(treeTokens[i]);
 		      if (treeTokens[i].length() == 0);
+		      
 			  else if (treeTokens[i].equals("(")) {
-		    	  Node parentNode = new Node();
-		    	  parentNode.parent = parentStack.peek();
-		    	  i++;
-		    	  parentNode.data = treeTokens[i];
-		    	  parentStack.peek().children.add(parentNode);
-		    	  parentStack.push(parentNode);
-		    	  
-//		    	  TextInBox parentBox = new TextInBox(parentNode.data, 200, 50);
-//		    	  treeLayout.addChild(parentBoxStack.peek(), parentBox);
-//		    	  parentBoxStack.push(parentBox);
+				  if (insideString) {
+			    	  	parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += "(";
+			      }
+				  else {
+				    	  Node parentNode = new Node();
+				    	  parentNode.parent = parentStack.peek();
+				    	  i++;
+				    	  parentNode.data = treeTokens[i];
+				    	  parentStack.peek().children.add(parentNode);
+				    	  parentStack.push(parentNode);
+				    	  
+		//		    	  TextInBox parentBox = new TextInBox(parentNode.data, 200, 50);
+		//		    	  treeLayout.addChild(parentBoxStack.peek(), parentBox);
+		//		    	  parentBoxStack.push(parentBox);
+				  }
 		      }
 		      else if (treeTokens[i].equals(")")) {
-		    	  Node curParent = parentStack.pop();
-//		    	  TextInBox curParentBox = parentBoxStack.pop();
-		    	  if (curParent.children.size() == 1 && !parentStack.isEmpty() && curParent.children.get(0).children.size() != 0) {
-		    		  curParent.children.get(0).parent = curParent.parent;
-		    		  curParent.parent.children.add(curParent.children.get(0));
-		    		  curParent.parent.children.remove(curParent);		  
-		    	  }
-		    	  
+			    	  if (insideString) {
+			    		  parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += ")";
+			    	  }
+			    	  else {
+				    	  Node curParent = parentStack.pop();
+		//		    	  TextInBox curParentBox = parentBoxStack.pop();
+				    	  if (curParent.children.size() == 1 && !parentStack.isEmpty() && curParent.children.get(0).children.size() != 0) {
+				    		  curParent.children.get(0).parent = curParent.parent;
+				    		  curParent.parent.children.add(curParent.children.get(0));
+				    		  curParent.parent.children.remove(curParent);		  
+				    	  }
+			    	  }
 		      }
 		      else {
-		    	  Node childNode = new Node();
-		    	  childNode.parent = parentStack.peek();
-		    	  if (childNode.parent.data.equals("expressionName") || childNode.parent.data.equals("variableDeclaratorId"))
-		    		  childNode.data = "temp";
-		    	  else
-		    		  childNode.data = treeTokens[i];
 		    	  
-//		    	  System.out.println("PARENT: " + childNode.parent.data);
-		    
-		    	  parentStack.peek().children.add(childNode);
-		    	  
-//		    	  TextInBox childBox = new TextInBox(childNode.data, 200, 50);
-//		    	  treeLayout.addChild(parentBoxStack.peek(), childBox);
+		    	  	if (insideString) {
+		    	  		parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += " " + treeTokens[i];
+		    	  		if (treeTokens[i].charAt(treeTokens[i].length()-1) == '"' && treeTokens[i+1].equals(")")) {
+		    	  			  if (treeTokens[i].length() > 1) {
+		    	  				  if (treeTokens[i].charAt(treeTokens[i].length()-2) != '\\')
+		    	  					  insideString = false;
+		    	  			  }
+		    	  			  else
+		    	  				  insideString = false;
+		    	  		}
+		    	  	}  
+		    	  	else {
+			    	  Node childNode = new Node();
+			    	  childNode.parent = parentStack.peek();
+			    	  if (childNode.parent.data.equals("expressionName") || childNode.parent.data.equals("variableDeclaratorId"))
+			    		  childNode.data = "temp";
+			    	  else
+			    		  childNode.data = treeTokens[i];
+			    	  
+			    	  if (treeTokens[i].charAt(0) == '"')
+			    	  	insideString = true;
+			    	  if (treeTokens[i].charAt(treeTokens[i].length()-1) == '"' && treeTokens[i].length() > 1)
+			    		  insideString = false;
+			    	  
+	//		    	  System.out.println("PARENT: " + childNode.parent.data);
+			    
+			    	  parentStack.peek().children.add(childNode);
+			    	  
+	//		    	  TextInBox childBox = new TextInBox(childNode.data, 200, 50);
+	//		    	  treeLayout.addChild(parentBoxStack.peek(), childBox);
+		    	  	}
 		      }
 		}
 	}
@@ -269,6 +319,17 @@ public class FlatTree {
 				else
 					replaceExpr(nChild);
 			}
+		}
+	}
+	
+	public void assignWeights(Node n, ArrayList<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+		if (n.getChildCount() == 0) {
+			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
+		}
+		else {
+			for (Node nChild : n.children)
+				assignWeights(nChild, stopWords, fileCounts, root, totalFileCount);
+			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
 		}
 	}
 }

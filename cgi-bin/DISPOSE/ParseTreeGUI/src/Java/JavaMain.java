@@ -1,7 +1,16 @@
 package Java;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import javax.print.PrintException;
 import org.antlr.v4.gui.TreeViewer;
@@ -9,17 +18,50 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class JavaMain {
-	public static void main(String[] args) {
+
+	static ArrayList<FlatTree> allTrees = new ArrayList<FlatTree>();
+	
+	public static void main(String[] args) throws IOException {
 		
-		// Number of files that contain a particular tree
+		try (Stream<Path> paths = Files.walk(Paths.get("./Java"))) {
+		    paths
+		        .filter(Files::isRegularFile)
+		        .forEach(JavaMain::prepareTree);
+		}
+		
+//		prepareTree(FileSystems.getDefault().getPath("./Java", "1_3_17_HASEL.java"));
+		
+		
+		// Count files that contain a particular tree
 		HashMap<String, Integer> fileCounts = new HashMap<String, Integer>();
 		
-		prepareFile("./example.java");
-        
+		for (FlatTree ft: allTrees) {
+			Iterator<Entry<String, Integer>> it = ft.firstNode.treeCounts.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
+		        if (fileCounts.get(pair.getKey()) == null)
+		        		fileCounts.put(pair.getKey(), 0);
+		        fileCounts.put(pair.getKey(), fileCounts.get(pair.getKey())+1);
+		        it.remove(); // avoids a ConcurrentModificationException
+		    }
+		}
+		
+		
+		ArrayList<String> stopWords = new ArrayList<String>();
+		stopWords.add("(");
+		stopWords.add(")");
+		
+		for (FlatTree ft: allTrees) {
+			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
+		}
         
     }
 	
-	public static void prepareFile(String fileName) {
+	public static void prepareTree(Path filePath) {
+		
+		String fileName = filePath.toString();
+		System.out.println("Creating tree: " + fileName);
+		
 		//prepare token stream
         CharStream stream = null;
 		try {
@@ -35,7 +77,7 @@ public class JavaMain {
         ParseTree tree = parser.compilationUnit(); 
         
         // Show AST in console
-        // System.out.println(tree.toStringTree(parser) + "\n");
+//        System.out.println(tree.toStringTree(parser) + "\n");
         
         // Flatten the ANTLR generated parse tree
 		// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
@@ -57,10 +99,12 @@ public class JavaMain {
         myTree.updateAllCounts(myTree.firstNode);
         //myTree.firstNode.printCounts();
         
-        
+        allTrees.add(myTree);
 	}
 	
 	public static void generateFlatTreeImage(Java8Parser myParser, FlatTree myTree, String fileName) {
+
+		System.out.println("Generating flat tree image: " + fileName);
         FlatTreeViewer viewr2 = new FlatTreeViewer(Arrays.asList(
                 myParser.getRuleNames()),myTree);
         
@@ -74,6 +118,8 @@ public class JavaMain {
 	}
 	
 	public static void generateAntlrTreeImage(Java8Parser myParser, ParseTree antlrTree, String fileName) {
+		
+		System.out.println("Generating ANTLR tree image: " + fileName);
 		TreeViewer viewr = new TreeViewer(Arrays.asList(
                 myParser.getRuleNames()),antlrTree);
         
