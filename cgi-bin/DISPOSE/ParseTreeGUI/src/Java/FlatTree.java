@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -96,7 +97,7 @@ public class FlatTree {
 		    System.out.println("\nTotal subtrees: " + total);
 		}
 		
-		public void assignWeight(ArrayList<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+		public void assignWeight(List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
 			if (stopWords.contains(data)) {
 				weight = 0;
 			}
@@ -106,11 +107,29 @@ public class FlatTree {
 				
 				weight = TF * IDF;
 			}
-			
+		}
+		
+		public boolean isLeaf() {
+			if (hashVal.charAt(0) == '0')
+				return true;
+			else
+				return false;
+		}
+		
+		public boolean isExpr() {
+			if (parent == null)
+				return false;
+			if (parent.data.equals("expressionStatement"))
+				return true;
+			else
+				return false;
 		}
 	}
 	
 	boolean leafless = false;
+	
+	String originFile;
+	ArrayList<Node> allChildren = new ArrayList<Node>();
 	
 	Node firstNode;
 	TextInBox firstBox;
@@ -319,7 +338,7 @@ public class FlatTree {
 		}
 	}
 	
-	public void assignWeights(Node n, ArrayList<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+	public void assignWeights(Node n, List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
 		if (n.getChildCount() == 0) {
 			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
 		}
@@ -329,4 +348,17 @@ public class FlatTree {
 			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
 		}
 	}
+	
+	
+	public void allChildren(Node n) {
+		
+		if (n.getChildCount() == 0)
+			allChildren.add(n);
+		else {
+			for (Node c: n.children)
+				allChildren(c);
+			allChildren.add(n);
+		}
+	}
+	
 }

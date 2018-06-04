@@ -6,8 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
@@ -46,15 +48,29 @@ public class JavaMain {
 		}
 		
 		
-		ArrayList<String> stopWords = new ArrayList<String>();
-		stopWords.add("(");
-		stopWords.add(")");
+		List<String> stopWords = Arrays.asList(")", "(", "[", "]");
 		
 		for (FlatTree ft: allTrees) {
-			System.out.println(ft.firstNode.hashVal);
-			//ft.firstNode.printCounts();
 			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
 		}
+		
+		ArrayList<PairValue> myScores = new ArrayList<PairValue>();
+		
+		for (int i=0; i<allTrees.size(); i++) {
+			for (int j=0; j < i; j++) {
+				PairValue next = new PairValue(allTrees.get(i).originFile, allTrees.get(j).originFile, 0);
+				System.out.println("Calculating: " + allTrees.get(i).originFile + " " + allTrees.get(j).originFile);
+				next.score = next.assignSimilarity(allTrees.get(i), allTrees.get(j), false);
+				myScores.add(next);
+			}
+		}
+		
+		Collections.sort(myScores);
+		
+		int reportLim = Math.min(50, myScores.size());
+		
+		for (int i=0; i<reportLim; i++)
+			System.out.println(myScores.get(i).file1 + " " + myScores.get(i).file2 + " " + myScores.get(i).score);
         
     }
 	
@@ -84,6 +100,7 @@ public class JavaMain {
 		// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
 		// myLeaflessTree.leafless = true;
         FlatTree myTree = new FlatTree(tree.toStringTree(parser));
+        myTree.originFile = fileName;
         
         // Replace the subtree of an expressionStatement with in-order
         // traversal string of leaves
