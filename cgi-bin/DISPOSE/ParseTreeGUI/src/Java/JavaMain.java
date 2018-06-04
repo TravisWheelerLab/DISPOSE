@@ -25,13 +25,11 @@ public class JavaMain {
 	
 	public static void main(String[] args) throws IOException {
 		
-		try (Stream<Path> paths = Files.walk(Paths.get("./Java"))) {
+		try (Stream<Path> paths = Files.walk(Paths.get("./test2"))) {
 		    paths
 		        .filter(Files::isRegularFile)
 		        .forEach(JavaMain::prepareTree);
 		}
-		
-//		prepareTree(FileSystems.getDefault().getPath("./Java", "1_3_17_HASEL.java"));
 		
 		
 		// Count files that contain a particular tree
@@ -56,18 +54,26 @@ public class JavaMain {
 		
 		ArrayList<PairValue> myScores = new ArrayList<PairValue>();
 		
+		HashMap<String, Double> scoreHistory = new HashMap<String, Double>();
+		
+		long startTime = System.nanoTime();
+		
 		for (int i=0; i<allTrees.size(); i++) {
 			for (int j=0; j < i; j++) {
 				PairValue next = new PairValue(allTrees.get(i).originFile, allTrees.get(j).originFile, 0);
 				System.out.println("Calculating: " + allTrees.get(i).originFile + " " + allTrees.get(j).originFile);
-				next.score = next.assignSimilarity(allTrees.get(i), allTrees.get(j), false);
+				next.score = next.assignSimilarity(allTrees.get(i), allTrees.get(j), scoreHistory, false);
 				myScores.add(next);
 			}
 		}
 		
+		long endTime = System.nanoTime();
+		
+		System.out.println("TEST: " + (endTime-startTime)/1000000000.0);
+		
 		Collections.sort(myScores);
 		
-		int reportLim = Math.min(50, myScores.size());
+		int reportLim = Math.min(250, myScores.size());
 		
 		for (int i=0; i<reportLim; i++)
 			System.out.println(myScores.get(i).file1 + " " + myScores.get(i).file2 + " " + myScores.get(i).score);
@@ -108,7 +114,7 @@ public class JavaMain {
         
         // Create image representations of the trees
         // generateAntlrTreeImage(parser, tree, "tree.png");
-        // generateFlatTreeImage(parser, myTree, "flat_tree.png");
+        //generateFlatTreeImage(parser, myTree, fileName.substring(7, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees
         myTree.createHashes(myTree.firstNode);

@@ -351,7 +351,6 @@ public class FlatTree {
 	
 	
 	public void allChildren(Node n) {
-		
 		if (n.getChildCount() == 0)
 			allChildren.add(n);
 		else {

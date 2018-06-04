@@ -1,6 +1,6 @@
 package Java;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PairValue implements Comparable<PairValue>{
 	String file1;
@@ -21,7 +21,7 @@ public class PairValue implements Comparable<PairValue>{
 		return 0;
 	}
 	
-	public double assignSimilarity(FlatTree tree1, FlatTree tree2, boolean recurse) {
+	public double assignSimilarity(FlatTree tree1, FlatTree tree2, HashMap<String, Double> scoreHistory, boolean recurse) {
 		double score = 0;
 		
 		tree1.allChildren(tree1.firstNode);
@@ -30,19 +30,36 @@ public class PairValue implements Comparable<PairValue>{
 		
 		for (FlatTree.Node s1 : tree1.allChildren) {
 			for (FlatTree.Node s2: tree2.allChildren) {
-				score += nScore(s1,s2);
+				String combinedHash;
+				if (s1.compareTo(s2) == -1)
+					combinedHash = s1.hashVal + s2.hashVal;
+				else
+					combinedHash = s2.hashVal + s1.hashVal;
+				
+				
+				if (scoreHistory.get(combinedHash) != null) {
+					score += scoreHistory.get(combinedHash);
+				}
+				else {
+					long startTime = System.nanoTime();
+					Double nextScore = nScore(s1, s2);
+					long endTime = System.nanoTime();
+					System.out.println((endTime-startTime)/1000000000.0);
+					score += nextScore;
+					scoreHistory.put(combinedHash, nextScore);
+				}
 			}
 		}
 		
 		if (!recurse) {
-			score /= Math.sqrt(assignSimilarity(tree1, tree1, true) * assignSimilarity(tree2, tree2, true));
+			score /= Math.sqrt(assignSimilarity(tree1, tree1, scoreHistory, true) * assignSimilarity(tree2, tree2, scoreHistory, true));
 		}
 		
 		return score;
 	}
 	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
-		double nodeScore = 69;
+		double nodeScore = 0;
 		double decayFactor = 0.99;
 		
 		double prodScore = 1;
