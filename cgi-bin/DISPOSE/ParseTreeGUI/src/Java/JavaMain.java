@@ -25,7 +25,7 @@ public class JavaMain {
 	
 	public static void main(String[] args) throws IOException {
 		
-		try (Stream<Path> paths = Files.walk(Paths.get("./test2"))) {
+		try (Stream<Path> paths = Files.walk(Paths.get("./test3"))) {
 		    paths
 		        .filter(Files::isRegularFile)
 		        .forEach(JavaMain::prepareTree);
@@ -55,15 +55,31 @@ public class JavaMain {
 		ArrayList<PairValue> myScores = new ArrayList<PairValue>();
 		
 		HashMap<String, Double> scoreHistory = new HashMap<String, Double>();
+		HashMap<String, HashMap<String, Double>> scoreHistory2 = new HashMap<String, HashMap<String, Double>>();
 		
+		
+		FlatTree tree1, tree2;
 		long startTime = System.nanoTime();
 		
 		for (int i=0; i<allTrees.size(); i++) {
-			for (int j=0; j < i; j++) {
-				PairValue next = new PairValue(allTrees.get(i).originFile, allTrees.get(j).originFile, 0);
-				System.out.println("Calculating: " + allTrees.get(i).originFile + " " + allTrees.get(j).originFile);
-				next.score = next.assignSimilarity(allTrees.get(i), allTrees.get(j), scoreHistory, false);
-				myScores.add(next);
+			// TODO: Remove = test case for same comparison
+			for (int j=0; j <= i; j++) {
+				tree1 = allTrees.get(i);
+				tree2 = allTrees.get(j);
+				
+				if (tree1.allChildren.size() == 0)
+					tree1.allChildren(tree1.firstNode);
+				if (tree2.allChildren.size() == 0)
+					tree2.allChildren(tree2.firstNode);
+				
+				PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
+				System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
+				//next.score = next.assignSimilarity(tree1, tree2, scoreHistory, false);
+				next.score = next.assignSimilarity2(tree1, tree2, false);
+				//next.score = next.assignSimilarity4(tree1, tree2, scoreHistory2, false);
+				
+				if (!Double.isNaN(next.score))
+					myScores.add(next);
 			}
 		}
 		
@@ -114,7 +130,7 @@ public class JavaMain {
         
         // Create image representations of the trees
         // generateAntlrTreeImage(parser, tree, "tree.png");
-        //generateFlatTreeImage(parser, myTree, fileName.substring(7, fileName.length()-5) + ".png");
+        generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees
         myTree.createHashes(myTree.firstNode);

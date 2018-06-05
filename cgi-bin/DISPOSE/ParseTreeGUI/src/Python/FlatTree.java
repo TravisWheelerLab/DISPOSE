@@ -118,7 +118,7 @@ public class FlatTree {
 		firstNode = rootNode;
 		
 		TextInBox rootBox = new TextInBox(rootNode.data, 200, 50);
-    	treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
+    		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
 //    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
 		

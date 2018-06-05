@@ -290,6 +290,8 @@ public class FlatTree {
 		return firstNode.children.get(i);
 	}
 	
+	// Create every hash value representation of a tree
+	// (e.g.) alphabetical sorting of all the children's hashes
 	public void createHashes(Node n) {
 		if (n.getChildCount() == 0)
 			n.hashVal = n.toHash();
@@ -300,6 +302,7 @@ public class FlatTree {
 		}
 	}
 	
+	// Update every node's subtree counts
 	public void updateAllCounts(Node n) {
 		if (n.getChildCount() == 0)
 			n.updateCounts();
@@ -310,6 +313,7 @@ public class FlatTree {
 		}
 	}
 	
+	// Build the in-order traversal string of a tree's leaves
 	public void traverseLeaves(StringBuilder result, Node n) {
 		if (n.getChildCount() != 0)
 			for (Node c: n.children)
@@ -318,6 +322,9 @@ public class FlatTree {
 			result.append(n.data);
 	}
 	
+	// Remove any subtree that is rooted by as an expr statement
+	// and replace it with the in-order traversal string of its
+	// leaves
 	public void replaceExpr(Node n) {
 		if (n.getChildCount() == 0)
 			return;
@@ -338,6 +345,7 @@ public class FlatTree {
 		}
 	}
 	
+	// Assign the node-by-node weight starting at the leaves
 	public void assignWeights(Node n, List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
 		if (n.getChildCount() == 0) {
 			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
@@ -349,7 +357,7 @@ public class FlatTree {
 		}
 	}
 	
-	
+	// Create the set of all children subtrees within the tree
 	public void allChildren(Node n) {
 		if (n.getChildCount() == 0)
 			allChildren.add(n);
