@@ -160,7 +160,14 @@ public class FlatTree {
 		
 		for (int i = 1; i < treeTokens.length; i++) {
    			  System.out.println(treeTokens[i]);
+   			  
+   			  String literal = "";
+   			  
 		      if (treeTokens[i].length() == 0);
+		      
+		      else if (parentStack.peek().data.equals("literal")) {
+		    	  	literal += treeTokens[i];
+		      }
 		      
 			  else if (treeTokens[i].charAt(0) == '(') {
 			      Node childNode = new Node();
@@ -187,7 +194,12 @@ public class FlatTree {
 				  
 				  
 				  Node childNode = new Node();
-				  childNode.data = treeTokens[i].substring(0, lastParen+1);
+				  if (curParent.data.equals("literal")) {
+					  literal += treeTokens[i].substring(0, lastParen+1);
+					  childNode.data = literal;
+				  }
+				  else
+					  childNode.data = treeTokens[i].substring(0, lastParen+1);
 				  childNode.parent = curParent;
 				  
 				  curParent.children.add(childNode);

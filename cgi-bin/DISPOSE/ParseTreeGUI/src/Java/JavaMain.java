@@ -25,7 +25,7 @@ public class JavaMain {
 	
 	public static void main(String[] args) throws IOException {
 		
-		try (Stream<Path> paths = Files.walk(Paths.get("./test2"))) {
+		try (Stream<Path> paths = Files.walk(Paths.get("./test3"))) {
 		    paths
 		        .filter(Files::isRegularFile)
 		        .forEach(JavaMain::prepareTree);
@@ -144,8 +144,8 @@ public class JavaMain {
         myTree.replaceExpr(myTree.firstNode);
         
         // Create image representations of the trees
-        generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
-        generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
+        //generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
+        //generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees
         myTree.createHashes(myTree.firstNode);
