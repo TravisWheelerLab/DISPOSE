@@ -78,9 +78,12 @@ public class PairValue implements Comparable<PairValue>{
 		
 		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
 		
-		if (!recurse)
+		if (!recurse) {
+			double treeVal1 = assignSimilarity2(tree1, tree1, true);
+			double treeVal2 = assignSimilarity2(tree2, tree2, true);
 			score /= Math.sqrt(assignSimilarity2(tree1, tree1, true) * assignSimilarity2(tree2, tree2, true));
-		
+			System.out.println(treeVal1 + " " + treeVal2 + " " + score + "\n");
+		}
 		return score;
 	}
 	
@@ -138,7 +141,7 @@ public class PairValue implements Comparable<PairValue>{
 	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
 		double nodeScore = 0;
-		double decayFactor = 0.99;
+		double decayFactor = 0.01;
 		
 		double prodScore = 1;
 		

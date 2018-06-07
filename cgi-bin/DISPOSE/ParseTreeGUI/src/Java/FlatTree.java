@@ -139,16 +139,17 @@ public class FlatTree {
 	DefaultTreeForTreeLayout<TextInBox> treeLayout;
 	
 	public FlatTree (String lispTree) {
-		String[] treeTokens = lispTree.replace("(", " ( ").replace(")", " ) ").split(" ");
-//		for (int i = 0; i < treeTokens.length; i++) {
+		String[] treeTokens = lispTree.split(" ");
+//		for (int i = 3; i < treeTokens.length-1; i++) {
 //			System.out.print(treeTokens[i] + " ");
+//			System.out.println(treeTokens[i-1] + treeTokens[i]  + treeTokens[i+1]);
 //		}
-//
-//		System.out.println("\n");
+
+		System.out.println("\n");
 		
 		Node rootNode = new Node();
 		rootNode.parent = null;
-		rootNode.data = treeTokens[2];
+		rootNode.data = treeTokens[0].substring(1);
 		parentStack.push(rootNode);
 		firstNode = rootNode;
 		
@@ -157,77 +158,48 @@ public class FlatTree {
 //    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
 		
-		boolean insideString = false;
-		
-		for (int i = 3; i < treeTokens.length; i++) {
-//			System.out.println(treeTokens[i]);
+		for (int i = 1; i < treeTokens.length; i++) {
+   			  System.out.println(treeTokens[i]);
 		      if (treeTokens[i].length() == 0);
 		      
-			  else if (treeTokens[i].equals("(")) {
-				  if (insideString) {
-			    	  	parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += "(";
-			      }
-				  else {
-				    	  Node parentNode = new Node();
-				    	  parentNode.parent = parentStack.peek();
-				    	  i++;
-				    	  parentNode.data = treeTokens[i];
-				    	  parentStack.peek().children.add(parentNode);
-				    	  parentStack.push(parentNode);
-				    	  
-		//		    	  TextInBox parentBox = new TextInBox(parentNode.data, 200, 50);
-		//		    	  treeLayout.addChild(parentBoxStack.peek(), parentBox);
-		//		    	  parentBoxStack.push(parentBox);
+			  else if (treeTokens[i].charAt(0) == '(') {
+			      Node childNode = new Node();
+			      if (treeTokens[i].length() > 1)
+			    	  	childNode.data = treeTokens[i].substring(1);
+			      else
+			    	  	childNode.data = treeTokens[i];
+			      childNode.parent = parentStack.peek();
+			      
+			      parentStack.peek().children.add(childNode);
+			      
+			      if (!treeTokens[i].equals("("))
+			    	  	parentStack.push(childNode);
+			  }
+			  else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
+				  int lastParen = treeTokens[i].length() -1;
+				  
+				  Node curParent = parentStack.peek();
+				  
+				  while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+					  parentStack.pop();
+					  lastParen--;
 				  }
-		      }
-		      else if (treeTokens[i].equals(")")) {
-			    	  if (insideString) {
-			    		  parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += ")";
-			    	  }
-			    	  else {
-				    	  Node curParent = parentStack.pop();
-		//		    	  TextInBox curParentBox = parentBoxStack.pop();
-				    	  if (curParent.children.size() == 1 && !parentStack.isEmpty() && curParent.children.get(0).children.size() != 0) {
-				    		  curParent.children.get(0).parent = curParent.parent;
-				    		  curParent.parent.children.add(curParent.children.get(0));
-				    		  curParent.parent.children.remove(curParent);		  
-				    	  }
-			    	  }
-		      }
-		      else {
-		    	  
-		    	  	if (insideString) {
-		    	  		parentStack.peek().children.get(parentStack.peek().getChildCount()-1).data += " " + treeTokens[i];
-		    	  		if (treeTokens[i].charAt(treeTokens[i].length()-1) == '"' && treeTokens[i+1].equals(")")) {
-		    	  			  if (treeTokens[i].length() > 1) {
-		    	  				  if (treeTokens[i].charAt(treeTokens[i].length()-2) != '\\')
-		    	  					  insideString = false;
-		    	  			  }
-		    	  			  else
-		    	  				  insideString = false;
-		    	  		}
-		    	  	}  
-		    	  	else {
-			    	  Node childNode = new Node();
-			    	  childNode.parent = parentStack.peek();
-			    	  if (childNode.parent.data.equals("expressionName") || childNode.parent.data.equals("variableDeclaratorId"))
-			    		  childNode.data = "temp";
-			    	  else
-			    		  childNode.data = treeTokens[i];
-			    	  
-			    	  if (treeTokens[i].charAt(0) == '"')
-			    	  	insideString = true;
-			    	  if (treeTokens[i].charAt(treeTokens[i].length()-1) == '"' && treeTokens[i].length() > 1)
-			    		  insideString = false;
-			    	  
-	//		    	  System.out.println("PARENT: " + childNode.parent.data);
-			    
-			    	  parentStack.peek().children.add(childNode);
-			    	  
-	//		    	  TextInBox childBox = new TextInBox(childNode.data, 200, 50);
-	//		    	  treeLayout.addChild(parentBoxStack.peek(), childBox);
-		    	  	}
-		      }
+				  
+				  
+				  Node childNode = new Node();
+				  childNode.data = treeTokens[i].substring(0, lastParen+1);
+				  childNode.parent = curParent;
+				  
+				  curParent.children.add(childNode);
+			  }
+		      
+			  else {
+				  Node childNode = new Node();
+				  childNode.data = treeTokens[i];
+				  childNode.parent = parentStack.peek();
+				  
+				  parentStack.peek().children.add(childNode);
+			  }
 		}
 	}
 	

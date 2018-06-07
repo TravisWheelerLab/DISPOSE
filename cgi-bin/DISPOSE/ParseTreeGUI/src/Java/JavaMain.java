@@ -111,12 +111,27 @@ public class JavaMain {
 		
 		// Prepare parser and lexer
         Java8Lexer lexer  = new Java8Lexer(stream);
+        
         TokenStream tokenStream = new CommonTokenStream(lexer);
         Java8Parser parser = new Java8Parser(tokenStream);
-        ParseTree tree = parser.compilationUnit(); 
+        ParseTree tree = parser.compilationUnit();
+        
+        lexer.reset();
+        List<? extends Token> myTokens = lexer.getAllTokens();
+		Vocabulary myVocab = lexer.getVocabulary();
+		
+		for (int i = 0; i < myTokens.size(); i++) {
+            Token myToken = myTokens.get(i);
+            String[] remFlags = new String[] {"LINE_COMMENT", "COMMENT", "WS"};
+            if (Arrays.asList(remFlags).contains(myVocab.getSymbolicName(myToken.getType())) == false) {
+//	            System.out.println(myToken.getStartIndex() + ":" + myToken.getStopIndex() + " " + myToken.getLine()
+//	            		+ " " + myToken.getText() + " " + myVocab.getSymbolicName(myToken.getType()));
+            }
+        }
+		
         
         // Show AST in console
-//        System.out.println(tree.toStringTree(parser) + "\n");
+        System.out.println(tree.toStringTree(parser) + "\n");
         
         // Flatten the ANTLR generated parse tree
 		// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
@@ -129,8 +144,8 @@ public class JavaMain {
         myTree.replaceExpr(myTree.firstNode);
         
         // Create image representations of the trees
-        // generateAntlrTreeImage(parser, tree, "tree.png");
-        //generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
+        generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
+        generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees
         myTree.createHashes(myTree.firstNode);
