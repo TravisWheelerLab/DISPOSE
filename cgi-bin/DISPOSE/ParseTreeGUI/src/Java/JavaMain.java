@@ -144,7 +144,7 @@ public class JavaMain {
         myTree.replaceExpr(myTree.firstNode);
         
         // Create image representations of the trees
-        generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
+        //generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
         generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees

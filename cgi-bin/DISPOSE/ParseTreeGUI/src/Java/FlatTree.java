@@ -14,7 +14,7 @@ import org.abego.treelayout.util.DefaultTreeForTreeLayout;
 
 
 public class FlatTree {
-	
+
 	class Node implements Comparable<Node>{
 		String data;
 		String hashVal;
@@ -23,15 +23,15 @@ public class FlatTree {
 		double weight = 1;
 		ArrayList<Node> children = new ArrayList<Node>();
 		HashMap<String, Integer> treeCounts = new HashMap<String, Integer>();
-		
-		
+
+
 		public int getChildCount() {
 			return children.size();
 		}
 		public Node getChild(int i) {
 			return children.get(i);
 		}
-		
+
 		public String toHash() {
 			if (hashVal != null)
 				return hashVal;
@@ -43,60 +43,60 @@ public class FlatTree {
 				size = 1;
 				return hashVal;
 			}
-			
+
 			size = 1;
-			
+
 			hashVal = "1" + data;
 			ArrayList<Node> sortedChildren = new ArrayList<Node>();
 			sortedChildren.addAll(children);
 			Collections.sort(sortedChildren);
-			
+
 			for (Node n: sortedChildren) {
 				hashVal += n.toHash();
 				size++;
 			}
-			
+
 			return hashVal;
 		}
-		
+
 		public void updateCounts() {
 			if (getChildCount() == 0 && !hashVal.equals(""))
 				treeCounts.put(hashVal, 1);
 			else
 				for (Node n: children) {
 					Iterator<Entry<String, Integer>> it = n.treeCounts.entrySet().iterator();
-				    while (it.hasNext()) {
-				        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
-				        if (treeCounts.get(pair.getKey()) == null)
-				        		treeCounts.put(pair.getKey(), 0);
-				        treeCounts.put(pair.getKey(), treeCounts.get(pair.getKey())+pair.getValue());
-				        it.remove(); // avoids a ConcurrentModificationException
-				    }
+					while (it.hasNext()) {
+						Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
+						if (treeCounts.get(pair.getKey()) == null)
+							treeCounts.put(pair.getKey(), 0);
+						treeCounts.put(pair.getKey(), treeCounts.get(pair.getKey())+pair.getValue());
+						it.remove(); // avoids a ConcurrentModificationException
+					}
 				}
 			if (treeCounts.get(hashVal) == null && !hashVal.equals(""))
 				treeCounts.put(hashVal, 1);
-		    else if (!hashVal.equals(""))
-		    		treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
+			else if (!hashVal.equals(""))
+				treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
 		}
-		
+
 		@Override
 		public int compareTo(Node other) {
 			return hashVal.compareTo(other.hashVal);
 		}
-		
+
 		public void printCounts() {
 			int total = 0;
-	        
+
 			Iterator<Entry<String, Integer>> it = treeCounts.entrySet().iterator();
-		    while (it.hasNext()) {
-		        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
-		        System.out.println(pair.getKey() + " : " + pair.getValue());
-		        total += pair.getValue();
-		    }
-		    
-		    System.out.println("\nTotal subtrees: " + total);
+			while (it.hasNext()) {
+				Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
+				System.out.println(pair.getKey() + " : " + pair.getValue());
+				total += pair.getValue();
+			}
+
+			System.out.println("\nTotal subtrees: " + total);
 		}
-		
+
 		public void assignWeight(List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
 			if (stopWords.contains(data)) {
 				weight = 0;
@@ -104,18 +104,18 @@ public class FlatTree {
 			else {
 				double TF = root.treeCounts.get(hashVal) /  root.size;
 				double IDF = Math.log(1 + (totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
-				
+
 				weight = TF * IDF;
 			}
 		}
-		
+
 		public boolean isLeaf() {
 			if (hashVal.charAt(0) == '0')
 				return true;
 			else
 				return false;
 		}
-		
+
 		public boolean isExpr() {
 			if (parent == null)
 				return false;
@@ -125,155 +125,186 @@ public class FlatTree {
 				return false;
 		}
 	}
-	
+
 	boolean leafless = false;
-	
+
 	String originFile;
 	ArrayList<Node> allChildren = new ArrayList<Node>();
-	
+
 	Node firstNode;
 	TextInBox firstBox;
-	
+
 	Stack<Node> parentStack = new Stack<Node>();
 	Stack<TextInBox> parentBoxStack = new Stack<TextInBox>();
 	DefaultTreeForTreeLayout<TextInBox> treeLayout;
-	
+
 	public FlatTree (String lispTree) {
 		String[] treeTokens = lispTree.split(" ");
-//		for (int i = 3; i < treeTokens.length-1; i++) {
-//			System.out.print(treeTokens[i] + " ");
-//			System.out.println(treeTokens[i-1] + treeTokens[i]  + treeTokens[i+1]);
-//		}
+		//		for (int i = 3; i < treeTokens.length-1; i++) {
+		//			System.out.print(treeTokens[i] + " ");
+		//			System.out.println(treeTokens[i-1] + treeTokens[i]  + treeTokens[i+1]);
+		//		}
 
 		System.out.println("\n");
-		
+
 		Node rootNode = new Node();
 		rootNode.parent = null;
 		rootNode.data = treeTokens[0].substring(1);
 		parentStack.push(rootNode);
 		firstNode = rootNode;
-		
+
 		TextInBox rootBox = new TextInBox(rootNode.data, 200, 50);
-    		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
-//    	parentBoxStack.push(rootBox);
+		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
+		//    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
 		
+
+		String literal = "";
+
 		for (int i = 1; i < treeTokens.length; i++) {
-   			  System.out.println(treeTokens[i]);
-   			  
-   			  String literal = "";
-   			  
-		      if (treeTokens[i].length() == 0);
-		      
-			  else if (treeTokens[i].charAt(0) == '(') {
-			      Node childNode = new Node();
-			      if (treeTokens[i].length() > 1)
-			    	  	childNode.data = treeTokens[i].substring(1);
-			      else
-			    	  	childNode.data = treeTokens[i];
-			      childNode.parent = parentStack.peek();
-			      
-			      parentStack.peek().children.add(childNode);
-			      
-			      if (!treeTokens[i].equals("("))
-			    	  	parentStack.push(childNode);
-			  }
-			  else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
-				  int lastParen = treeTokens[i].length() -1;
-				  
-				  Node curParent = parentStack.peek();
-				  
-				  while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-					  parentStack.pop();
-					  lastParen--;
-				  }
-				  
-				  
-				  Node childNode = new Node();
-				  if (curParent.data.equals("literal")) {
-					  literal += treeTokens[i].substring(0, lastParen+1);
-					  childNode.data = literal;
-				  }
-				  else
-					  childNode.data = treeTokens[i].substring(0, lastParen+1);
-				  childNode.parent = curParent;
-				  
-				  curParent.children.add(childNode);
-			  }
-		      
-			  else if (parentStack.peek().data.equals("literal")) {
-		    	  	literal += treeTokens[i];
-		      }
-		      
-			  else {
-				  Node childNode = new Node();
-				  childNode.data = treeTokens[i];
-				  childNode.parent = parentStack.peek();
-				  
-				  parentStack.peek().children.add(childNode);
-			  }
+			System.out.println(treeTokens[i]);
+
+			int lastParen = 0;
+
+			if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')')
+				lastParen = treeTokens[i].length() - 1;
+
+			while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+				lastParen--;
+			}
+
+
+			if (treeTokens[i].length() == 0);
+
+			else if (parentStack.peek().data.equals("literal")) {
+				if (lastParen == 0)
+					literal += treeTokens[i];
+				else {
+					if (treeTokens[i].charAt(lastParen) != '\"' && treeTokens[i].charAt(lastParen) != '\'') {
+						literal += treeTokens[i];
+					}
+					else {
+						lastParen = treeTokens[i].length() -1;
+
+						Node curParent = parentStack.peek();
+
+						while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+							parentStack.pop();
+							lastParen--;
+						}
+
+
+						Node childNode = new Node();
+						literal += treeTokens[i].substring(0, lastParen+1);
+						childNode.data = literal;
+						literal = "";
+						childNode.parent = curParent;
+
+						curParent.children.add(childNode);
+					}
+				}
+			}
+
+			else if (treeTokens[i].charAt(0) == '(') {
+				Node childNode = new Node();
+				if (treeTokens[i].length() > 1)
+					childNode.data = treeTokens[i].substring(1);
+				else
+					childNode.data = treeTokens[i];
+				childNode.parent = parentStack.peek();
+
+				parentStack.peek().children.add(childNode);
+
+				if (!treeTokens[i].equals("("))
+						parentStack.push(childNode);
+			}
+			else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
+				lastParen = treeTokens[i].length() -1;
+
+				Node curParent = parentStack.peek();
+
+				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+					parentStack.pop();
+					lastParen--;
+				}
+
+
+				Node childNode = new Node();
+				childNode.data = treeTokens[i].substring(0, lastParen+1);
+				childNode.parent = curParent;
+
+				curParent.children.add(childNode);
+			}
+
+			else {
+				Node childNode = new Node();
+				childNode.data = treeTokens[i];
+				childNode.parent = parentStack.peek();
+
+				parentStack.peek().children.add(childNode);
+			}
 		}
 	}
-	
+
 	public DefaultTreeForTreeLayout<TextInBox> toTree() {
-		
+
 		Stack<Node> nodeStack = new Stack<Node>();
 		Stack<TextInBox> boxStack = new Stack<TextInBox>();
-		
+
 		nodeStack.push(firstNode);
 		boxStack.push(firstBox);
-		
+
 		while (!nodeStack.isEmpty()) {
 			Node curParent = nodeStack.pop();
 			TextInBox curParentBox = boxStack.pop();
 			for (Node n: curParent.children) {
 				TextInBox childBox = new TextInBox(n.data, 200, 50);
 				treeLayout.addChild(curParentBox, childBox);
-//				System.out.println(n.data + " " + nodeStack.peek().data);
+				//				System.out.println(n.data + " " + nodeStack.peek().data);
 				if (n.children.size() > 0) {
 					nodeStack.push(n);
 					boxStack.push(childBox);
 				}
 			}
 		}
-		
-		
+
+
 		return treeLayout;
 	}
-	
+
 	public DefaultTreeForTreeLayout<Node> toNodeTree() {
-		
+
 		DefaultTreeForTreeLayout<Node> treeLayout = new DefaultTreeForTreeLayout<Node>(firstNode);
-		
+
 		Stack<Node> nodeStack = new Stack<Node>();
-		
+
 		nodeStack.push(firstNode);
-		
+
 		while (!nodeStack.isEmpty()) {
 			Node curParent = nodeStack.pop();
 			for (Node n: curParent.children) {
 				if (!leafless || n.children.size() != 0) {
 					treeLayout.addChild(curParent, n);
-//					System.out.println(n.data + " " + nodeStack.peek().data);
+					//					System.out.println(n.data + " " + nodeStack.peek().data);
 					if (n.children.size() > 0) {
 						nodeStack.push(n);
 					}
 				}
 			}
 		}
-		
-		
+
+
 		return treeLayout;
 	}
-	
+
 	public int getChildCount() {
 		return firstNode.children.size();
 	}
-	
+
 	public Node getChild(int i) {
 		return firstNode.children.get(i);
 	}
-	
+
 	// Create every hash value representation of a tree
 	// (e.g.) alphabetical sorting of all the children's hashes
 	public void createHashes(Node n) {
@@ -285,7 +316,7 @@ public class FlatTree {
 			n.hashVal = n.toHash();
 		}
 	}
-	
+
 	// Update every node's subtree counts
 	public void updateAllCounts(Node n) {
 		if (n.getChildCount() == 0)
@@ -296,7 +327,7 @@ public class FlatTree {
 			n.updateCounts();
 		}
 	}
-	
+
 	// Build the in-order traversal string of a tree's leaves
 	public void traverseLeaves(StringBuilder result, Node n) {
 		if (n.getChildCount() != 0)
@@ -305,7 +336,7 @@ public class FlatTree {
 		else
 			result.append(n.data);
 	}
-	
+
 	// Remove any subtree that is rooted by as an expr statement
 	// and replace it with the in-order traversal string of its
 	// leaves
@@ -328,7 +359,7 @@ public class FlatTree {
 			}
 		}
 	}
-	
+
 	// Assign the node-by-node weight starting at the leaves
 	public void assignWeights(Node n, List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
 		if (n.getChildCount() == 0) {
@@ -340,7 +371,7 @@ public class FlatTree {
 			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
 		}
 	}
-	
+
 	// Create the set of all children subtrees within the tree
 	public void allChildren(Node n) {
 		if (n.getChildCount() == 0)
@@ -351,5 +382,5 @@ public class FlatTree {
 			allChildren.add(n);
 		}
 	}
-	
+
 }
