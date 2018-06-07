@@ -165,10 +165,6 @@ public class FlatTree {
    			  
 		      if (treeTokens[i].length() == 0);
 		      
-		      else if (parentStack.peek().data.equals("literal")) {
-		    	  	literal += treeTokens[i];
-		      }
-		      
 			  else if (treeTokens[i].charAt(0) == '(') {
 			      Node childNode = new Node();
 			      if (treeTokens[i].length() > 1)
@@ -204,6 +200,10 @@ public class FlatTree {
 				  
 				  curParent.children.add(childNode);
 			  }
+		      
+			  else if (parentStack.peek().data.equals("literal")) {
+		    	  	literal += treeTokens[i];
+		      }
 		      
 			  else {
 				  Node childNode = new Node();
