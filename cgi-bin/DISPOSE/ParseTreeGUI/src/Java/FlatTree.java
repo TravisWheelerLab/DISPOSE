@@ -168,7 +168,7 @@ public class FlatTree {
 
 			int lastParen = -1;
 			
-			if (treeTokens[i].length() == 0)
+			if (treeTokens[i].length() == 0 || parentStack.isEmpty())
 				continue;
 			
 			if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')')
@@ -197,24 +197,7 @@ public class FlatTree {
 				}
 				
 				if (!inString) {
-					lastParen = treeTokens[i].length() - 1;
-					
 					Node curParent = parentStack.peek();
-
-					while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-						//System.out.println("STACK: " + parentStack.pop().data);
-						
-						Node nextParent = parentStack.pop();
-//						if (nextParent.children.size() == 1 && !parentStack.isEmpty() && nextParent.children.get(0).children.size() == 1) {
-//							nextParent.children.get(0).parent = nextParent.parent;
-//							nextParent.parent.children.add(nextParent.children.get(0));
-//							nextParent.parent.children.remove(nextParent);		  
-//						}
-
-						lastParen--;
-					}
-					
-					lastParen++;
 
 					Node childNode = new Node();
 					literal += treeTokens[i].substring(0, lastParen);
@@ -224,6 +207,24 @@ public class FlatTree {
 					childNode.parent = curParent;
 
 					curParent.children.add(childNode);
+					
+					lastParen = treeTokens[i].length() -1;
+
+					while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+						//System.out.println("POP: " + parentStack.pop().data);
+						Node nextParent = parentStack.pop();
+						//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
+						if (!parentStack.isEmpty()) {
+							if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
+								nextParent.children.get(0).parent = nextParent.parent.parent;
+								nextParent.parent.children.add(nextParent.children.get(0));
+								nextParent.parent.children.remove(nextParent);
+								
+								//System.out.println("Replacing " + nextParent.data + " " + nextParent.children.size() + " with " + nextParent.children.get(0).data + " " + nextParent.children.get(0).children.size());
+							}
+						}
+						lastParen--;
+					}
 				}
 			}
 
@@ -241,27 +242,32 @@ public class FlatTree {
 					parentStack.push(childNode);
 			}
 			else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
-				lastParen = treeTokens[i].length() -1;
 
 				Node curParent = parentStack.peek();
-
-				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-					//System.out.println("STACK: " + parentStack.pop().data);
-					Node nextParent = parentStack.pop();
-//					if (nextParent.children.size() == 1 && !parentStack.isEmpty() && nextParent.children.get(0).children.size() == 1) {
-//						nextParent.children.get(0).parent = nextParent.parent;
-//						nextParent.parent.children.add(nextParent.children.get(0));
-//						nextParent.parent.children.remove(nextParent);		  
-//					}
-					lastParen--;
-				}
-
 				
 				Node childNode = new Node();
-				childNode.data = treeTokens[i].substring(0, lastParen+1);
+				childNode.data = treeTokens[i].substring(0, lastParen);
 				childNode.parent = curParent;
 
 				curParent.children.add(childNode);
+				
+				lastParen = treeTokens[i].length() -1;
+
+				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+					//System.out.println("POP: " + parentStack.pop().data);
+					Node nextParent = parentStack.pop();
+					//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
+					if (!parentStack.isEmpty()) {
+						if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
+							nextParent.children.get(0).parent = nextParent.parent.parent;
+							nextParent.parent.children.add(nextParent.children.get(0));
+							nextParent.parent.children.remove(nextParent);
+							
+							//System.out.println("Replacing " + nextParent.data + " " + nextParent.children.size() + " with " + nextParent.children.get(0).data + " " + nextParent.children.get(0).children.size());
+						}
+					}
+					lastParen--;
+				}
 				
 
 			}
