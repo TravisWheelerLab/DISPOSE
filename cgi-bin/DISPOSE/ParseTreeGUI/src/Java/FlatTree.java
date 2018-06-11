@@ -246,7 +246,10 @@ public class FlatTree {
 				Node curParent = parentStack.peek();
 				
 				Node childNode = new Node();
-				childNode.data = treeTokens[i].substring(0, lastParen);
+//				if (curParent.data.equals("variableDeclaratorId")|| curParent.data.equals("expressionName"))
+//					childNode.data = "temp";
+//				else
+					childNode.data = treeTokens[i].substring(0, lastParen);
 				childNode.parent = curParent;
 
 				curParent.children.add(childNode);

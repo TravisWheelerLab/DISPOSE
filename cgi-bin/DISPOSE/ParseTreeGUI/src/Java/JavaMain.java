@@ -85,15 +85,16 @@ public class JavaMain {
 		
 		long endTime = System.nanoTime();
 		
-		System.out.println("TEST: " + (endTime-startTime)/1000000000.0);
+		System.out.println("TEST TIME: " + (endTime-startTime)/1000000000.0 + "\n");
 		
 		Collections.sort(myScores);
 		
 		int reportLim = Math.min(250, myScores.size());
 		
-		for (int i=0; i<reportLim; i++)
+		for (int i=0; i<reportLim; i++) {
 			System.out.println(myScores.get(i).file1 + " " + myScores.get(i).file2 + " " + myScores.get(i).score);
-        
+			myScores.get(i).makeMatchFile();
+		}
     }
 	
 	public static void prepareTree(Path filePath) {
@@ -102,7 +103,7 @@ public class JavaMain {
 		String fileName = filePath.toString();
 		System.out.println("Creating tree: " + fileName);
 		
-//		try {
+		try {
 		
 		//prepare token stream
         CharStream stream = null;
@@ -159,9 +160,9 @@ public class JavaMain {
         
         allTrees.add(myTree);
         
-//		} catch (Exception e) {
-//			System.out.println("FAILED");
-//		}
+		} catch (Exception e) {
+			System.out.println("FAILED");
+		}
 	}
 	
 	public static void generateFlatTreeImage(Java8Parser myParser, FlatTree myTree, String fileName) {

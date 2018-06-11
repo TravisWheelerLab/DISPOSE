@@ -1,11 +1,19 @@
 package Java;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class PairValue implements Comparable<PairValue>{
 	String file1;
 	String file2;
 	double score;
+	
+	ArrayList<PairValue> scoreList = new ArrayList<PairValue>();
 	
 	public PairValue (String file1, String file2, double score) {
 		this.file1 = file1;
@@ -173,6 +181,9 @@ public class PairValue implements Comparable<PairValue>{
 			
 		}
 		
+		if (nodeScore > 0)
+			scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nodeScore));
+		
 		return nodeScore;
 	}
 	
@@ -204,5 +215,19 @@ public class PairValue implements Comparable<PairValue>{
 			return 1;
 		else
 			return -1;
+	}
+	
+	public void makeMatchFile() throws IOException {
+		File matchFile = new File("./matchFiles/" + file1.substring(8) + file2.substring(8) + ".txt");
+		FileWriter myWriter = new FileWriter(matchFile);
+		
+		Collections.sort(scoreList);
+		
+		for (int i=0; i<scoreList.size(); i++) {
+			PairValue next = scoreList.get(i);
+			myWriter.write(next.file1 + " " + next.file2 + " " + next.score + "\n");
+		}
+		
+		myWriter.close();
 	}
 }
