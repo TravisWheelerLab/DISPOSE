@@ -98,8 +98,11 @@ public class JavaMain {
 	
 	public static void prepareTree(Path filePath) {
 		
+
 		String fileName = filePath.toString();
 		System.out.println("Creating tree: " + fileName);
+		
+//		try {
 		
 		//prepare token stream
         CharStream stream = null;
@@ -141,7 +144,7 @@ public class JavaMain {
         
         // Replace the subtree of an expressionStatement with in-order
         // traversal string of leaves
-        myTree.replaceExpr(myTree.firstNode);
+        //myTree.replaceExpr(myTree.firstNode);
         
         // Create image representations of the trees
         //generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
@@ -155,6 +158,10 @@ public class JavaMain {
         //myTree.firstNode.printCounts();
         
         allTrees.add(myTree);
+        
+//		} catch (Exception e) {
+//			System.out.println("FAILED");
+//		}
 	}
 	
 	public static void generateFlatTreeImage(Java8Parser myParser, FlatTree myTree, String fileName) {

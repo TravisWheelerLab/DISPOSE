@@ -13,6 +13,7 @@ import org.abego.treelayout.demo.TextInBox;
 import org.abego.treelayout.util.DefaultTreeForTreeLayout;
 
 
+
 public class FlatTree {
 
 	class Node implements Comparable<Node>{
@@ -145,7 +146,7 @@ public class FlatTree {
 		//			System.out.println(treeTokens[i-1] + treeTokens[i]  + treeTokens[i+1]);
 		//		}
 
-		System.out.println("\n");
+		//System.out.println("\n");
 
 		Node rootNode = new Node();
 		rootNode.parent = null;
@@ -157,15 +158,19 @@ public class FlatTree {
 		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
 		//    	parentBoxStack.push(rootBox);
 		firstBox = rootBox;
-		
+
 
 		String literal = "";
+		boolean inString = false;
 
 		for (int i = 1; i < treeTokens.length; i++) {
-			System.out.println(treeTokens[i]);
+			//System.out.println(treeTokens[i]);
 
-			int lastParen = 0;
-
+			int lastParen = -1;
+			
+			if (treeTokens[i].length() == 0)
+				continue;
+			
 			if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')')
 				lastParen = treeTokens[i].length() - 1;
 
@@ -173,35 +178,52 @@ public class FlatTree {
 				lastParen--;
 			}
 
+			lastParen++;
 
-			if (treeTokens[i].length() == 0);
 
-			else if (parentStack.peek().data.equals("literal")) {
-				if (lastParen == 0)
-					literal += treeTokens[i];
-				else {
-					if (treeTokens[i].charAt(lastParen) != '\"' && treeTokens[i].charAt(lastParen) != '\'') {
+			if (parentStack.peek().data.equals("literal")) {
+				//System.out.println(lastParen);
+				if (treeTokens[i].charAt(0) == '\"' || treeTokens[i].charAt(0) == '\'') {
+					inString = true;
+				}
+				
+				if (inString) {
+					if (lastParen != 0)
+						if (treeTokens[i].charAt(lastParen-1) == '\'' || treeTokens[i].charAt(lastParen-1) == '\"')
+							inString = false;
+						
+					if (inString)
 						literal += treeTokens[i];
+				}
+				
+				if (!inString) {
+					lastParen = treeTokens[i].length() - 1;
+					
+					Node curParent = parentStack.peek();
+
+					while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
+						//System.out.println("STACK: " + parentStack.pop().data);
+						
+						Node nextParent = parentStack.pop();
+//						if (nextParent.children.size() == 1 && !parentStack.isEmpty() && nextParent.children.get(0).children.size() == 1) {
+//							nextParent.children.get(0).parent = nextParent.parent;
+//							nextParent.parent.children.add(nextParent.children.get(0));
+//							nextParent.parent.children.remove(nextParent);		  
+//						}
+
+						lastParen--;
 					}
-					else {
-						lastParen = treeTokens[i].length() -1;
+					
+					lastParen++;
 
-						Node curParent = parentStack.peek();
+					Node childNode = new Node();
+					literal += treeTokens[i].substring(0, lastParen);
+					childNode.data = literal;
+					//System.out.println("LITERAL: " + literal);
+					literal = "";
+					childNode.parent = curParent;
 
-						while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-							parentStack.pop();
-							lastParen--;
-						}
-
-
-						Node childNode = new Node();
-						literal += treeTokens[i].substring(0, lastParen+1);
-						childNode.data = literal;
-						literal = "";
-						childNode.parent = curParent;
-
-						curParent.children.add(childNode);
-					}
+					curParent.children.add(childNode);
 				}
 			}
 
@@ -216,7 +238,7 @@ public class FlatTree {
 				parentStack.peek().children.add(childNode);
 
 				if (!treeTokens[i].equals("("))
-						parentStack.push(childNode);
+					parentStack.push(childNode);
 			}
 			else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
 				lastParen = treeTokens[i].length() -1;
@@ -224,16 +246,24 @@ public class FlatTree {
 				Node curParent = parentStack.peek();
 
 				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-					parentStack.pop();
+					//System.out.println("STACK: " + parentStack.pop().data);
+					Node nextParent = parentStack.pop();
+//					if (nextParent.children.size() == 1 && !parentStack.isEmpty() && nextParent.children.get(0).children.size() == 1) {
+//						nextParent.children.get(0).parent = nextParent.parent;
+//						nextParent.parent.children.add(nextParent.children.get(0));
+//						nextParent.parent.children.remove(nextParent);		  
+//					}
 					lastParen--;
 				}
 
-
+				
 				Node childNode = new Node();
 				childNode.data = treeTokens[i].substring(0, lastParen+1);
 				childNode.parent = curParent;
 
 				curParent.children.add(childNode);
+				
+
 			}
 
 			else {
