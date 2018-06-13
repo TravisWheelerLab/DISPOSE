@@ -79,6 +79,12 @@ public class PairValue implements Comparable<PairValue>{
 			for (FlatTree.Node s2: tree2.allChildren) {
 					Double nextScore = nScore(s1, s2);
 					score += nextScore;
+					
+					if (!recurse && s1.hashVal.equals(s2.hashVal))
+						System.out.println(s1.hashVal + " " + nextScore);
+					
+					if (!recurse && nextScore>0)
+						scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
 			}
 		}
 		
@@ -103,12 +109,13 @@ public class PairValue implements Comparable<PairValue>{
 		for (FlatTree.Node s1 : tree1.allChildren) {
 			for (FlatTree.Node s2: tree2.allChildren) {
 				
+				Double nextScore = 0.0;
 				
 				if (scoreHistory.get(s1.hashVal) != null) {
 					if (scoreHistory.get(s1.hashVal).get(s2.hashVal) != null)
 						score += scoreHistory.get(s1.hashVal).get(s2.hashVal);
 					else {
-						Double nextScore = nScore(s1, s2);
+						nextScore = nScore(s1, s2);
 						score += nextScore;
 						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
 					}
@@ -117,23 +124,30 @@ public class PairValue implements Comparable<PairValue>{
 					scoreHistory.put(s1.hashVal, new HashMap<String, Double>());
 					
 					if (scoreHistory.get(s2.hashVal) != null) {
-						if (scoreHistory.get(s2.hashVal).get(s1.hashVal) != null)
-							score += scoreHistory.get(s2.hashVal).get(s1.hashVal);
+						if (scoreHistory.get(s2.hashVal).get(s1.hashVal) != null) {
+							nextScore = scoreHistory.get(s2.hashVal).get(s1.hashVal);
+							score += nextScore;
+						}
 						else {
-							Double nextScore = nScore(s1, s2);
+							nextScore = nScore(s1, s2);
 							score += nextScore;
 							scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
 						}
 					}
 					else {
 						//long startTime = System.nanoTime();
-						Double nextScore = nScore(s1, s2);
+						nextScore = nScore(s1, s2);
 						//long endTime = System.nanoTime();
 						//System.out.println((endTime-startTime)/1000000000.0);
 						score += nextScore;
 						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
 					}
 				}
+				
+				System.out.println(score);
+				
+				if (nextScore > 0)
+					scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
 			}
 		}
 		
@@ -149,7 +163,7 @@ public class PairValue implements Comparable<PairValue>{
 	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
 		double nodeScore = 0;
-		double decayFactor = 0.01;
+		double decayFactor = 0.2;
 		
 		double prodScore = 1;
 		
@@ -172,6 +186,8 @@ public class PairValue implements Comparable<PairValue>{
 				double maxScore = 0;
 				for (int j=0; j<s2.getChildCount(); j++) {
 					double testScore = nScore(s1.getChild(i), s2.getChild(j));
+//					if (s1.getChild(i).hashVal.equals(s2.getChild(j).hashVal))
+//						System.out.println("TEST: " + s1.getChild(i).hashVal + " " + s2.getChild(j).hashVal + " " + testScore);
 					if (testScore > maxScore)
 						maxScore = testScore;
 				}
@@ -181,8 +197,6 @@ public class PairValue implements Comparable<PairValue>{
 			
 		}
 		
-		if (nodeScore > 0)
-			scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nodeScore));
 		
 		return nodeScore;
 	}
@@ -218,7 +232,7 @@ public class PairValue implements Comparable<PairValue>{
 	}
 	
 	public void makeMatchFile() throws IOException {
-		File matchFile = new File("./matchFiles/" + file1.substring(8) + file2.substring(8) + ".txt");
+		File matchFile = new File("./matchFiles/" + file1.substring(7) + file2.substring(7) + ".txt");
 		FileWriter myWriter = new FileWriter(matchFile);
 		
 		Collections.sort(scoreList);

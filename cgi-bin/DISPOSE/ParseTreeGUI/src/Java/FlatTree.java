@@ -103,8 +103,8 @@ public class FlatTree {
 				weight = 0;
 			}
 			else {
-				double TF = root.treeCounts.get(hashVal) /  root.size;
-				double IDF = Math.log(1 + (totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
+				double TF = (double) root.treeCounts.get(hashVal) /  root.size;
+				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
 
 				weight = TF * IDF;
 			}
