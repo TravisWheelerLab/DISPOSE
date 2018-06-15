@@ -19,13 +19,15 @@ import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import Java.FlatTree.Node;
+
 public class JavaMain {
 
 	static ArrayList<FlatTree> allTrees = new ArrayList<FlatTree>();
 	
 	public static void main(String[] args) throws IOException {
 		
-		try (Stream<Path> paths = Files.walk(Paths.get("./test2"))) {
+		try (Stream<Path> paths = Files.walk(Paths.get("./test"))) {
 		    paths
 		        .filter(Files::isRegularFile)
 		        .forEach(JavaMain::prepareTree);
@@ -46,7 +48,7 @@ public class JavaMain {
 		}
 		
 		
-		List<String> stopWords = Arrays.asList(")", "(", "[", "]");
+		List<String> stopWords = Arrays.asList(")", "(", "[", "]", "{", "}");
 		
 		for (FlatTree ft: allTrees) {
 			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
@@ -103,7 +105,7 @@ public class JavaMain {
 		String fileName = filePath.toString();
 		System.out.println("Creating tree: " + fileName);
 		
-		try {
+//		try {
 		
 		//prepare token stream
         CharStream stream = null;
@@ -124,11 +126,18 @@ public class JavaMain {
         List<? extends Token> myTokens = lexer.getAllTokens();
 		Vocabulary myVocab = lexer.getVocabulary();
 		
+		ArrayList<Integer> startPos = new ArrayList<Integer>();
+		ArrayList<Integer> endPos = new ArrayList<Integer>();
+		ArrayList<Integer> line = new ArrayList<Integer>();
+		
 		for (int i = 0; i < myTokens.size(); i++) {
             Token myToken = myTokens.get(i);
             String[] remFlags = new String[] {"LINE_COMMENT", "COMMENT", "WS"};
             if (Arrays.asList(remFlags).contains(myVocab.getSymbolicName(myToken.getType())) == false) {
-//	            System.out.println(myToken.getStartIndex() + ":" + myToken.getStopIndex() + " " + myToken.getLine()
+	            startPos.add(myToken.getStartIndex());
+	            endPos.add(myToken.getStopIndex());
+	            line.add(myToken.getLine());
+//            	System.out.println(myToken.getStartIndex() + ":" + myToken.getStopIndex() + " " + myToken.getLine()
 //	            		+ " " + myToken.getText() + " " + myVocab.getSymbolicName(myToken.getType()));
             }
         }
@@ -143,13 +152,29 @@ public class JavaMain {
         FlatTree myTree = new FlatTree(tree.toStringTree(parser));
         myTree.originFile = fileName;
         
+        // Keep information on where in the source code the tree represents
+        ArrayList<Node> nodesList = new ArrayList<Node>();
+        myTree.traverseLeavesList(nodesList, myTree.firstNode);
+        
+        for (int i = 0; i < nodesList.size()-1; i++) {
+        	Node myNode = nodesList.get(i);
+        	myNode.startPos = startPos.get(i);
+        	myNode.endPos = endPos.get(i);
+        	myNode.startLine = line.get(i);
+        	myNode.endLine = line.get(i);
+        	//System.out.println(myNode.startPos + ":" + myNode.endPos + " " + myNode.line + " " + myNode.data);
+        }
+        
+        myTree.assignPositions(myTree.firstNode);
+        
+        
         // Replace the subtree of an expressionStatement with in-order
         // traversal string of leaves
-        //myTree.replaceExpr(myTree.firstNode);
+        // myTree.replaceExpr(myTree.firstNode);
         
         // Create image representations of the trees
         //generateAntlrTreeImage(parser, tree, fileName.substring(8, fileName.length()-5) + "_antlr.png");
-        generateFlatTreeImage(parser, myTree, fileName.substring(8, fileName.length()-5) + ".png");
+        generateFlatTreeImage(parser, myTree, fileName.substring(7, fileName.length()-5) + ".png");
         
         // Create hash values to count subtrees
         myTree.createHashes(myTree.firstNode);
@@ -160,9 +185,9 @@ public class JavaMain {
         
         allTrees.add(myTree);
         
-		} catch (Exception e) {
-			System.out.println("FAILED");
-		}
+//		} catch (Exception e) {
+//			System.out.println("FAILED");
+//		}
 	}
 	
 	public static void generateFlatTreeImage(Java8Parser myParser, FlatTree myTree, String fileName) {

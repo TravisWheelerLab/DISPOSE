@@ -25,6 +25,10 @@ public class FlatTree {
 		ArrayList<Node> children = new ArrayList<Node>();
 		HashMap<String, Integer> treeCounts = new HashMap<String, Integer>();
 
+		int startPos;
+		int endPos;
+		int startLine;
+		int endLine;
 
 		public int getChildCount() {
 			return children.size();
@@ -107,6 +111,24 @@ public class FlatTree {
 				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
 
 				weight = TF * IDF;
+			}
+		}
+		
+		public void assignPosition() {
+			startPos = children.get(0).startPos;
+			endPos = children.get(0).endPos;
+			startLine = children.get(0).startLine;
+			endLine = startLine;
+			
+			for (Node c: children) {
+				if (c.startPos < startPos)
+					startPos = c.startPos;
+				if (c.endPos > endPos)
+					endPos = c.endPos;
+				if (c.startLine < startLine)
+					startLine = c.startLine;
+				if (c.endLine > endLine)
+					endLine = c.endLine;
 			}
 		}
 
@@ -368,12 +390,21 @@ public class FlatTree {
 	}
 
 	// Build the in-order traversal string of a tree's leaves
-	public void traverseLeaves(StringBuilder result, Node n) {
+	public void traverseLeavesString(StringBuilder result, Node n) {
 		if (n.getChildCount() != 0)
 			for (Node c: n.children)
-				traverseLeaves(result, c);
+				traverseLeavesString(result, c);
 		else
 			result.append(n.data);
+	}
+	
+	// Build the in-order traversal list of a tree's leaves
+	public void traverseLeavesList(ArrayList<Node> result, Node n) {
+		if (n.getChildCount() != 0)
+			for (Node c: n.children)
+				traverseLeavesList(result, c);
+		else
+			result.add(n);
 	}
 
 	// Remove any subtree that is rooted by as an expr statement
@@ -386,7 +417,7 @@ public class FlatTree {
 			for (Node nChild : n.children) {
 				if (nChild.data.equals("expressionStatement")) {
 					StringBuilder result = new StringBuilder();
-					traverseLeaves(result, nChild);
+					traverseLeavesString(result, nChild);
 					Node newChild = new Node();
 					newChild.parent = nChild;
 					newChild.data = result.toString();
@@ -419,6 +450,14 @@ public class FlatTree {
 			for (Node c: n.children)
 				allChildren(c);
 			allChildren.add(n);
+		}
+	}
+	
+	public void assignPositions(Node n) {
+		if (n.getChildCount() != 0) {
+			for (Node nChild : n.children)
+				assignPositions(nChild);
+			n.assignPosition();
 		}
 	}
 

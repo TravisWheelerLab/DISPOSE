@@ -13,6 +13,11 @@ public class PairValue implements Comparable<PairValue>{
 	String file2;
 	double score;
 	
+	int startPos1, startPos2;
+	int endPos1, endPos2;
+	int startLine1, startLine2;
+	int endLine1, endLine2;
+	
 	ArrayList<PairValue> scoreList = new ArrayList<PairValue>();
 	
 	public PairValue (String file1, String file2, double score) {
@@ -80,11 +85,21 @@ public class PairValue implements Comparable<PairValue>{
 					Double nextScore = nScore(s1, s2);
 					score += nextScore;
 					
-					if (!recurse && s1.hashVal.equals(s2.hashVal))
-						System.out.println(s1.hashVal + " " + nextScore);
+//					if (!recurse && s1.hashVal.equals(s2.hashVal))
+//						System.out.println(s1.hashVal + " " + nextScore);
 					
-					if (!recurse && nextScore>0)
-						scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
+					if (!recurse && nextScore>0) {
+						PairValue nextPair = new PairValue(s1.hashVal, s2.hashVal, nextScore);
+						nextPair.startPos1 = s1.startPos;
+						nextPair.startPos2 = s2.startPos;
+						nextPair.endPos1 = s1.endPos;
+						nextPair.endPos2 = s2.endPos;
+						nextPair.startLine1 = s1.startLine;
+						nextPair.startLine2 = s2.startLine;
+						nextPair.endLine1 = s1.endLine;
+						nextPair.endLine2 = s2.endLine;
+						scoreList.add(nextPair);
+					}
 			}
 		}
 		
@@ -163,10 +178,9 @@ public class PairValue implements Comparable<PairValue>{
 	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
 		double nodeScore = 0;
-		double decayFactor = 0.2;
+		double decayFactor = 0.8;
 		
 		double prodScore = 1;
-		
 		
 		// If both subtrees are the leaves of an expr statement
 		if (s1.isExpr() && s2.isExpr()) {
@@ -237,11 +251,17 @@ public class PairValue implements Comparable<PairValue>{
 		
 		Collections.sort(scoreList);
 		
+		myWriter.write("'" + file1 + "'" + "'fullName1'" + "'" + file2 + "'" + "'fullName2'" + "\n");
+		
 		for (int i=0; i<scoreList.size(); i++) {
 			PairValue next = scoreList.get(i);
-			myWriter.write(next.file1 + " " + next.file2 + " " + next.score + "\n");
+			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + "\n");
+			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + "\n");
+			myWriter.write(next.score + "\n\n");
+			//myWriter.write(next.file1 + " " + next.file2 + " " + next.score + "\n");
 		}
 		
 		myWriter.close();
+		
 	}
 }
