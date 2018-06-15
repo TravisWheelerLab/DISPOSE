@@ -246,7 +246,7 @@ public class PairValue implements Comparable<PairValue>{
 	}
 	
 	public void makeMatchFile() throws IOException {
-		File matchFile = new File("./matchFiles/" + file1.substring(7) + file2.substring(7) + ".txt");
+		File matchFile = new File("./matchFiles2/" + file1.substring(7) + file2.substring(7) + ".txt");
 		FileWriter myWriter = new FileWriter(matchFile);
 		
 		Collections.sort(scoreList);
@@ -255,8 +255,8 @@ public class PairValue implements Comparable<PairValue>{
 		
 		for (int i=0; i<scoreList.size(); i++) {
 			PairValue next = scoreList.get(i);
-			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + "\n");
-			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + "\n");
+			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
+			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
 			myWriter.write(next.score + "\n\n");
 			//myWriter.write(next.file1 + " " + next.file2 + " " + next.score + "\n");
 		}

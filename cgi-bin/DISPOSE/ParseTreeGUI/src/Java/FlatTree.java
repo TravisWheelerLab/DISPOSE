@@ -58,16 +58,14 @@ public class FlatTree {
 
 			for (Node n: sortedChildren) {
 				hashVal += n.toHash();
-				size++;
+				size += n.size;
 			}
 
 			return hashVal;
 		}
 
 		public void updateCounts() {
-			if (getChildCount() == 0 && !hashVal.equals(""))
-				treeCounts.put(hashVal, 1);
-			else
+			if (getChildCount() != 0 && !hashVal.equals("")) {
 				for (Node n: children) {
 					Iterator<Entry<String, Integer>> it = n.treeCounts.entrySet().iterator();
 					while (it.hasNext()) {
@@ -78,10 +76,13 @@ public class FlatTree {
 						it.remove(); // avoids a ConcurrentModificationException
 					}
 				}
+			}
+			// Include this node in count
 			if (treeCounts.get(hashVal) == null && !hashVal.equals(""))
 				treeCounts.put(hashVal, 1);
 			else if (!hashVal.equals(""))
 				treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
+			
 		}
 
 		@Override

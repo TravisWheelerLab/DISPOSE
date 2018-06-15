@@ -48,7 +48,7 @@ public class JavaMain {
 		}
 		
 		
-		List<String> stopWords = Arrays.asList(")", "(", "[", "]", "{", "}");
+		List<String> stopWords = Arrays.asList(")", "(", "[", "]", "{", "}", ";", ",");
 		
 		for (FlatTree ft: allTrees) {
 			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());

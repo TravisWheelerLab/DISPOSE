@@ -55,7 +55,7 @@ open(my $fh1, $file1)
 open(my $fh2, $file2)
 	or die "Failed to open file: '$file2'!\n";
 
-my $lineCount1 = 0;
+my $lineCount1 = 1;
 my $htmlString;
 
 while (<$fh1>) {
@@ -67,7 +67,7 @@ while (<$fh1>) {
 }
 close $fh1;
 
-my $lineCount2 = 0;
+my $lineCount2 = 1;
 while (<$fh2>) {
 	$htmlString = encode_entities($_);
 	$lineHash2{$lineCount2} = $htmlString;
@@ -96,13 +96,13 @@ while (<$fh>) {
 	my @posParams2_2 = split(/:/, $matchParams2[1]);
 
 	my $treePos1 = $posParams1_1[0];
-	my $treeEnd1 = $posParams2_1[0];
+	my $treeEnd1 = $posParams1_2[0];
 	my $linePos1 = $posParams1_1[1];
-	my $lineEnd1 = $posParams2_1[1];
+	my $lineEnd1 = $posParams1_2[1];
 
-	my $treePos2 = $posParams1_2[0];
+	my $treePos2 = $posParams2_1[0];
 	my $treeEnd2 = $posParams2_2[0];
-	my $linePos2 = $posParams1_2[1];
+	my $linePos2 = $posParams2_1[1];
 	my $lineEnd2 = $posParams2_2[1];
 
 	#print ("$treePos1:$linePos1 $treeEnd1:$lineEnd1 $treePos2:$linePos2 $treeEnd2:$lineEnd2\n");
