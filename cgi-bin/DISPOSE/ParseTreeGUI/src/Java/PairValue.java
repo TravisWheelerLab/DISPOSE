@@ -251,7 +251,7 @@ public class PairValue implements Comparable<PairValue>{
 		
 		Collections.sort(scoreList);
 		
-		myWriter.write("'" + file1 + "'" + "'fullName1'" + "'" + file2 + "'" + "'fullName2'" + "\n");
+		myWriter.write("'" + file1 + "' " + "'fullName1' " + "'" + file2 + "' " + "'fullName2' " + "\n");
 		
 		for (int i=0; i<scoreList.size(); i++) {
 			PairValue next = scoreList.get(i);
