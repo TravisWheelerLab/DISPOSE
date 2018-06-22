@@ -108,10 +108,18 @@ public class FlatTree {
 				weight = 0;
 			}
 			else {
-				double TF = (double) root.treeCounts.get(hashVal) /  root.size;
+				// double TF = (double) root.treeCounts.get(hashVal) /  root.size;
+				// double ITF = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal))) / Math.log(2);
+				double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal)) / Math.log (root.size);
 				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
+				// double IDF = Math.log((double) totalFileCount / fileCounts.get(hashVal)) / Math.log(totalFileCount);
 
-				weight = TF * IDF;
+				if (hashVal.equals
+						("0\"Scribbleblah()blah\""))
+					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
+							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
+				// weight = Math.log(TF * IDF);
+				weight = Math.log(ITF * IDF);
 			}
 		}
 		

@@ -458,7 +458,6 @@ $template->process($fileTemp, $vars, $mainOut)
     || die "Template process failed: ", $template->error(), "\n";
 
 my $fileTemp2 = $tempFolder . "suspectsTemp.html";
-# Uses a .php extension so that the generated matchFiles can be reused
 my $mainOut2 = "../../results/$user/offline/results.html";
 
 mkdir "../../results/$user/offline" unless -d "../../results/$user/offline";

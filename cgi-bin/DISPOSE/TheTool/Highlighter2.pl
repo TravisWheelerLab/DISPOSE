@@ -21,18 +21,18 @@ my $userFolder =  "../../../workFiles/$user";
 
 #print("JELLO\n");
 
-chdir($userFolder);
+#chdir($userFolder);
 
-print(getcwd . "\n");
+#print(getcwd . "\n");
 
 my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
 
-print($file . "\n");
+#print($file . "\n");
 
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
-my ($name1, $fullName1, $name2, $fullName2) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)'/);
-$fullName2 =~ s/^\s+|\s+$//g;
+my ($name1, $fullName1, $name2, $fullName2, $score) = (<$fh> =~ /'(.+)' '(.+)' '(.+)' '(.+)' '(.+)'/);
+$score =~ s/^\s+|\s+$//g;
 
 mkdir "../../results/$user/outFiles" unless -d "../../results/$user/outFiles";
 my $outFile = "outFiles/$curLang/match" . "$matchIndex" . "_match.html";
@@ -44,8 +44,8 @@ my $fullTextTemp = $tempFolder . "fullTextTemp.html";
 my %lineHash1;
 my %lineHash2;
 
-my $file1 = "$name1";
-my $file2 = "$name2";
+my $file1 = "$fullName1";
+my $file2 = "$fullName2";
 
 my $file1Text = "";
 my $file2Text = "";
@@ -62,7 +62,6 @@ while (<$fh1>) {
 	$htmlString = encode_entities($_);
 	$lineHash1{$lineCount1} = $htmlString;
 	$file1Text = $file1Text . $htmlString;
-	print("$lineCount1 $htmlString\n");
 	$lineCount1++;
 }
 close $fh1;
@@ -72,7 +71,6 @@ while (<$fh2>) {
 	$htmlString = encode_entities($_);
 	$lineHash2{$lineCount2} = $htmlString;
 	$file2Text = $file2Text . $htmlString;
-	print("$lineCount2 $htmlString\n");
 	$lineCount2++;
 }
 close $fh2;
@@ -163,16 +161,18 @@ close $fh;
 my $vars = {
       matches => \@matches,
       fullTextLink => $fullTextLink,
-      file1 => {name => $file1, fullName => "$fullName1"},
-      file2 => {name => $file2, fullName => "$fullName2"},
+      file1 => {name => $name1, fullName => "$fullName1"},
+      file2 => {name => $name2, fullName => "$fullName2"},
       tempFolder => $tempFolder
 };
 
 my $vars2 = {
-		file1 => {name => $file1, fullName => "$fullName1", text => $file1Text},
-	    file2 => {name => $file2, fullName => "$fullName2", text => $file2Text},
+		file1 => {name => $name1, fullName => "$fullName1", text => $file1Text},
+	    file2 => {name => $name2, fullName => "$fullName2", text => $file2Text},
 	    tempFolder => $tempFolder
 };
+
+chdir($userFolder);
 
 my $template = Template->new(RELATIVE => 1);
 my $template2 = Template->new(RELATIVE => 1);

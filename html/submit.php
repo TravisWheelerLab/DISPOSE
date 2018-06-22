@@ -214,15 +214,44 @@
 				$('#ignoreInput').val('FALSE');
 			};
 
+			function withMOSSClick() {
+				$('#methodInput').val('1');
+				$('#withMOSSBut').attr('class', 'custom-but accepted');
+				$('#withWASTEBut').attr('class', 'custom-but needed');
+			};
+
+			function withWASTEClick() {
+				$('#methodInput').val('2');
+				$('#withWASTEBut').attr('class', 'custom-but accepted');
+				$('#withMOSSBut').attr('class', 'custom-but needed');
+			};
+
 		</script>
 	</head>
 
 	<body>
 		<center>
 			<h1>Make your submissions here!</h1>
-			<h3>Choose your submission type:</h3>
 		</center>
 
+		<center>
+			<h3>Choose your comparison method:</h3>
+		</center>
+		<div id="methodChoice">
+			<center>
+				<button id="withMOSSBut" class="custom-but accepted" onclick="withMOSSClick()">
+					DISPOSE MOSS
+				</button>
+				<button id="withWASTEBut" class="custom-but needed" onclick="withWASTEClick()">
+					DISPOSE WASTE
+				</button>
+			</center>
+		</div>
+
+
+		<center>
+			<h3>Choose your submission type:</h3>
+		</center>
 		<div id="queriesChoice">
 			<center>
 				<button id="withQueriesBut" class="custom-but needed" onclick="withQueriesClick()">
@@ -278,6 +307,7 @@
 				</div>
 
 				<input type="hidden" name="email" value="<?php echo $_SESSION['email'] ?>">
+				<input id="methodInput" type="hidden" name="method" value="1">
 				<input id="queriesInput" type="hidden" name="queriesBool" value="NULL">
 				<input id="pastInput" type="hidden" name="pastBool" value="NULL">
 				<input id="ignoreInput" type="hidden" name="ignoreBool" value="NULL">

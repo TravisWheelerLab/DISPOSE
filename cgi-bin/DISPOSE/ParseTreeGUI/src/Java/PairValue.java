@@ -35,44 +35,44 @@ public class PairValue implements Comparable<PairValue>{
 	}
 	
 	// TODO: Remove slower method
-	public double assignSimilarity(FlatTree tree1, FlatTree tree2, HashMap<String, Double> scoreHistory, boolean recurse) {
-		double score = 0;
-		
-		//long startTime = System.nanoTime();
-		
-		for (FlatTree.Node s1 : tree1.allChildren) {
-			for (FlatTree.Node s2: tree2.allChildren) {
-				String combinedHash;
-				if (s1.compareTo(s2) == -1)
-					combinedHash = s1.hashVal + s2.hashVal;
-				else
-					combinedHash = s2.hashVal + s1.hashVal;
-				
-				
-				if (scoreHistory.get(combinedHash) != null) {
-					score += scoreHistory.get(combinedHash);
-				}
-				else {
-					//long startTime = System.nanoTime();
-					Double nextScore = nScore(s1, s2);
-					//long endTime = System.nanoTime();
-					//System.out.println((endTime-startTime)/1000000000.0);
-					score += nextScore;
-					scoreHistory.put(combinedHash, nextScore);
-				}
-				
-			}
-		}
-		
-		//long endTime = System.nanoTime();
-		
-		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
-		
-		if (!recurse)
-			score /= Math.sqrt(assignSimilarity(tree1, tree1, scoreHistory, true) * assignSimilarity(tree2, tree2, scoreHistory, true));
-		
-		return score;
-	}
+//	public double assignSimilarity(FlatTree tree1, FlatTree tree2, HashMap<String, Double> scoreHistory, boolean recurse) {
+//		double score = 0;
+//		
+//		//long startTime = System.nanoTime();
+//		
+//		for (FlatTree.Node s1 : tree1.allChildren) {
+//			for (FlatTree.Node s2: tree2.allChildren) {
+//				String combinedHash;
+//				if (s1.compareTo(s2) == -1)
+//					combinedHash = s1.hashVal + s2.hashVal;
+//				else
+//					combinedHash = s2.hashVal + s1.hashVal;
+//				
+//				
+//				if (scoreHistory.get(combinedHash) != null) {
+//					score += scoreHistory.get(combinedHash);
+//				}
+//				else {
+//					//long startTime = System.nanoTime();
+//					Double nextScore = nScore(s1, s2);
+//					//long endTime = System.nanoTime();
+//					//System.out.println((endTime-startTime)/1000000000.0);
+//					score += nextScore;
+//					scoreHistory.put(combinedHash, nextScore);
+//				}
+//				
+//			}
+//		}
+//		
+//		//long endTime = System.nanoTime();
+//		
+//		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
+//		
+//		if (!recurse)
+//			score /= Math.sqrt(assignSimilarity(tree1, tree1, scoreHistory, true) * assignSimilarity(tree2, tree2, scoreHistory, true));
+//		
+//		return score;
+//	}
 	
 	// TODO: Remove test method for all subtree calculations again
 	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse) {
@@ -116,75 +116,75 @@ public class PairValue implements Comparable<PairValue>{
 		return score;
 	}
 	
-	public double assignSimilarity4(FlatTree tree1, FlatTree tree2, HashMap<String, HashMap<String, Double>> scoreHistory, boolean recurse) {
-		double score = 0;
-		
-		//long startTime = System.nanoTime();
-		
-		for (FlatTree.Node s1 : tree1.allChildren) {
-			for (FlatTree.Node s2: tree2.allChildren) {
-				
-				Double nextScore = 0.0;
-				
-				if (scoreHistory.get(s1.hashVal) != null) {
-					if (scoreHistory.get(s1.hashVal).get(s2.hashVal) != null)
-						score += scoreHistory.get(s1.hashVal).get(s2.hashVal);
-					else {
-						nextScore = nScore(s1, s2);
-						score += nextScore;
-						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-					}
-				}
-				else {
-					scoreHistory.put(s1.hashVal, new HashMap<String, Double>());
-					
-					if (scoreHistory.get(s2.hashVal) != null) {
-						if (scoreHistory.get(s2.hashVal).get(s1.hashVal) != null) {
-							nextScore = scoreHistory.get(s2.hashVal).get(s1.hashVal);
-							score += nextScore;
-						}
-						else {
-							nextScore = nScore(s1, s2);
-							score += nextScore;
-							scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-						}
-					}
-					else {
-						//long startTime = System.nanoTime();
-						nextScore = nScore(s1, s2);
-						//long endTime = System.nanoTime();
-						//System.out.println((endTime-startTime)/1000000000.0);
-						score += nextScore;
-						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-					}
-				}
-				
-				System.out.println(score);
-				
-				if (nextScore > 0)
-					scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
-			}
-		}
-		
-		//long endTime = System.nanoTime();
-		
-		//System.out.println("TEST3: " + (endTime-startTime)/1000000000.0);
-		
-		if (!recurse)
-			score /= Math.sqrt(assignSimilarity4(tree1, tree1, scoreHistory, true) * assignSimilarity4(tree2, tree2, scoreHistory, true));
-		
-		return score;
-	}
+//	public double assignSimilarity4(FlatTree tree1, FlatTree tree2, HashMap<String, HashMap<String, Double>> scoreHistory, boolean recurse) {
+//		double score = 0;
+//		
+//		//long startTime = System.nanoTime();
+//		
+//		for (FlatTree.Node s1 : tree1.allChildren) {
+//			for (FlatTree.Node s2: tree2.allChildren) {
+//				
+//				Double nextScore = 0.0;
+//				
+//				if (scoreHistory.get(s1.hashVal) != null) {
+//					if (scoreHistory.get(s1.hashVal).get(s2.hashVal) != null)
+//						score += scoreHistory.get(s1.hashVal).get(s2.hashVal);
+//					else {
+//						nextScore = nScore(s1, s2);
+//						score += nextScore;
+//						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
+//					}
+//				}
+//				else {
+//					scoreHistory.put(s1.hashVal, new HashMap<String, Double>());
+//					
+//					if (scoreHistory.get(s2.hashVal) != null) {
+//						if (scoreHistory.get(s2.hashVal).get(s1.hashVal) != null) {
+//							nextScore = scoreHistory.get(s2.hashVal).get(s1.hashVal);
+//							score += nextScore;
+//						}
+//						else {
+//							nextScore = nScore(s1, s2);
+//							score += nextScore;
+//							scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
+//						}
+//					}
+//					else {
+//						//long startTime = System.nanoTime();
+//						nextScore = nScore(s1, s2);
+//						//long endTime = System.nanoTime();
+//						//System.out.println((endTime-startTime)/1000000000.0);
+//						score += nextScore;
+//						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
+//					}
+//				}
+//				
+//				System.out.println(score);
+//				
+//				if (nextScore > 0)
+//					scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
+//			}
+//		}
+//		
+//		//long endTime = System.nanoTime();
+//		
+//		//System.out.println("TEST3: " + (endTime-startTime)/1000000000.0);
+//		
+//		if (!recurse)
+//			score /= Math.sqrt(assignSimilarity4(tree1, tree1, scoreHistory, true) * assignSimilarity4(tree2, tree2, scoreHistory, true));
+//		
+//		return score;
+//	}
 	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
 		double nodeScore = 0;
-		double decayFactor = 0.8;
+		double decayFactor = 1;
 		
-		double prodScore = 1;
+		double prodScore = 0;
 		
 		// If both subtrees are the leaves of an expr statement
 		if (s1.isExpr() && s2.isExpr()) {
-			nodeScore = decayFactor * editDistance(s1.data, s2.data) * s1.weight * s2.weight;
+			nodeScore = Math.log(editDistance(s1.data, s2.data)) + s1.weight + s2.weight;
 		}
 		// If both subtrees' roots are different
 		else if (!s1.data.equals(s2.data)) {
@@ -192,27 +192,42 @@ public class PairValue implements Comparable<PairValue>{
 		}
 		// If both subtrees are leaves
 		else if (s1.isLeaf() && s2.isLeaf()) {
-			nodeScore = decayFactor*s1.weight*s2.weight;
+			nodeScore = s1.weight+s2.weight;
+			
+//			if (s1.data.equals("String"))
+//				System.out.println(". SCORE: " + s1.weight + " " + s2.weight + " " + nodeScore);
 		}
+		
+		
 		// Otherwise
 		else {
+			String testString = "";
 			for (int i = 0; i < s1.getChildCount(); i++) {
 				double maxScore = 0;
+				String high1 = "";
+				String high2 = "";
 				for (int j=0; j<s2.getChildCount(); j++) {
 					double testScore = nScore(s1.getChild(i), s2.getChild(j));
 //					if (s1.getChild(i).hashVal.equals(s2.getChild(j).hashVal))
 //						System.out.println("TEST: " + s1.getChild(i).hashVal + " " + s2.getChild(j).hashVal + " " + testScore);
-					if (testScore > maxScore)
+					if (testScore > maxScore) {
 						maxScore = testScore;
+						high1 = s1.getChild(i).hashVal;
+						high2 = s2.getChild(j).hashVal;
+					}
 				}
-				prodScore *= (1 + maxScore);
+				if (s1.hashVal.equals(testString))
+					System.out.println(s1.getChild(i).data + " " + i + "th score: " + maxScore + " " + high1 + " " + high2);
+				prodScore += (1 + maxScore);
 			}
-			nodeScore = decayFactor*prodScore*s1.weight*s2.weight;
+			nodeScore = prodScore+s1.weight+s2.weight;
+			
+			if (s1.hashVal.equals(testString))
+				System.out.println("SCORE: " + decayFactor + " " + prodScore + " " + s1.weight + " " + s2.weight + " " + nodeScore*decayFactor + "\n");
 			
 		}
 		
-		
-		return nodeScore;
+		return decayFactor*nodeScore;
 	}
 	
 	public double editDistance(String str1, String str2) {
@@ -245,13 +260,13 @@ public class PairValue implements Comparable<PairValue>{
 			return -1;
 	}
 	
-	public void makeMatchFile() throws IOException {
-		File matchFile = new File("./matchFiles2/" + file1.substring(7) + file2.substring(7) + ".txt");
+	public void makeMatchFile(String userFolder) throws IOException {
+		File matchFile = new File(userFolder + "/matchFiles2/" + file1.substring(file1.lastIndexOf('/') + 1, file1.lastIndexOf('.')) + "_" + file2.substring(file2.lastIndexOf('/') + 1, file2.lastIndexOf('.')) + ".txt");
 		FileWriter myWriter = new FileWriter(matchFile);
 		
 		Collections.sort(scoreList);
 		
-		myWriter.write("'" + file1 + "' " + "'fullName1' " + "'" + file2 + "' " + "'fullName2' " + "\n");
+		myWriter.write("'" + file1.substring(file1.lastIndexOf('/') + 1) + "' '" + file1  + "' '" + file2.substring(file2.lastIndexOf('/') + 1) + "' '" + file2 + "' '" + score + "' \n");
 		
 		for (int i=0; i<scoreList.size(); i++) {
 			PairValue next = scoreList.get(i);

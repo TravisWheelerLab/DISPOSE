@@ -17,6 +17,8 @@ my $safe_filename_characters = "a-zA-Z0-9_.-@";
 # Parse query params
 my $query = new CGI;
 
+my $method = $query->param("method");
+
 my $queriesBool = $query->param("queriesBool");
 my $queriesFile;
 if ($queriesBool eq "TRUE") {
@@ -181,7 +183,7 @@ if (fork()){
 	}
 
 	chdir("./DISPOSE/TheTool");
-	system("perl TheTool.pl $queriesFile $ignoreFile $pastFile $subsFile $email");
+	system("perl TheTool.pl $queriesFile $ignoreFile $pastFile $subsFile $email $method");
 
 	chdir($cgibin);
 	system("perl email.pl $email");
