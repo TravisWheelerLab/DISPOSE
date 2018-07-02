@@ -2,6 +2,9 @@
 
 # Usage: perl OpenMOSS.pl [internal_flag] [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user]
 
+use warnings;
+use strict;
+
 use List::MoreUtils qw(uniq);
 use Cwd qw(getcwd);
 use lib '.';
@@ -16,7 +19,7 @@ my $user = $ARGV[5];
 my $origin = $ARGV[1];
 my $originsGroup = 2;
 my $sourcesGroup = 999;
-my $sourcesDir;
+my $sourcesDir = "";
 
 unless ($ARGV[2] eq "???") {
 	$sourcesDir = $ARGV[2];
@@ -24,7 +27,7 @@ unless ($ARGV[2] eq "???") {
 }
 
 my $pastGroup = 998;
-my $pastDir;
+my $pastDir = "";
 unless ($ARGV[3] eq "???") {
 	$pastDir = $ARGV[3];
 	$pastGroup = 3;
@@ -35,9 +38,7 @@ my $KSIZE = 5;
 my $MINRUN = 3;
 
 my $mainDir = getcwd;
-
 chdir($userFolder);
-
 my $workDir = getcwd;
 
 mkdir "TokenFiles" unless -d "TokenFiles";
