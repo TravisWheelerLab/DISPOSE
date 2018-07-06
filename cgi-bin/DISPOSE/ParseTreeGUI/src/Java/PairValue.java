@@ -110,7 +110,7 @@ public class PairValue implements Comparable<PairValue>{
 		if (!recurse) {
 			double treeVal1 = assignSimilarity2(tree1, tree1, true);
 			double treeVal2 = assignSimilarity2(tree2, tree2, true);
-			score /= Math.sqrt(assignSimilarity2(tree1, tree1, true) * assignSimilarity2(tree2, tree2, true));
+			score /= Math.sqrt(treeVal1 * treeVal2);
 			System.out.println(treeVal1 + " " + treeVal2 + " " + score + "\n");
 		}
 		return score;
@@ -201,29 +201,29 @@ public class PairValue implements Comparable<PairValue>{
 		
 		// Otherwise
 		else {
-			String testString = "";
+			//String testString = "";
 			for (int i = 0; i < s1.getChildCount(); i++) {
 				double maxScore = 0;
-				String high1 = "";
-				String high2 = "";
+				//String high1 = "";
+				//String high2 = "";
 				for (int j=0; j<s2.getChildCount(); j++) {
 					double testScore = nScore(s1.getChild(i), s2.getChild(j));
 //					if (s1.getChild(i).hashVal.equals(s2.getChild(j).hashVal))
 //						System.out.println("TEST: " + s1.getChild(i).hashVal + " " + s2.getChild(j).hashVal + " " + testScore);
 					if (testScore > maxScore) {
 						maxScore = testScore;
-						high1 = s1.getChild(i).hashVal;
-						high2 = s2.getChild(j).hashVal;
+						//high1 = s1.getChild(i).hashVal;
+						//high2 = s2.getChild(j).hashVal;
 					}
 				}
-				if (s1.hashVal.equals(testString))
-					System.out.println(s1.getChild(i).data + " " + i + "th score: " + maxScore + " " + high1 + " " + high2);
+//				if (s1.hashVal.equals(testString))
+//					System.out.println(s1.getChild(i).data + " " + i + "th score: " + maxScore + " " + high1 + " " + high2);
 				prodScore += (1 + maxScore);
 			}
 			nodeScore = prodScore+s1.weight+s2.weight;
 			
-			if (s1.hashVal.equals(testString))
-				System.out.println("SCORE: " + decayFactor + " " + prodScore + " " + s1.weight + " " + s2.weight + " " + nodeScore*decayFactor + "\n");
+//			if (s1.hashVal.equals(testString))
+//				System.out.println("SCORE: " + decayFactor + " " + prodScore + " " + s1.weight + " " + s2.weight + " " + nodeScore*decayFactor + "\n");
 			
 		}
 		

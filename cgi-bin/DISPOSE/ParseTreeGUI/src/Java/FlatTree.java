@@ -161,6 +161,8 @@ public class FlatTree {
 	boolean leafless = false;
 
 	String originFile;
+	String fileDirSouce;
+	String subSource;
 	ArrayList<Node> allChildren = new ArrayList<Node>();
 
 	Node firstNode;

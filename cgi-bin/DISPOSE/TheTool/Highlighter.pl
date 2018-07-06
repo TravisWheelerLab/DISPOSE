@@ -4,6 +4,7 @@
 
 use warnings;
 use strict;
+
 use Template;
 use HTML::Entities qw(encode_entities);
 
@@ -72,11 +73,12 @@ my $curRun = 0;
 my @matches;
 
 while (<$fh>) {
-	chomp $_;
+	my $nextStart = <$fh>;
+	chomp $nextStart;
 
 	$curRun = 1;
 
-	my @matchParams = split(/ /, $_);
+	my @matchParams = split(/ /, $nextStart);
 	my @posParams1 = split(/:/, $matchParams[1]);
 	my @posParams2 = split(/:/, $matchParams[3]);
 

@@ -25,17 +25,37 @@ public class JavaMain {
 
 	static ArrayList<FlatTree> allTrees = new ArrayList<FlatTree>();
 
+	public final static double MIN_MATCH = 0.30;
+
 	public static void main(String[] args) throws IOException {
 
-				String subDir = args[0];
-				String userFolder = args[1];
-
-
-				try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
-				    paths
-				        .filter(Files::isRegularFile)
-				        .forEach(JavaMain::prepareTree);
-				}
+		boolean intFlag = Boolean.parseBoolean(args[0]);
+		String subDir = args[1];
+		String sourcesDir = args[2];
+		String pastDir = args[3];
+		String userFolder = args[4];
+		
+		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
+		    paths
+		        .filter(Files::isRegularFile)
+		        .forEach(JavaMain::prepareTree);
+		}
+		
+		if (!sourcesDir.equals("???")) {
+			try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + sourcesDir + "/Java"))) {
+			    paths
+			        .filter(Files::isRegularFile)
+			        .forEach(JavaMain::prepareTree);
+			}
+		}
+		
+		if (!pastDir.equals("???")) {
+			try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + pastDir + "/Java"))) {
+			    paths
+			        .filter(Files::isRegularFile)
+			        .forEach(JavaMain::prepareTree);
+			}
+		}
 
 //		try (Stream<Path> paths = Files.walk(Paths.get("./test"))) {
 //			paths
@@ -72,6 +92,9 @@ public class JavaMain {
 
 		FlatTree tree1, tree2;
 		//		long startTime = System.nanoTime();
+		
+		PairValue minScore = new PairValue("aaa", "bbb", 0);
+		myScores.add(minScore);
 
 		for (int i=0; i<allTrees.size(); i++) {
 			// TODO: Remove = test case for same comparison
@@ -79,19 +102,42 @@ public class JavaMain {
 				tree1 = allTrees.get(i);
 				tree2 = allTrees.get(j);
 
-				if (tree1.allChildren.size() == 0)
-					tree1.allChildren(tree1.firstNode);
-				if (tree2.allChildren.size() == 0)
-					tree2.allChildren(tree2.firstNode);
-
-				PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
-				System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
-				//next.score = next.assignSimilarity(tree1, tree2, scoreHistory, false);
-				next.score = next.assignSimilarity2(tree1, tree2, false);
-				//next.score = next.assignSimilarity4(tree1, tree2, scoreHistory2, false);
-
-				if (!Double.isNaN(next.score))
-					myScores.add(next);
+				if (tree1.fileDirSouce.equals(subDir) || tree2.fileDirSouce.equals(subDir)) {
+					System.out.println(tree1.subSource + " " + tree2.subSource);
+					if ((tree1.subSource.equals(tree2.subSource) && intFlag) 
+							|| !tree1.subSource.equals(tree2.subSource)) {
+						if (tree1.allChildren.size() == 0)
+							tree1.allChildren(tree1.firstNode);
+						if (tree2.allChildren.size() == 0)
+							tree2.allChildren(tree2.firstNode);
+		
+						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
+						System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
+						//next.score = next.assignSimilarity(tree1, tree2, scoreHistory, false);
+						next.score = next.assignSimilarity2(tree1, tree2, false);
+						//next.score = next.assignSimilarity4(tree1, tree2, scoreHistory2, false);
+		
+						if (!Double.isNaN(next.score)) {
+							if (next.score > MIN_MATCH) {
+								if (myScores.size() >= 250) {
+									if (next.score > minScore.score) {
+										myScores.add(next);
+										myScores.remove(minScore);
+										Collections.sort(myScores);
+										minScore = myScores.get(myScores.size()-1);
+									}
+								}
+								else {
+									myScores.add(next);
+									Collections.sort(myScores);
+									minScore = myScores.get(myScores.size()-1);
+								}
+							}
+							else
+								next = null;
+						}
+					}
+				}
 			}
 		}
 
@@ -114,6 +160,11 @@ public class JavaMain {
 
 
 		String fileName = filePath.toString();
+		String[] filePathSplit = fileName.split("/");
+		String fileDirSource = filePathSplit[5];
+		String subSource = filePathSplit[7];
+		String[] subSourceSplit = subSource.split("_");
+		subSource = subSourceSplit[0] + "_" + subSourceSplit[1];
 		System.out.println("Creating tree: " + fileName);
 
 		try {
@@ -155,13 +206,15 @@ public class JavaMain {
 
 
 			// Show AST in console
-			System.out.println(tree.toStringTree(parser) + "\n");
+			// System.out.println(tree.toStringTree(parser) + "\n");
 
 			// Flatten the ANTLR generated parse tree
 			// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
 			// myLeaflessTree.leafless = true;
 			FlatTree myTree = new FlatTree(tree.toStringTree(parser));
 			myTree.originFile = fileName;
+			myTree.fileDirSouce = fileDirSource;
+			myTree.subSource = subSource;
 
 			// Keep information on where in the source code the tree represents
 			ArrayList<Node> nodesList = new ArrayList<Node>();

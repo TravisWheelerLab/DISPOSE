@@ -19,16 +19,20 @@ my $originsGroup = 2;
 
 my $sourcesGroup = 999;
 my $sourcesDir = "";
+my $sourcesParam = "???";
 unless ($ARGV[1] eq "???") {
 	$sourcesDir = $ARGV[1];
 	$sourcesGroup = 1;
+	$sourcesParam = $sourcesDir;
 }
 
 my $pastGroup = 998;
 my $pastDir = "";
+my $pastParam = "???";
 unless ($ARGV[2] eq "???") {
 	$pastDir = $ARGV[2];
 	$pastGroup = 3;
+	$pastParam = $pastDir;
 }
 
 my $mainDir = getcwd;
@@ -38,8 +42,6 @@ my $workDir = getcwd;
 chdir($mainDir);
 
 mkdir "$userFolder\/matchFiles2" unless -d "$userFolder\/matchFiles2";
-system("java -jar WASTE.jar $origin $userFolder");
-my @matchFiles = `ls $userFolder\/matchFiles2`;
 
 my @langs = `find $userFolder\/$origin -mindepth 1 -maxdepth 1 -type d | awk -F"/" '{print \$NF}'`;
 chomp @langs;
@@ -51,11 +53,21 @@ my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
 my $fileTemp = $tempFolder . "suspectsTemp.php";
 my $mainOut = "../../results/$user/results.php";
 
+my @matchFiles = [];
+
 
 foreach my $curLang (@langs) {
 
-	chdir($workDir);
 
+	chdir($mainDir);
+
+	# Choose specific WASTE jar for each language
+	if ($curLang eq "Java") {
+		system("java -Xmx8000M -jar WASTE.jar 0 $origin $sourcesParam $pastParam $userFolder");
+		@matchFiles = `ls $userFolder\/matchFiles2`;
+	}
+
+	chdir($workDir);
 
 	# Prepare to recreate file names
 	my %dirLookup;
