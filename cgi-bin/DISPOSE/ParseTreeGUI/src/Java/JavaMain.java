@@ -30,17 +30,17 @@ public class JavaMain {
 
 	public static void main(String[] args) throws IOException {
 
-//		boolean intFlag = Boolean.parseBoolean(args[0]);
-//		String subDir = args[1];
-//		String sourcesDir = args[2];
-//		String pastDir = args[3];
-//		String userFolder = args[4];
+		boolean intFlag = args[0].equals("1");
+		String subDir = args[1];
+		String sourcesDir = args[2];
+		String pastDir = args[3];
+		String userFolder = args[4];
 		
-		boolean intFlag = true;
-		String subDir = "assign3";
-		String pastDir = "???";
-		String sourcesDir = "???";
-		String userFolder = "../../../workFiles/nohbodyz@gmail.com";
+//		boolean intFlag = true;
+//		String subDir = "example";
+//		String pastDir = "???";
+//		String sourcesDir = "???";
+//		String userFolder = "../../../workFiles/nohbodyz@gmail.com";
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
 		    paths
@@ -277,7 +277,6 @@ public class JavaMain {
 				if (startPos.get(i) != -1) {
 					myNode = nodesList.get(i);
 					myNode.startPos = startPos.get(i);
-					System.out.println("TEST2: " + i + " " + myNode.data + " " + myNode.startPos);
 					myNode.endPos = endPos.get(i);
 					myNode.startLine = line.get(i);
 					myNode.endLine = line.get(i);

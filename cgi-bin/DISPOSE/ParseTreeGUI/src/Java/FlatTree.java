@@ -135,13 +135,11 @@ public class FlatTree {
 		}
 		
 		public void assignPosition() {
-			System.out.println("TEST3: " + data + " " + startPos);
 			startPos = children.get(0).startPos;
 			endPos = children.get(0).endPos;
 			startLine = children.get(0).startLine;
 			endLine = startLine;
 			
-			System.out.println("TEST: " + children.size() + " " + startPos);
 			
 			for (Node c: children) {
 				if (c.startPos < startPos)
@@ -443,7 +441,6 @@ public class FlatTree {
 		else {
 			checkIndex++;
 			result.set(checkIndex, n);
-			System.out.println("TEST4: " + checkIndex + " " + n.data);
 		}
 	}
 
@@ -494,7 +491,6 @@ public class FlatTree {
 	}
 	
 	public void assignPositions(Node n) {
-		System.out.println("TEST5: " + n.data + " " + n.startPos);
 		if (n.getChildCount() != 0) {
 			for (Node nChild : n.children)
 				assignPositions(nChild);
