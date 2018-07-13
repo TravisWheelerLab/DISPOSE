@@ -272,16 +272,22 @@ public class JavaMain {
 				nodesList.add(myTree.new Node());
 			}
 			myTree.traverseLeavesList(nodesList, myTree.firstNode);
+			
+			int j = 0;
 
-			for (int i = 0; i < nodeCount; i++) {
-				if (startPos.get(i) != -1) {
-					myNode = nodesList.get(i);
-					myNode.startPos = startPos.get(i);
-					myNode.endPos = endPos.get(i);
-					myNode.startLine = line.get(i);
-					myNode.endLine = line.get(i);
-				}
+			for (int i = 0; i < nodesList.size()-1; i++) {
+				
+				// nodesList contains only the nodes not ignored so
+				// the index needs to be realligned to the position lists
+				while(startPos.get(j) == -1)
+					j++;
+				myNode = nodesList.get(i);
+				myNode.startPos = startPos.get(j);
+				myNode.endPos = endPos.get(j);
+				myNode.startLine = line.get(j);
+				myNode.endLine = line.get(j);
 				//System.out.println(myNode.startPos + ":" + myNode.endPos + " " + myNode.startLine + " " + myNode.endLine);
+				j++;
 			}
 			
 			myTree.assignPositions(myTree.firstNode);
