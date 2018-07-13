@@ -21,13 +21,13 @@ public class PythonMain {
         ParseTree tree = parser.file_input(); 
         
 
-        // Show AST in console
+        // Show AST in console 
         // System.out.println(tree.toStringTree(parser) + "\n");
         FlatTree myTree = new FlatTree(tree.toStringTree(parser));
         FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser));
         myLeaflessTree.leafless = true;
         
-        // Create hash values to count subtrees
+        // Create hash values to count subtrees 
         myLeaflessTree.createHashes(myLeaflessTree.firstNode);
 //      myTree.createHashes(myTree.firstNode);
         

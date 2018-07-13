@@ -15,7 +15,7 @@ import org.abego.treelayout.util.DefaultTreeForTreeLayout;
 
 public class FlatTree {
 	
-	class Node implements Comparable<Node>{
+	class Node implements Comparable<Node>{ 
 		String data;
 		String hashVal;
 		int size;

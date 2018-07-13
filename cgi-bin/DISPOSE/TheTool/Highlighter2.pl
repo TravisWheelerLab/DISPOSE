@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter2.pl [match file] [index] [user] [lang]
+# Usage: perl Highlighter2.pl [match file] [index] [user] [lang] [fullName1] [fullName2]
 
 use warnings;
 use strict;
@@ -156,7 +156,12 @@ while (<$fh>) {
 }
 close $fh;
 
- my $fullTextLink = "?lang=$curLang&id=$matchIndex&type=text";
+my $fullTextLink = "?lang=$curLang&id=$matchIndex&type=text";
+
+
+
+$fullName1 = $ARGV[4];
+$fullName2 = $ARGV[5];
 
 my $vars = {
       matches => \@matches,

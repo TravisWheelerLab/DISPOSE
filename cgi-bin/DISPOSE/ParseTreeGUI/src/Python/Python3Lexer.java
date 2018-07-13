@@ -34,7 +34,7 @@ public class Python3Lexer extends Lexer {
 		DIV_ASSIGN=87, MOD_ASSIGN=88, AND_ASSIGN=89, OR_ASSIGN=90, XOR_ASSIGN=91, 
 		LEFT_SHIFT_ASSIGN=92, RIGHT_SHIFT_ASSIGN=93, POWER_ASSIGN=94, IDIV_ASSIGN=95, 
 		SKIP_=96, UNKNOWN_CHAR=97;
-	public static String[] channelNames = {
+	public static String[] channelNames = { 
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
 

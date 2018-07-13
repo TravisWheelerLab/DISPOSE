@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 public class CMain {
 
-	static ArrayList<FlatTree> allTrees = new ArrayList<FlatTree>();
+	static ArrayList<FlatTree> allTrees = new ArrayList<FlatTree>(); 
 	
 	public static void main(String[] args) throws IOException {
 		

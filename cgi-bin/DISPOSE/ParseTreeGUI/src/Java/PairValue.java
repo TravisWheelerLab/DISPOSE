@@ -34,7 +34,7 @@ public class PairValue implements Comparable<PairValue>{
 		return 0;
 	}
 	
-	// TODO: Remove slower method
+	// TODO: Remove slower method 
 //	public double assignSimilarity(FlatTree tree1, FlatTree tree2, HashMap<String, Double> scoreHistory, boolean recurse) {
 //		double score = 0;
 //		
@@ -74,22 +74,25 @@ public class PairValue implements Comparable<PairValue>{
 //		return score;
 //	}
 	
+	double nextScore;
+	PairValue nextPair;
+	
 	// TODO: Remove test method for all subtree calculations again
 	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse) {
-		double score = 0;
+		double totalScore = 0;
 		
 		//long startTime = System.nanoTime();
 		
 		for (FlatTree.Node s1 : tree1.allChildren) {
 			for (FlatTree.Node s2: tree2.allChildren) {
-					Double nextScore = nScore(s1, s2);
-					score += nextScore;
+					nextScore = nScore(s1, s2);
+					totalScore += nextScore;
 					
 //					if (!recurse && s1.hashVal.equals(s2.hashVal))
 //						System.out.println(s1.hashVal + " " + nextScore);
 					
 					if (!recurse && nextScore>0) {
-						PairValue nextPair = new PairValue(s1.hashVal, s2.hashVal, nextScore);
+						nextPair = new PairValue(s1.hashVal, s2.hashVal, nextScore);
 						nextPair.startPos1 = s1.startPos;
 						nextPair.startPos2 = s2.startPos;
 						nextPair.endPos1 = s1.endPos;
@@ -110,10 +113,10 @@ public class PairValue implements Comparable<PairValue>{
 		if (!recurse) {
 			double treeVal1 = assignSimilarity2(tree1, tree1, true);
 			double treeVal2 = assignSimilarity2(tree2, tree2, true);
-			score /= Math.sqrt(treeVal1 * treeVal2);
-			System.out.println(treeVal1 + " " + treeVal2 + " " + score + "\n");
+			totalScore /= Math.sqrt(treeVal1 * treeVal2);
+			System.out.println(treeVal1 + " " + treeVal2 + " " + totalScore + "\n");
 		}
-		return score;
+		return totalScore;
 	}
 	
 //	public double assignSimilarity4(FlatTree tree1, FlatTree tree2, HashMap<String, HashMap<String, Double>> scoreHistory, boolean recurse) {
@@ -176,9 +179,11 @@ public class PairValue implements Comparable<PairValue>{
 //		return score;
 //	}
 	
+	double decayFactor;
+	
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
 		double nodeScore = 0;
-		double decayFactor = 1;
+		decayFactor = 1;
 		
 		double prodScore = 0;
 		
@@ -202,12 +207,13 @@ public class PairValue implements Comparable<PairValue>{
 		// Otherwise
 		else {
 			//String testString = "";
+			double maxScore, testScore;
 			for (int i = 0; i < s1.getChildCount(); i++) {
-				double maxScore = 0;
+				maxScore = 0;
 				//String high1 = "";
 				//String high2 = "";
 				for (int j=0; j<s2.getChildCount(); j++) {
-					double testScore = nScore(s1.getChild(i), s2.getChild(j));
+					testScore = nScore(s1.getChild(i), s2.getChild(j));
 //					if (s1.getChild(i).hashVal.equals(s2.getChild(j).hashVal))
 //						System.out.println("TEST: " + s1.getChild(i).hashVal + " " + s2.getChild(j).hashVal + " " + testScore);
 					if (testScore > maxScore) {

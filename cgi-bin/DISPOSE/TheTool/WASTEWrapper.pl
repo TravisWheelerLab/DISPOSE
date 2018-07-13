@@ -164,7 +164,6 @@ foreach my $curLang (@langs) {
 
 		$matchFile = $userFolder . "/matchFiles2/" . $matchFile;
 		chomp($matchFile);
-		system("perl Highlighter2.pl $matchFile $matchIndex nohbodyz\@gmail.com $curLang");
 
 
 		open(my $fh, "<", $matchFile)
@@ -224,6 +223,8 @@ foreach my $curLang (@langs) {
 			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
 
 		
+		system("perl Highlighter2.pl $matchFile $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2'");
+
 		$matchIndex++;
 	}
 }

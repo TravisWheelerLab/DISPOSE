@@ -1,6 +1,6 @@
 package C;
 
-import java.util.HashMap;
+import java.util.HashMap; 
 
 public class PairValue implements Comparable<PairValue>{
 	String file1;

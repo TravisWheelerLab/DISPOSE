@@ -5,9 +5,6 @@
 use warnings;
 use strict;
 
-use Cwd qw(getcwd);
-use Template;
-
 my $queryFile = $ARGV[0];
 my $ignoreFile = $ARGV[1];
 my $pastFile = $ARGV[2]; 

@@ -71,7 +71,7 @@ public class FlatTreeViewer extends JComponent {
 
 		@Override
 		public String getText(Tree arg0) {
-			// TODO Auto-generated method stub
+			// TODO Auto-generated method stub 
 			return null;
 		}
 

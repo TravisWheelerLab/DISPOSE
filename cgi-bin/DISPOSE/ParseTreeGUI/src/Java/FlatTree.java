@@ -52,24 +52,35 @@ public class FlatTree {
 			size = 1;
 
 			hashVal = "1" + data;
-			ArrayList<Node> sortedChildren = new ArrayList<Node>();
-			sortedChildren.addAll(children);
-			Collections.sort(sortedChildren);
+//			ArrayList<Node> sortedChildren = new ArrayList<Node>();
+//			sortedChildren.addAll(children);
+//			Collections.sort(sortedChildren);
+			
 
-			for (Node n: sortedChildren) {
+//			for (Node n: sortedChildren) {
+//				hashVal += n.toHash();
+//				size += n.size;
+//			}
+			
+			Collections.sort(children);
+			
+			for (Node n: children) {
 				hashVal += n.toHash();
 				size += n.size;
 			}
 
 			return hashVal;
 		}
+		
+		Iterator<Entry<String, Integer>> it;
+		Map.Entry<String, Integer> pair;
 
 		public void updateCounts() {
 			if (getChildCount() != 0 && !hashVal.equals("")) {
 				for (Node n: children) {
-					Iterator<Entry<String, Integer>> it = n.treeCounts.entrySet().iterator();
+					it = n.treeCounts.entrySet().iterator();
 					while (it.hasNext()) {
-						Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>) it.next();
+						pair = (Map.Entry<String, Integer>) it.next();
 						if (treeCounts.get(pair.getKey()) == null)
 							treeCounts.put(pair.getKey(), 0);
 						treeCounts.put(pair.getKey(), treeCounts.get(pair.getKey())+pair.getValue());
@@ -114,20 +125,23 @@ public class FlatTree {
 				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
 				// double IDF = Math.log((double) totalFileCount / fileCounts.get(hashVal)) / Math.log(totalFileCount);
 
-				if (hashVal.equals
-						("0\"Scribbleblah()blah\""))
-					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
-							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
+//				if (hashVal.equals
+//						("0\"Scribbleblah()blah\""))
+//					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
+//							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
 				// weight = Math.log(TF * IDF);
 				weight = Math.log(ITF * IDF);
 			}
 		}
 		
 		public void assignPosition() {
+			System.out.println("TEST3: " + data + " " + startPos);
 			startPos = children.get(0).startPos;
 			endPos = children.get(0).endPos;
 			startLine = children.get(0).startLine;
 			endLine = startLine;
+			
+			System.out.println("TEST: " + children.size() + " " + startPos);
 			
 			for (Node c: children) {
 				if (c.startPos < startPos)
@@ -169,7 +183,7 @@ public class FlatTree {
 	TextInBox firstBox;
 
 	Stack<Node> parentStack = new Stack<Node>();
-	Stack<TextInBox> parentBoxStack = new Stack<TextInBox>();
+	Stack<TextInBox> parentBoxStack;
 	DefaultTreeForTreeLayout<TextInBox> treeLayout;
 
 	public FlatTree (String lispTree) {
@@ -187,19 +201,24 @@ public class FlatTree {
 		parentStack.push(rootNode);
 		firstNode = rootNode;
 
-		TextInBox rootBox = new TextInBox(rootNode.data, 200, 50);
-		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(rootBox);
+		parentBoxStack = new Stack<TextInBox>();
+		firstBox = new TextInBox(rootNode.data, 200, 50);
+		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(firstBox);
 		//    	parentBoxStack.push(rootBox);
-		firstBox = rootBox;
 
 
 		String literal = "";
 		boolean inString = false;
+		
+		Node curParent;
+		Node nextParent;
+		
+		int lastParen;
 
 		for (int i = 1; i < treeTokens.length; i++) {
 			//System.out.println(treeTokens[i]);
 
-			int lastParen = -1;
+			lastParen = -1;
 			
 			if (treeTokens[i].length() == 0 || parentStack.isEmpty())
 				continue;
@@ -230,7 +249,7 @@ public class FlatTree {
 				}
 				
 				if (!inString) {
-					Node curParent = parentStack.peek();
+					curParent = parentStack.peek();
 
 					Node childNode = new Node();
 					literal += treeTokens[i].substring(0, lastParen);
@@ -245,7 +264,7 @@ public class FlatTree {
 
 					while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
 						//System.out.println("POP: " + parentStack.pop().data);
-						Node nextParent = parentStack.pop();
+						nextParent = parentStack.pop();
 						//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
 						if (!parentStack.isEmpty()) {
 							if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
@@ -276,7 +295,7 @@ public class FlatTree {
 			}
 			else if (treeTokens[i].charAt(treeTokens[i].length()-1) == ')') {
 
-				Node curParent = parentStack.peek();
+				curParent = parentStack.peek();
 				
 				Node childNode = new Node();
 //				if (curParent.data.equals("variableDeclaratorId")|| curParent.data.equals("expressionName"))
@@ -291,7 +310,7 @@ public class FlatTree {
 
 				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
 					//System.out.println("POP: " + parentStack.pop().data);
-					Node nextParent = parentStack.pop();
+					nextParent = parentStack.pop();
 					//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
 					if (!parentStack.isEmpty()) {
 						if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
@@ -325,10 +344,13 @@ public class FlatTree {
 
 		nodeStack.push(firstNode);
 		boxStack.push(firstBox);
+		
+		Node curParent;
+		TextInBox curParentBox;
 
 		while (!nodeStack.isEmpty()) {
-			Node curParent = nodeStack.pop();
-			TextInBox curParentBox = boxStack.pop();
+			curParent = nodeStack.pop();
+			curParentBox = boxStack.pop();
 			for (Node n: curParent.children) {
 				TextInBox childBox = new TextInBox(n.data, 200, 50);
 				treeLayout.addChild(curParentBox, childBox);
@@ -351,9 +373,11 @@ public class FlatTree {
 		Stack<Node> nodeStack = new Stack<Node>();
 
 		nodeStack.push(firstNode);
+		
+		Node curParent;
 
 		while (!nodeStack.isEmpty()) {
-			Node curParent = nodeStack.pop();
+			curParent = nodeStack.pop();
 			for (Node n: curParent.children) {
 				if (!leafless || n.children.size() != 0) {
 					treeLayout.addChild(curParent, n);
@@ -410,12 +434,17 @@ public class FlatTree {
 	}
 	
 	// Build the in-order traversal list of a tree's leaves
+	public int checkIndex = -1;
+	
 	public void traverseLeavesList(ArrayList<Node> result, Node n) {
 		if (n.getChildCount() != 0)
 			for (Node c: n.children)
 				traverseLeavesList(result, c);
-		else
-			result.add(n);
+		else {
+			checkIndex++;
+			result.set(checkIndex, n);
+			System.out.println("TEST4: " + checkIndex + " " + n.data);
+		}
 	}
 
 	// Remove any subtree that is rooted by as an expr statement
@@ -465,6 +494,7 @@ public class FlatTree {
 	}
 	
 	public void assignPositions(Node n) {
+		System.out.println("TEST5: " + n.data + " " + n.startPos);
 		if (n.getChildCount() != 0) {
 			for (Node nChild : n.children)
 				assignPositions(nChild);
