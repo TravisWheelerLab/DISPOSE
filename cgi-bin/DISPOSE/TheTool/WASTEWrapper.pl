@@ -63,7 +63,7 @@ foreach my $curLang (@langs) {
 
 	# Choose specific WASTE jar for each language
 	if ($curLang eq "Java") {
-		system("java -Xmx8000M -jar WASTE.jar 0 $origin $sourcesParam $pastParam $userFolder");
+		system("java -Xmx12000M -jar WASTE.jar 1 $origin $sourcesParam $pastParam $userFolder");
 		@matchFiles = `ls $userFolder\/matchFiles2`;
 	}
 

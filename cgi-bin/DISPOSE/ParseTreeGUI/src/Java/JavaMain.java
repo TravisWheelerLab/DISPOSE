@@ -37,9 +37,9 @@ public class JavaMain {
 		String userFolder = args[4];
 		
 //		boolean intFlag = true;
-//		String subDir = "example";
+//		String subDir = "assign3";
 //		String pastDir = "???";
-//		String sourcesDir = "???";
+//		String sourcesDir = "GithubResults";
 //		String userFolder = "../../../workFiles/nohbodyz@gmail.com";
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
@@ -64,14 +64,8 @@ public class JavaMain {
 			}
 		}
 
-//		try (Stream<Path> paths = Files.walk(Paths.get("./test"))) {
-//			paths
-//			.filter(Files::isRegularFile)
-//			.forEach(JavaMain::prepareTree);
-//		}
 
-
-		// Count files that contain a particular tree 
+//		// Count files that contain a particular tree 
 		HashMap<String, Integer> fileCounts = new HashMap<String, Integer>();
 
 		for (FlatTree ft: allTrees) {
@@ -98,10 +92,22 @@ public class JavaMain {
 
 
 		FlatTree tree1, tree2;
+
 		//		long startTime = System.nanoTime();
 		
 		PairValue minScore = new PairValue("aaa", "bbb", 0);
 		myScores.add(minScore);
+		
+		HashMap<FlatTree, Double> selfScore = new HashMap<FlatTree, Double>();
+		double record = 0;
+		for (int i=0; i<allTrees.size(); i++) {
+			tree1 = allTrees.get(i);
+			tree1.allChildren(tree1.firstNode);
+			record = minScore.assignSimilarity2(tree1, tree1, true, selfScore);
+			selfScore.put(tree1, record);
+			System.out.println("Self score: " + tree1.originFile + " " + record);
+		}
+
 
 		for (int i=0; i<allTrees.size(); i++) {
 			// TODO: Remove = test case for same comparison
@@ -113,15 +119,11 @@ public class JavaMain {
 					System.out.println(tree1.subSource + " " + tree2.subSource);
 					if ((tree1.subSource.equals(tree2.subSource) && intFlag) 
 							|| !tree1.subSource.equals(tree2.subSource)) {
-						if (tree1.allChildren.size() == 0)
-							tree1.allChildren(tree1.firstNode);
-						if (tree2.allChildren.size() == 0)
-							tree2.allChildren(tree2.firstNode);
 		
 						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
 						System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
 						//next.score = next.assignSimilarity(tree1, tree2, scoreHistory, false);
-						next.score = next.assignSimilarity2(tree1, tree2, false);
+						next.score = next.assignSimilarity2(tree1, tree2, false, selfScore);
 						//next.score = next.assignSimilarity4(tree1, tree2, scoreHistory2, false);
 		
 						if (!Double.isNaN(next.score)) {
@@ -159,8 +161,6 @@ public class JavaMain {
 		Collections.sort(myScores);
 		
 		int reportLim = Math.min(250, myScores.size());
-		
-		System.out.println("BLAHBLAH " + reportLim);
 
 		for (int i=0; i<reportLim; i++) {
 			System.out.println(myScores.get(i).file1 + " " + myScores.get(i).file2 + " " + myScores.get(i).score);
@@ -175,7 +175,7 @@ public class JavaMain {
 	String subSource;
 	String[] subSourceSplit;
 	
-	static Java8Lexer lexer;
+	static Java8Lexer lexer; 
 	static TokenStream tokenStream;
 	static Java8Parser parser;
 	static ParseTree tree;
@@ -183,18 +183,26 @@ public class JavaMain {
 	static List<? extends Token> myTokens;
 	static Vocabulary myVocab;
 	
-	ArrayList<Integer> startPos = new ArrayList<Integer>();
-	ArrayList<Integer> endPos = new ArrayList<Integer>();
-	ArrayList<Integer> line = new ArrayList<Integer>();
+	ArrayList<Integer> startPos;
+	ArrayList<Integer> endPos;
+	ArrayList<Integer> line;
 	
 	Token myToken;
 	String[] remFlags = new String[] {"LINE_COMMENT", "COMMENT", "WS"};
 	
 	Node myNode;
 	FlatTree myTree;
-	ArrayList<Node> nodesList = new ArrayList<Node>(1000);
+	ArrayList<Node> nodesList;
+	
+	String treeString;
 
 	public void prepareTree(Path filePath) {
+		
+		startPos = new ArrayList<Integer>();
+		endPos = new ArrayList<Integer>();
+		line = new ArrayList<Integer>();
+		
+		nodesList = new ArrayList<Node>(1000);
 
 		fileName = filePath.toString();
 		filePathSplit = fileName.split("/");
@@ -204,8 +212,10 @@ public class JavaMain {
 		subSource = subSourceSplit[0] + "_" + subSourceSplit[1];
 		System.out.println("Creating tree: " + fileName);
 
-//		try {
-
+		try {
+		
+			System.gc();
+			
 			//prepare token stream
 			CharStream stream = null;
 			try {
@@ -216,15 +226,20 @@ public class JavaMain {
 
 			// Prepare parser and lexer 
 			lexer = new Java8Lexer(stream);
+			stream = null;
 			tokenStream = new CommonTokenStream(lexer);
 			parser = new Java8Parser(tokenStream);
+			tokenStream = null;
 			tree = parser.compilationUnit();
 
 			lexer.reset();
 			myTokens = lexer.getAllTokens();
 			myVocab = lexer.getVocabulary();
 			
-			System.out.println(myTokens.size() + " " + startPos.size());
+			lexer = null;
+			
+			System.out.println(fileName + " " + (Runtime.getRuntime().totalMemory()));
+
 			
 			while (startPos.size() < myTokens.size()) {
 				startPos.add(-1);
@@ -232,9 +247,8 @@ public class JavaMain {
 				line.add(-1);
 			}
 			
-			System.out.println(startPos.size() + " " + myTokens.size());
 			
-			int nodeCount = 1;
+			int nodeCount = 0;
 
 			// Store position information for each token in stream
 			// Tokens are retrieved in the same order as an in-order leaf traversal
@@ -254,7 +268,9 @@ public class JavaMain {
 					line.set(i, -1);
 				}
 			}
-
+			
+			myTokens = null;
+			myVocab = null;
 
 			// Show AST in console
 			// System.out.println(tree.toStringTree(parser) + "\n");
@@ -262,20 +278,28 @@ public class JavaMain {
 			// Flatten the ANTLR generated parse tree
 			// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser)); 
 			// myLeaflessTree.leafless = true;
-			myTree = new FlatTree(tree.toStringTree(parser));
+			treeString = tree.toStringTree(parser);
+			parser = null; tree = null;
+			
+			myTree = new FlatTree(treeString);
+			System.out.println("Made tree");
+			treeString = null;
 			myTree.originFile = fileName;
 			myTree.fileDirSouce = fileDirSource;
 			myTree.subSource = subSource;
 
 			// Keep information on where in the source code the tree represents
-			while (nodesList.size() < nodeCount) {
+			while (nodesList.size() <= nodeCount) {
 				nodesList.add(myTree.new Node());
 			}
+			System.out.println("Traversing leaves...");
 			myTree.traverseLeavesList(nodesList, myTree.firstNode);
+			System.out.println("Traversed!");
 			
 			int j = 0;
 
-			for (int i = 0; i < nodesList.size()-1; i++) {
+			System.out.println("Assigning positions...");
+			for (int i = 0; i < nodeCount; i++) {
 				
 				// nodesList contains only the nodes not ignored so
 				// the index needs to be realligned to the position lists
@@ -290,7 +314,14 @@ public class JavaMain {
 				j++;
 			}
 			
+			nodesList = null;
+			startPos = null;
+			endPos = null;
+			line = null;
+			
 			myTree.assignPositions(myTree.firstNode);
+			
+			System.out.println("Assigned!");
 
 			// Replace the subtree of an expressionStatement with in-order
 			// traversal string of leaves
@@ -302,17 +333,21 @@ public class JavaMain {
 
 			// Create hash values to count subtrees
 			// Note: children are no longer in-order afterwards
+			System.out.println("Creating hashes...");
 			myTree.createHashes(myTree.firstNode);
-
+			System.out.println("Created!");
+			
 			// Keep track of how often a subtree appears below every node
+			System.out.println("Counting hashes...");
 			myTree.updateAllCounts(myTree.firstNode);
+			System.out.println("Counted!");
 			//myTree.firstNode.printCounts();
 
 			allTrees.add(myTree);
-
-//		} catch (Exception e) {
-//			System.out.println("FAILED");
-//		}
+			
+		} catch (Exception e) {
+			System.out.println("FAILED");
+		}
 	}
 
 	public static void generateFlatTreeImage(Java8Parser myParser, FlatTree myTree, String fileName) {

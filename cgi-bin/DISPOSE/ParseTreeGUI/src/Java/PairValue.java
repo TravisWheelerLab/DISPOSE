@@ -78,7 +78,7 @@ public class PairValue implements Comparable<PairValue>{
 	PairValue nextPair;
 	
 	// TODO: Remove test method for all subtree calculations again
-	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse) {
+	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse, HashMap<FlatTree, Double> selfScore) {
 		double totalScore = 0;
 		
 		//long startTime = System.nanoTime();
@@ -92,7 +92,7 @@ public class PairValue implements Comparable<PairValue>{
 //						System.out.println(s1.hashVal + " " + nextScore);
 					
 					if (!recurse && nextScore>0) {
-						nextPair = new PairValue(s1.hashVal, s2.hashVal, nextScore);
+						nextPair = new PairValue(s1.hashVal.toString(), s2.hashVal.toString(), nextScore);
 						nextPair.startPos1 = s1.startPos;
 						nextPair.startPos2 = s2.startPos;
 						nextPair.endPos1 = s1.endPos;
@@ -111,8 +111,8 @@ public class PairValue implements Comparable<PairValue>{
 		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
 		
 		if (!recurse) {
-			double treeVal1 = assignSimilarity2(tree1, tree1, true);
-			double treeVal2 = assignSimilarity2(tree2, tree2, true);
+			double treeVal1 = selfScore.get(tree1);
+			double treeVal2 = selfScore.get(tree2);
 			totalScore /= Math.sqrt(treeVal1 * treeVal2);
 			System.out.println(treeVal1 + " " + treeVal2 + " " + totalScore + "\n");
 		}

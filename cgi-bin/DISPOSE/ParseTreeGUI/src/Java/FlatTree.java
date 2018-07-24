@@ -18,7 +18,7 @@ public class FlatTree {
 
 	class Node implements Comparable<Node>{
 		String data;
-		String hashVal;
+		StringBuilder hashVal = new StringBuilder();
 		int size;
 		Node parent;
 		double weight = 1;
@@ -38,20 +38,18 @@ public class FlatTree {
 		}
 
 		public String toHash() {
-			if (hashVal != null)
-				return hashVal;
+			if (!hashVal.toString().equals(""))
+				return hashVal.toString();
 			if (getChildCount() == 0) {
 				if (!leafless)
-					hashVal = "0" + data;
-				else
-					hashVal = "";
+					hashVal.append("0").append(data);
 				size = 1;
-				return hashVal;
+				return hashVal.toString();
 			}
 
 			size = 1;
 
-			hashVal = "1" + data;
+			hashVal.append("1").append(data);
 //			ArrayList<Node> sortedChildren = new ArrayList<Node>();
 //			sortedChildren.addAll(children);
 //			Collections.sort(sortedChildren);
@@ -65,18 +63,18 @@ public class FlatTree {
 			Collections.sort(children);
 			
 			for (Node n: children) {
-				hashVal += n.toHash();
+				hashVal.append(n.toHash());
 				size += n.size;
 			}
 
-			return hashVal;
+			return hashVal.toString();
 		}
 		
 		Iterator<Entry<String, Integer>> it;
 		Map.Entry<String, Integer> pair;
 
 		public void updateCounts() {
-			if (getChildCount() != 0 && !hashVal.equals("")) {
+			if (getChildCount() != 0 && !hashVal.toString().equals("")) {
 				for (Node n: children) {
 					it = n.treeCounts.entrySet().iterator();
 					while (it.hasNext()) {
@@ -89,16 +87,16 @@ public class FlatTree {
 				}
 			}
 			// Include this node in count
-			if (treeCounts.get(hashVal) == null && !hashVal.equals(""))
-				treeCounts.put(hashVal, 1);
-			else if (!hashVal.equals(""))
-				treeCounts.put(hashVal, treeCounts.get(hashVal) + 1);
+			if (treeCounts.get(hashVal.toString()) == null && !hashVal.toString().equals(""))
+				treeCounts.put(hashVal.toString(), 1);
+			else if (!hashVal.toString().equals(""))
+				treeCounts.put(hashVal.toString(), treeCounts.get(hashVal.toString()) + 1);
 			
 		}
 
 		@Override
 		public int compareTo(Node other) {
-			return hashVal.compareTo(other.hashVal);
+			return hashVal.toString().compareTo(other.hashVal.toString());
 		}
 
 		public void printCounts() {
@@ -121,8 +119,9 @@ public class FlatTree {
 			else {
 				// double TF = (double) root.treeCounts.get(hashVal) /  root.size;
 				// double ITF = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal))) / Math.log(2);
-				double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal)) / Math.log (root.size);
-				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal))) / Math.log(2);
+
+				double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal.toString())) / Math.log (root.size);
+				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal.toString()))) / Math.log(2);
 				// double IDF = Math.log((double) totalFileCount / fileCounts.get(hashVal)) / Math.log(totalFileCount);
 
 //				if (hashVal.equals
@@ -403,11 +402,11 @@ public class FlatTree {
 	// (e.g.) alphabetical sorting of all the children's hashes
 	public void createHashes(Node n) {
 		if (n.getChildCount() == 0)
-			n.hashVal = n.toHash();
+			n.toHash();
 		else {
 			for (Node nChild : n.children)
 				createHashes(nChild);
-			n.hashVal = n.toHash();
+			n.toHash();
 		}
 	}
 
