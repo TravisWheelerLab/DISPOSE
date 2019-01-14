@@ -13,10 +13,10 @@
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
         header('Content-Length: ' . filesize($filePath));
-        flush(); // Flush system output buffer
-
+        
+        ob_end_flush(); // Turn off the output buffer
         $fp = fopen($filePath, 'rb');
-        fpassthru($fp);
+        fpassthru($fp); // Stream file info
         exit;
     }
 ?>
