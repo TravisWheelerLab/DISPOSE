@@ -1,6 +1,7 @@
 <?php
+    session_start();
 
-    $user = urldecode($_REQUEST["user"]);
+    $user = $_SESSION['email'];
     $fileName = `perl ./../cgi-bin/save.pl $user`;
     $filePath = "../results/" . $user . "/offline/" . $fileName;
     
