@@ -33,6 +33,31 @@ dircopy("../html/js", '../results/' . $email . "/offline/" . $folderName . '/res
 copy("../results/" . $email . "/offline/results.html", "../results/" . $email . "/offline/" . $folderName . "/results/" . $email . "/results.html") or die ("$!\n");
 
 
+# Create shortcut to results main page
+my $shortcut = '../results/'. $email . '/offline/'. $folderName . '/results.html';
+open(my $fh, '>', $shortcut) or die "Could not open file: '$shortcut' $!";
+
+my $page_html = <<END;
+<!DOCTYPE HTML>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="0; url=./results/$email/results.html">
+        <script type="text/javascript">
+            window.location.href = "./results/$email/results.html";
+        </script>
+        <title>Page Redirection</title>
+    </head>
+    <body>
+        If you are not redirected automatically, follow this: <a href='./results/$email/results.html'>link to results</a>.
+    </body>
+</html>
+END
+print $fh $page_html;
+close $fh;
+
+
+# Compress the offline results in a zip archive
 my $zip = Archive::Zip->new();
 
 $zip->addTree('../results/' . $email . "/offline/" . $folderName, $folderName );
