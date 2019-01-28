@@ -1,11 +1,9 @@
 <?php
 if(isset($_REQUEST["source"])){
 
-    $file = urldecode($_REQUEST["source"]);
-    $lang = urldecode($_REQUEST["lang"]);
     $user = urldecode($_REQUEST["user"]);
     $sourceLoc = urldecode($_REQUEST["sourceLoc"]);
-    $filePath = "../workFiles/" . $user . "/" . $sourceLoc ."/" . $lang . "/" . $file;
+    $filePath = "../workFiles/" . $user . "/" . $sourceLoc;
     
     // Process download
     if(file_exists($filePath)) {
