@@ -7,6 +7,29 @@ function escapeHtml(unsafe) {
          .replace(/'/g, "&#039;");
  }
 
+ function lineCounts(code, block, id) {
+ 	var result = escapeHtml(code);
+	var lines = result.split("\n");
+		lines = lines.map(str => str.replace(/\r$/, ""));
+
+  	var count = 1;
+  	var output = '';
+
+  	for (var i=0; i < lines.length; i++) {
+  		output = output + "<span class='line' ";
+  		output = output + "meta='" + count + "' id='line" + id +"_" + count + "'>";
+  		output = output + lines[i];
+  		output = output + "</span>\n";
+  		count = count + 1;
+  	}
+
+ 	$(block).html(output);
+ 	$(block).removeClass();
+
+ 	hljs.initHighlighting.called = false;
+	hljs.initHighlighting();
+ }
+
 // $(document).ready(function(){
 // 	$('#sourceFile1').bind('change', function() {
 // 		var fileName = $(this).val();

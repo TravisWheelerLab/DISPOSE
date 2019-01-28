@@ -59,14 +59,14 @@
                 </h2></center></td>
             </tr>
             <tr>
-                <td><pre><code id="code1">
-                	[% file1.text %]
-                </code></pre></td>
-
-                <td><pre><code id="code2">
-                	[% file2.text %]
-                </code></pre></td>
+                <td><pre><code id="code1"></code></pre></td>
+                <td><pre><code id="code2"></code></pre></td>
             </tr>
+
+            <script>
+                lineCounts(`[% file1.text %]`, '#code1', '1');
+                lineCounts(`[% file2.text %]`, '#code2', '2');
+            </script>
 
         </table>
 
@@ -75,40 +75,6 @@
     <!-- Graphical tree viewing -->
     <div id="trees" class="tabcontent">
         <center>
-            <!-- <form>
-                <label id="treeLabel1" for="treeFile1" class="custom-but needed fileLabel">
-                    Upload <br>
-                    Tree 1 File
-                </label>
-                <input id="treeFile1" type="file" name="tree1" />
-
-                <label id="treeLabel2" for="treeFile2" class="custom-but needed fileLabel">
-                    Upload <br>
-                    Tree 2 File
-                </label>
-                <input id="treeFile2" type="file" name="tree2" />
-
-                <br>
-
-                 <label id="pathsLabel" for="pathsFile" class="custom-but needed fileLabel">
-                    Upload <br>
-                    Paths File
-                </label>
-                <input id="pathsFile" type="file" name="paths" />
-
-                <label id="scoresLabel" for="scoresFile" class="custom-but needed fileLabel">
-                    Upload <br>
-                    Scores File
-                </label>
-                <input id="scoresFile" type="file" name="scores" />
-
-                <br><br>
-
-                <label id='submitLabel' for='submitButton' class="custom-but needed">
-                    Display Trees
-                </label>
-                <input type="button" name="Submit" id="submitButton" onclick='readFiles(treeCompare);' />
-            </form> -->
             <script>
 	        	$(document).ready(function(){
 		        	var $tree1 = `[% tree1 %]`;
@@ -118,6 +84,15 @@
 		        	treeCompare($tree1, $tree2, $paths, $scores);
 	        	})
         	</script>
+            <b>Instructions:</b><br>
+            Click a node in one tree to see the total contribution.<br>
+            This will highlight matching nodes in the other tree.<br>
+            Select a node in the other tree to see the paired score<br>
+            Remaining highlights are a contributed percentile heatmap of the pair.<br>
+            <br>
+            Right-click to collapse subtree on node.<br>
+            Ctrl + scroll to zoom.<br>
+            Alt + drag to pan.<br>
             <br>
             <img alt="color scale" src="./img/colorbar.png"></img>
         </center>
