@@ -42,10 +42,19 @@ if ($method eq "1") {
 
 elsif ($method eq "2") {
 	if ($queryFile eq "???") {
-		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user");
+		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 0");
 	}
 	else {
-		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user");
+		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 0");
+	}
+}
+
+elsif ($method eq "3") {
+	if ($queryFile eq "???") {
+		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 1");
+	}
+	else {
+		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 1");
 	}
 }
 

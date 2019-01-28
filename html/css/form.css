@@ -1,0 +1,71 @@
+input[type="file"] {
+	display: none;
+}
+input[type="submit"] {
+	display: none;
+}
+input[type="button"] {
+	display: none;
+}
+.custom-but {
+	border: 1px solid #ccc;
+	padding: 6px 12px;
+	cursor: pointer;
+	color: white;
+}
+.needed {
+	background-color: #f44336; /* Red */
+}
+.accepted {
+	background-color: #4CAF50; /* Green */
+}
+.optional {
+	background-color: #ff9900; /* Orange */
+}
+.unselected {
+	background-color: #424242; /* Grey */
+}
+
+div {
+	display: inline-block;
+}
+
+.fileLabel {
+	height: 100%;
+	width: 120px;
+	display: inline-block;
+}
+
+.onLabel {
+	opacity: 0.5;
+	filter: alpha(opacity=50); /* For IE8 and earlier */
+}
+
+pre {
+  counter-reset: line;
+}
+
+.line {
+  counter-increment: line;
+}
+
+.line::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2.0em;
+  border-right: 1px solid #7c7e82;
+  padding: 0 .5em;
+  margin-right: .5em;
+  color: #888;
+  -webkit-user-select: none;
+}
+
+.highlighted::before {
+  background-color: #fce341;
+  color: black;
+  font-weight: bold;
+}
+
+#code1, #code2 {
+	padding: 0px;
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>DISPOSE | Data</title>
+
+    <!-- trees visualization -->
+    <link rel="stylesheet" type="text/css" href="../css/trees.css">
+    <!-- tabs appearance -->
+    <link rel="stylesheet" type="text/css" href="../css/tabs.css">
+    <!-- form appearance -->
+    <link rel="stylesheet" type="text/css" href="../css/form.css">
+    <!-- source code appearance -->
+    <link rel="stylesheet" type="text/css" href="../css/sources.css">
+    <link rel="stylesheet" type="text/css" href="../css/monokai-sublime.css">
+    <!-- load the d3.js library for trees-->
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <!-- load highlight.js for coding appearance -->
+    <script charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <!-- load jquery for element selection -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script src="../js/tree_compare.js"></script>
+    <script src="../js/tabs_control.js"></script>
+    <script src="../js/form.js"></script>
+
+
+</head>
+
+<body style="overflow-y: scroll;">
+    <h1>Data Center</h1>
+
+    <!-- Pretty tabulation to separate the information displayed -->
+    <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'files')">Files</button>
+      <button class="tablinks" onclick="openTab(event, 'trees')">Trees</button>
+      <button class="tablinks" onclick="openTab(event, 'stats')">Stats</button>
+    </div>
+
+    <!-- File source code tabs -->
+    <div id="files" class="tabcontent">
+        <h2>
+            <center>Full Source Code</center>
+        </h2>
+        <table>
+            <tr>
+                <td><center><h2>
+                    <div id='shortName1b' class="hasTooltip">[% file1.name %]
+                    <span id='longName1b'>[% file1.fullName %]</span>
+                    </div>
+                </h2></center></td>
+                <td><center><h2>
+                    <div id='shortName2b' class="hasTooltip">[% file2.name %]
+                    <span id='longName2b'>[% file2.fullName %]</span>
+                    </div>
+                </h2></center></td>
+            </tr>
+            <tr>
+                <td><pre><code id="code1">
+                	[% file1.text %]
+                </code></pre></td>
+
+                <td><pre><code id="code2">
+                	[% file2.text %]
+                </code></pre></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <!-- Graphical tree viewing -->
+    <div id="trees" class="tabcontent">
+        <center>
+            <!-- <form>
+                <label id="treeLabel1" for="treeFile1" class="custom-but needed fileLabel">
+                    Upload <br>
+                    Tree 1 File
+                </label>
+                <input id="treeFile1" type="file" name="tree1" />
+
+                <label id="treeLabel2" for="treeFile2" class="custom-but needed fileLabel">
+                    Upload <br>
+                    Tree 2 File
+                </label>
+                <input id="treeFile2" type="file" name="tree2" />
+
+                <br>
+
+                 <label id="pathsLabel" for="pathsFile" class="custom-but needed fileLabel">
+                    Upload <br>
+                    Paths File
+                </label>
+                <input id="pathsFile" type="file" name="paths" />
+
+                <label id="scoresLabel" for="scoresFile" class="custom-but needed fileLabel">
+                    Upload <br>
+                    Scores File
+                </label>
+                <input id="scoresFile" type="file" name="scores" />
+
+                <br><br>
+
+                <label id='submitLabel' for='submitButton' class="custom-but needed">
+                    Display Trees
+                </label>
+                <input type="button" name="Submit" id="submitButton" onclick='readFiles(treeCompare);' />
+            </form> -->
+            <script>
+	        	$(document).ready(function(){
+		        	var $tree1 = `[% tree1 %]`;
+		        	var $tree2 = `[% tree2 %]`;
+		        	var $paths = `[% paths %]`;
+		        	var $scores = `[% scores %]`;
+		        	treeCompare($tree1, $tree2, $paths, $scores);
+	        	})
+        	</script>
+            <br>
+            <img alt="color scale" src="./img/colorbar.png"></img>
+        </center>
+
+        <!-- Floating information windows -->
+        <div id="treeInfo1">
+            <div id="treeInfo1Head"><div id="pin1"></div>Tree 1</div>
+            <p class="nodeInfo"> 
+                <b>Name:</b> <span id="nodeName1"></span><br>
+                <b>Weight:</b> <span id="weight1"></span><br>
+                <b>Position:</b> <span id="pos1"></span><br>
+                <b>Node Total:</b> <span id="nodeTotal1"></span><br><br>
+                <b>Pair Score:</b> <span id="nodeScore1"></span>
+            </p>
+        </div>
+
+        <div id="treeInfo2">
+            <div id="treeInfo2Head"><div id="pin2"></div>Tree 2</div>
+            <p class="nodeInfo">
+                <b>Name:</b> <span id="nodeName2"></span><br>
+                <b>Weight:</b> <span id="weight2"></span><br>
+                <b>Position:</b> <span id="pos2"></span><br>
+                <b>Node Total:</b> <span id="nodeTotal2"></span><br><br>
+                <b>Pair Score:</b> <span id="nodeScore2"></span>
+            </p>
+        </div>
+        <script>
+            dragElement(document.getElementById("treeInfo1"));
+            dragElement(document.getElementById("treeInfo2"));
+        </script>
+
+        <!-- Graphical interactive trees -->
+        <center>
+            <h1>Tree 1</h1>
+            <div class="container" id="treeContainer1">
+                <svg id="tree1"></svg>
+            </div>
+            <h1>Tree 2</h1>
+            <div class="container" id=treeContainer2>
+                <svg id="tree2"></svg>
+            </div>
+        </center>
+    </div>
+
+    <div id="stats" class="tabcontent">
+        <h3>Stats</h3>
+        <p>Check out these stats</p>
+    </div>
+
+</body>
+
+</html>

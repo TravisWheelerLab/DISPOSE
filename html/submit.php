@@ -346,6 +346,7 @@
 				$('#methodInput').val('1');
 				$('#withMOSSBut').attr('class', 'custom-but accepted');
 				$('#withWASTEBut').attr('class', 'custom-but unselected');
+				$('#withWASTEDBut').attr('class', 'custom-but unselected');
 
 				showInstructQueries = true;
 
@@ -359,6 +360,22 @@
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('2');
 				$('#withWASTEBut').attr('class', 'custom-but accepted');
+				$('#withWASTEDBut').attr('class', 'custom-but unselected');
+				$('#withMOSSBut').attr('class', 'custom-but unselected');
+
+				showInstructQueries = true;
+
+				if (showInstruct) {
+					showInstruct = false;
+					toggleInstruct();
+				}
+			};
+
+			function withWASTEDClick() {
+				$('#queriesChoice').css('visibility', 'visible');
+				$('#methodInput').val('3');
+				$('#withWASTEDBut').attr('class', 'custom-but accepted');
+				$('#withWASTEBut').attr('class', 'custom-but unselected');
 				$('#withMOSSBut').attr('class', 'custom-but unselected');
 
 				showInstructQueries = true;
@@ -449,6 +466,16 @@
 				<button id="withWASTEBut" class="custom-but needed" onclick="withWASTEClick()">
 					DISPOSE WASTE
 				</button>
+				<?php
+					if ($_SESSION['email'] == "nohbodyz@gmail.com" || $_SESSION['email'] == "travis.wheeler@umontana.edu" ) {
+						$buttonHTML = '
+						<br>
+						<button id="withWASTEDBut" class="custom-but needed" onclick="withWASTEDClick()">
+							DISPOSE WASTED
+						</button>';
+						echo $buttonHTML;
+					}
+				?>
 			</div>
 		</center>
 

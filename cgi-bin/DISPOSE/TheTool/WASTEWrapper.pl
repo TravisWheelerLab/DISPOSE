@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user]
+# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user] [data_flag]
 
 use warnings;
 use strict;
@@ -10,6 +10,7 @@ use Template;
 
 my $userFolder = $ARGV[3];
 my $user = $ARGV[4];
+my $DATA = $ARGV[5];
 
 my $matchIndex = 0;
 my @suspects_hashes;
@@ -42,6 +43,9 @@ my $workDir = getcwd;
 chdir($mainDir);
 
 mkdir "$userFolder\/matchFiles2" unless -d "$userFolder\/matchFiles2";
+mkdir "$userFolder\/trees" unless -d "$userFolder\/trees";
+mkdir "$userFolder\/pathFiles" unless -d "$userFolder\/pathFiles";
+mkdir "$userFolder\/scoreFiles" unless -d "$userFolder\/scoreFiles";
 
 my @langs = `find $userFolder\/$origin -mindepth 1 -maxdepth 1 -type d | awk -F"/" '{print \$NF}'`;
 chomp @langs;
@@ -61,11 +65,22 @@ foreach my $curLang (@langs) {
 
 	chdir($mainDir);
 
-	# Choose specific WASTE jar for each language
-	if ($curLang eq "Java") {
-		system("java -Xmx12000M -jar WASTE.jar 1 $origin $sourcesParam $pastParam $userFolder");
-		@matchFiles = `ls $userFolder\/matchFiles2`;
+	# Experimental
+	if ($DATA eq '1') {
+		if ($curLang eq "Java") {
+			system("java -Xmx10000M -jar WASTED.jar 1 $origin $sourcesParam $pastParam $userFolder");
+			@matchFiles = `ls $userFolder\/matchFiles2`;
+		}
 	}
+
+	else {
+		# Choose specific WASTE jar for each language
+		if ($curLang eq "Java") {
+			system("java -Xmx10000M -jar WASTE.jar 1 $origin $sourcesParam $pastParam $userFolder");
+			@matchFiles = `ls $userFolder\/matchFiles2`;
+		}
+	}
+
 
 	chdir($workDir);
 
@@ -162,6 +177,9 @@ foreach my $curLang (@langs) {
 	foreach my $matchFile (@matchFiles) {
 		chdir($mainDir);
 
+		my $fileName = $matchFile;
+		chomp($fileName);
+
 		$matchFile = $userFolder . "/matchFiles2/" . $matchFile;
 		chomp($matchFile);
 
@@ -219,11 +237,11 @@ foreach my $curLang (@langs) {
 		$authName2 =~ s/.{20}\K.*//s;
 
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, srcType1 => $groupNum1, srcType2 => $groupNum2, 
-			fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $matchIndex, lang => $curLang,
+			fullName1 => $fullName1, fullName2 => $fullName2, matchScore => $score, matchIndex => $matchIndex, lang => $curLang,
 			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
 
 		
-		system("perl Highlighter2.pl $matchFile $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2'");
+		system("perl Highlighter2.pl $fileName $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2' $DATA");
 
 		$matchIndex++;
 	}
@@ -235,7 +253,8 @@ my $vars = {
   matches => \@suspects_hashes,
   langs => \@langs,
   tempFolder => $tempFolder,
-  user => $user
+  user => $user,
+  data => $DATA
 };
 
 my $template = Template->new(RELATIVE => 1);

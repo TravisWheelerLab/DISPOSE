@@ -57,16 +57,6 @@
 				document.write('[<sub><a href="https://github.com/' + repoName + '/blob/master/' + directFile + '"><img src="../img/link.png" class="scaleImg" /></a></sub>]');
 				</script>
 				[% END %]
-
-				[% IF match.srcType1 == "2" || match.srcType1 == "3" %]
-				<script>
-				document.write('[<sub><a href="');
-				var link = 'download.php?source=[% match.file1 %]&lang=[% match.lang %]")&user=[% user %]&sourceLoc="[% match.dirName1 %]"';
-				var res = encodeURI(link);
-				document.write(res);
-				document.write('"><img src="../img/download.png" class="scaleImg" /></a></sub>]');
-				</script>
-				[% END %]
 			</td>
 			<td>
 				[% match.authName1 %]
@@ -100,7 +90,12 @@
 			<td>
 				[% match.authName2 %]
 			</td>
-			<td>[% match.matchNum %]</td>
+			<td>
+				[% match.matchScore %] 
+				[% IF data == "1" %]
+				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+				[% END %]
+			</td>
 		</tr>
 		[%  END %]
 		</tbody>
