@@ -2,36 +2,51 @@ function readFiles(callback) {
 
     var file1 = $('#treeFile1');
     var file2 = $('#treeFile2');
-    var pathsFile = $('#pathsFile');
     var scoresFile = $('#scoresFile');
 
     var reader = new FileReader();
     var reader2 = new FileReader();
     var reader3 = new FileReader();
-    var reader4 = new FileReader();
 
     reader.onload = function() {
         reader2.onload = function() {
             reader3.onload = function() {
-                reader4.onload = function() {
-                    callback(reader.result, reader2.result, reader3.result, reader4.result);
-                };
+                callback(reader.result, reader2.result, reader3.result);
             };
         };
     };
 
     reader.readAsText(file1[0].files[0]);
     reader2.readAsText(file2[0].files[0]);
-    reader3.readAsText(pathsFile[0].files[0]);
-    reader4.readAsText(scoresFile[0].files[0]);
+    reader3.readAsText(scoresFile[0].files[0]);
 }
 
-function treeCompare(treeData, treeData2, pathData, nScore) {
+function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+function swapJsonKeyValues(input) {
+    var output = {};
+    for (const [k1, v1] of Object.entries(input)) {
+        for (const [k2, v2] of Object.entries(v1)) {
+            if (output[k2] == null) {
+                output[k2] = {};
+            }
+            output[k2][k1] = v2;
+        }
+    }
+    return output;
+}
+
+function treeCompare(treeData, treeData2, nScore) {
 
     var treeData = JSON.parse(treeData);
     var treeData2 = JSON.parse(treeData2);
-    var pathData = JSON.parse(pathData);
     var nScore = JSON.parse(nScore);
+    var nScore2 = swapJsonKeyValues(nScore);
+
+    console.log(nScore);
+    console.log(nScore2);
 
     $('#tree1').html('');
     $('#tree2').html('');
@@ -48,9 +63,6 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
     $('#nodeTotal2').html('');
     $('#nodeScore2').html('');
 
-    console.log(pathData);
-    console.log(treeData);
-
     // ************** Generate the tree diagram  *****************
 
     var margin = {
@@ -59,7 +71,7 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
             bottom: 20,
             left: 20
         },
-        width = window.innerWidth - margin.right - margin.left,
+        width = window.innerWidth*3.0 - margin.right - margin.left,
         height = window.innerHeight / 1.2 - margin.top - margin.bottom;
 
 
@@ -71,12 +83,12 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
     var tree = d3.tree()
         .size([width, height]);
 
-    function drawLink (d,b) {
-          return "M" + d.x + "," + d.y
-                 + "C" + d.x + "," + (d.y + b.y) / 2
-                 + " " + b.x + "," + (d.y + b.y) / 2
-                 + " " + b.x + "," + b.y;
-       }
+    function drawLink(d, b) {
+        return "M" + d.x + "," + d.y +
+            "C" + d.x + "," + (d.y + b.y) / 2 +
+            " " + b.x + "," + (d.y + b.y) / 2 +
+            " " + b.x + "," + b.y;
+    }
 
     var svg = d3.select("#tree1")
         .attr("id", "tree1")
@@ -84,20 +96,20 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+
     var svgContainer1 = d3.select("#treeContainer1")
         .call(d3.zoom()
             .filter(() => {
-                  if (d3.event.type === 'wheel') {
+                if (d3.event.type === 'wheel') {
                     return d3.event.ctrlKey;
-                  }
-                  if (d3.event.type === 'mousedown') {
+                }
+                if (d3.event.type === 'mousedown') {
                     return d3.event.altKey;
-                  }
+                }
 
-                  return true;
-                })
-            .on("zoom", function () {
+                return true;
+            })
+            .on("zoom", function() {
                 svg.attr("transform", d3.event.transform);
             }));
 
@@ -110,16 +122,16 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
     var svgContainer2 = d3.select("#treeContainer2")
         .call(d3.zoom()
             .filter(() => {
-                  if (d3.event.type === 'wheel') {
+                if (d3.event.type === 'wheel') {
                     return d3.event.ctrlKey;
-                  }
-                  if (d3.event.type === 'mousedown') {
+                }
+                if (d3.event.type === 'mousedown') {
                     return d3.event.altKey;
-                  }
+                }
 
-                  return true;
-                })
-            .on("zoom", function () {
+                return true;
+            })
+            .on("zoom", function() {
                 svg2.attr("transform", d3.event.transform);
             }));
 
@@ -158,7 +170,7 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
         if (node.children != null)
             node.children.forEach(function(d) {
                 getDescendants(d, children);
-            }) 
+            })
         return children;
     }
 
@@ -173,6 +185,38 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
         return false;
     }
 
+    function findPath(node, list, tree) {
+
+        if (tree == 1) {
+            var nScores = nScore[node.data.nid];
+            if (nScores != null) {
+                for (const [key, value] of Object.entries(nScores)) {
+                    list.push([node.data.nid, value]);
+                }
+
+                if (node.children != null) {
+                    node.children.forEach(function(d) {
+                        findPath(d, list, tree);
+                    })
+                }
+            }
+        }
+        else {
+            var nScores2 = nScore2[node.data.nid];
+            if (nScores2 != null) {
+                for (const [key, value] of Object.entries(nScores2)) {
+                    list.push([node.data.nid, value]);
+                }
+
+                if (node.children != null) {
+                    node.children.forEach(function(d) {
+                        findPath(d, list, tree);
+                    })
+                }
+            }
+        }
+    }
+
     var curFirst = null;
     var curSec = null;
 
@@ -181,10 +225,6 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
 
     var curFirstChildren = [];
     var curSecChildren = [];
-
-    function updateHighlights(d) {
-
-    }
 
     function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nScore) {
 
@@ -232,16 +272,16 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
 
                     // Update node information
                     d3.select("#nodeName1").html(nameLabel1)
-                        .attr("meta", d.data.hashVal);
+                        .attr("meta", d.data.nid);
                     d3.select("#weight1").text(d.data.weight);
                     d3.select("#pos1").text((d.data.start) + ":" + (d.data.end));
 
                     curFirst = d;
-                    curFirstVal = curFirst.data.hashVal;
+                    curFirstVal = curFirst.data.nid;
 
                     curFirstChildren = [];
                     curFirstChildren = getDescendants(curFirst, curFirstChildren);
-                
+
                     // Update node total
                     var nScores = nScore[curFirstVal];
                     var nTotal = 0;
@@ -257,7 +297,7 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
 
                     $("#code1 .line").removeClass("highlighted");
 
-                    for (var i=start; i <= end; i++) {
+                    for (var i = start; i <= end; i++) {
                         select = "#line1_" + i;
                         $(select).addClass("highlighted");
                     }
@@ -269,20 +309,21 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
                         `<span id='longHash2' style='max-width:100%''>` + escapeHtml(d.data.hashVal) + `</span>
                     </div>`
                     d3.select("#nodeName2").html(nameLabel2)
-                        .attr("meta", d.data.hashVal);
+                        .attr("meta", d.data.nid);
                     d3.select("#weight2").text(d.data.weight);
                     d3.select("#pos2").text((d.data.start) + ":" + (d.data.end));
 
                     curSec = d;
-                    curSecVal = curSec.data.hashVal;
-                    
+                    curSecVal = curSec.data.nid;
+
                     curSecChildren = [];
                     curSecChildren = getDescendants(curSec, curSecChildren);
-                
+
                     // Update node total
                     var nTotal = 0;
                     for (const [key, value] of Object.entries(nScore)) {
-                        nTotal += value[curSecVal];
+                        if (value[curSecVal] != null)
+                            nTotal += value[curSecVal];
                     }
                     d3.select("#nodeTotal2").text(nTotal);
 
@@ -293,7 +334,7 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
 
                     $("#code2 .line").removeClass("highlighted");
 
-                    for (var i=start; i <= end; i++) {
+                    for (var i = start; i <= end; i++) {
                         select = "#line2_" + i;
                         $(select).addClass("highlighted");
                     }
@@ -306,22 +347,25 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
             })
             .on("mouseover", function(d) {
                 if (curFirstVal != null && curSecVal != null) {
+                    var pathList = [];
+                    var pathList2 = [];
+                    findPath(curFirst, pathList, 1);
+                    findPath(curSec, pathList2, 2);
 
-                    if (pathData[curFirstVal] != null) {
-                        var curPath = pathData[curFirstVal][curSecVal];
+                    if (pathList.length != 0) {
                         if (Object.is(source_svg, svg)) {
-                            for (var i = 0; i < curPath.length; i++) {
-                                if (curPath[i][0] == d.data.hashVal && containsObject(d, curFirstChildren)) {
-                                    d3.select(this).select('text').text(function(d){
-                                        return Math.round(curPath[i][2] * 100) / 100;
+                            for (var i = 0; i < pathList.length; i++) {
+                                if (d.data.nid == pathList[i][0]) {
+                                    d3.select(this).select('text').text(function(d) {
+                                        return Math.round(pathList[i][1] * 100) / 100;
                                     });
                                 }
                             }
                         } else {
-                            for (var i = 0; i < curPath.length; i++) {
-                                if (curPath[i][1] == d.data.hashVal && containsObject(d, curSecChildren)) {
-                                    d3.select(this).select('text').text(function(d){
-                                        return Math.round(curPath[i][2] * 100) / 100;
+                            for (var i = 0; i < pathList2.length; i++) {
+                                if (d.data.nid == pathList2[i][0]) {
+                                    d3.select(this).select('text').text(function(d) {
+                                        return Math.round(pathList2[i][1] * 100) / 100;
                                     });
                                 }
                             }
@@ -332,9 +376,8 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
             .on("mouseout", function(d) {
                 d3.select(this).select('text').text(function(d) {
                     if (d.data.name.length >= 10) {
-                        return d.data.name.substring(0,9);
-                    }
-                    else {
+                        return d.data.name.substring(0, 9);
+                    } else {
                         return d.data.name;
                     }
                 });
@@ -355,9 +398,8 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
             .attr("text-anchor", "middle")
             .text(function(d) {
                 if (d.data.name.length >= 10) {
-                    return d.data.name.substring(0,9);
-                }
-                else {
+                    return d.data.name.substring(0, 9);
+                } else {
                     return d.data.name;
                 }
             })
@@ -383,7 +425,7 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
                     }
 
                     if (curFirstVal != null) {
-                        if (nScore[curFirstVal][d.data.hashVal] != 0.0) {
+                        if (nScore[curFirstVal][d.data.nid] > 0.0) {
                             return "cyan";
                         }
                     }
@@ -394,8 +436,10 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
                     }
 
                     if (curSecVal != null) {
-                        if (nScore[d.data.hashVal][curSecVal] != 0.0) {
-                            return "cyan";
+                        if (nScore[d.data.nid] != null) {
+                            if (nScore[d.data.nid][curSecVal] > 0.0) {
+                                return "cyan";
+                            }
                         }
                     }
                 }
@@ -404,19 +448,26 @@ function treeCompare(treeData, treeData2, pathData, nScore) {
                 var colorGrad = ["#0600E5", "#5402E6", "#A005E8", "#EA07E8", "#EC0AA0", "#ED0D59", "#EF1012", "#F15913", "#F3A316", "#F5ED19"];
 
                 if (curFirstVal != null && curSecVal != null) {
+                    var pathList = [];
+                    var pathList2 = [];
+                    findPath(curFirst, pathList, 1);
+                    findPath(curSec, pathList2, 2);
 
-                    if (pathData[curFirstVal] != null) {
-                        var curPath = pathData[curFirstVal][curSecVal];
+                    // console.log("TEST: " + pathList);
+                    // console.log("TEST2: " + pathList2);
+
+                    if (pathList.length != 0) {
                         if (Object.is(source_svg, svg)) {
-                            for (var i = 0; i < curPath.length; i++) {
-                                if (curPath[i][0] == d.data.hashVal && containsObject(d, curFirstChildren)) {
-                                    return colorGrad[Math.trunc(curPath[i][2] / nScore[curFirstVal][curSecVal]*10)];
+                            for (var i = 0; i < pathList.length; i++) {
+                                if (d.data.nid == pathList[i][0]) {
+                                    return colorGrad[Math.trunc(pathList[i][1] / nScore[curFirstVal][curSecVal] * 10)];
                                 }
                             }
                         } else {
-                            for (var i = 0; i < curPath.length; i++) {
-                                if (curPath[i][1] == d.data.hashVal && containsObject(d, curSecChildren))
-                                    return colorGrad[Math.trunc(curPath[i][2] / nScore[curFirstVal][curSecVal]*10)];
+                            for (var i = 0; i < pathList2.length; i++) {
+                                if (d.data.nid == pathList2[i][0]) {
+                                    return colorGrad[Math.trunc(pathList2[i][1] / nScore[curFirstVal][curSecVal] * 10)];
+                                }
                             }
                         }
                     }

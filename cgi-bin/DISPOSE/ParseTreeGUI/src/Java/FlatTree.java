@@ -1,5 +1,8 @@
 package Java;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,21 +10,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Stack;
 
 import org.abego.treelayout.demo.TextInBox;
 import org.abego.treelayout.util.DefaultTreeForTreeLayout;
 
+import org.apache.commons.text.StringEscapeUtils;
 
 
 public class FlatTree {
-
 	class Node implements Comparable<Node>{
+		int id;
 		String data;
 		StringBuilder hashVal = new StringBuilder();
 		int size;
 		Node parent;
 		double weight = 1;
+		double ITF_g, TF_g, IDF_g;
 		ArrayList<Node> children = new ArrayList<Node>();
 		HashMap<String, Integer> treeCounts = new HashMap<String, Integer>();
 
@@ -50,15 +56,6 @@ public class FlatTree {
 			size = 1;
 
 			hashVal.append("1").append(data);
-//			ArrayList<Node> sortedChildren = new ArrayList<Node>();
-//			sortedChildren.addAll(children);
-//			Collections.sort(sortedChildren);
-			
-
-//			for (Node n: sortedChildren) {
-//				hashVal += n.toHash();
-//				size += n.size;
-//			}
 			
 			Collections.sort(children);
 			
@@ -117,10 +114,10 @@ public class FlatTree {
 				weight = 0;
 			}
 			else {
-				// double TF = (double) root.treeCounts.get(hashVal) /  root.size;
-				// double ITF = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal))) / Math.log(2);
+				double TF = (double) root.treeCounts.get(hashVal.toString()) /  root.size;
+				double ITF = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal.toString()))) / Math.log(2);
 
-				double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal.toString())) / Math.log (root.size);
+				//double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal.toString())) / Math.log (root.size);
 				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal.toString()))) / Math.log(2);
 				// double IDF = Math.log((double) totalFileCount / fileCounts.get(hashVal)) / Math.log(totalFileCount);
 
@@ -129,7 +126,10 @@ public class FlatTree {
 //					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
 //							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
 				// weight = Math.log(TF * IDF);
-				weight = Math.log(ITF * IDF);
+				weight = Math.log(TF * IDF);
+				TF_g = TF;
+				ITF_g = ITF;
+				IDF_g = IDF;
 			}
 		}
 		
@@ -139,8 +139,9 @@ public class FlatTree {
 			startLine = children.get(0).startLine;
 			endLine = startLine;
 			
-			
 			for (Node c: children) {
+				if (c.data.equals("<EOF>"))
+					continue;
 				if (c.startPos < startPos)
 					startPos = c.startPos;
 				if (c.endPos > endPos)
@@ -150,6 +151,7 @@ public class FlatTree {
 				if (c.endLine > endLine)
 					endLine = c.endLine;
 			}
+			
 		}
 
 		public boolean isLeaf() {
@@ -168,6 +170,8 @@ public class FlatTree {
 				return false;
 		}
 	}
+	
+	int nodeCount = 0;
 
 	boolean leafless = false;
 
@@ -185,12 +189,6 @@ public class FlatTree {
 
 	public FlatTree (String lispTree) {
 		String[] treeTokens = lispTree.split(" ");
-		//		for (int i = 3; i < treeTokens.length-1; i++) {
-		//			System.out.print(treeTokens[i] + " ");
-		//			System.out.println(treeTokens[i-1] + treeTokens[i]  + treeTokens[i+1]);
-		//		}
-
-		//System.out.println("\n");
 
 		Node rootNode = new Node();
 		rootNode.parent = null;
@@ -201,8 +199,6 @@ public class FlatTree {
 		parentBoxStack = new Stack<TextInBox>();
 		firstBox = new TextInBox(rootNode.data, 200, 50);
 		treeLayout = new DefaultTreeForTreeLayout<TextInBox>(firstBox);
-		//    	parentBoxStack.push(rootBox);
-
 
 		String literal = "";
 		boolean inString = false;
@@ -211,10 +207,9 @@ public class FlatTree {
 		Node nextParent;
 		
 		int lastParen;
+		int nodeId = 0;
 
 		for (int i = 1; i < treeTokens.length; i++) {
-			//System.out.println(treeTokens[i]);
-
 			lastParen = -1;
 			
 			if (treeTokens[i].length() == 0 || parentStack.isEmpty())
@@ -228,10 +223,11 @@ public class FlatTree {
 			}
 
 			lastParen++;
+			
+			
 
 
 			if (parentStack.peek().data.equals("literal")) {
-				//System.out.println(lastParen);
 				if (treeTokens[i].charAt(0) == '\"' || treeTokens[i].charAt(0) == '\'') {
 					inString = true;
 				}
@@ -251,7 +247,6 @@ public class FlatTree {
 					Node childNode = new Node();
 					literal += treeTokens[i].substring(0, lastParen);
 					childNode.data = literal;
-					//System.out.println("LITERAL: " + literal);
 					literal = "";
 					childNode.parent = curParent;
 
@@ -260,16 +255,12 @@ public class FlatTree {
 					lastParen = treeTokens[i].length() -1;
 
 					while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-						//System.out.println("POP: " + parentStack.pop().data);
 						nextParent = parentStack.pop();
-						//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
 						if (!parentStack.isEmpty()) {
 							if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
 								nextParent.children.get(0).parent = nextParent.parent.parent;
 								nextParent.parent.children.add(nextParent.children.get(0));
 								nextParent.parent.children.remove(nextParent);
-								
-								//System.out.println("Replacing " + nextParent.data + " " + nextParent.children.size() + " with " + nextParent.children.get(0).data + " " + nextParent.children.get(0).children.size());
 							}
 						}
 						lastParen--;
@@ -295,10 +286,7 @@ public class FlatTree {
 				curParent = parentStack.peek();
 				
 				Node childNode = new Node();
-//				if (curParent.data.equals("variableDeclaratorId")|| curParent.data.equals("expressionName"))
-//					childNode.data = "temp";
-//				else
-					childNode.data = treeTokens[i].substring(0, lastParen);
+				childNode.data = treeTokens[i].substring(0, lastParen);
 				childNode.parent = curParent;
 
 				curParent.children.add(childNode);
@@ -306,26 +294,22 @@ public class FlatTree {
 				lastParen = treeTokens[i].length() -1;
 
 				while (lastParen > 0 && treeTokens[i].charAt(lastParen) == ')') {
-					//System.out.println("POP: " + parentStack.pop().data);
 					nextParent = parentStack.pop();
-					//System.out.println("POP: " + nextParent.data + " " + nextParent.children.size() + " " + nextParent.children.get(0).children.size());
 					if (!parentStack.isEmpty()) {
 						if (nextParent.children.size() == 1 && nextParent.children.get(0).children.size() != 0) {
 							nextParent.children.get(0).parent = nextParent.parent.parent;
 							nextParent.parent.children.add(nextParent.children.get(0));
 							nextParent.parent.children.remove(nextParent);
-							
-							//System.out.println("Replacing " + nextParent.data + " " + nextParent.children.size() + " with " + nextParent.children.get(0).data + " " + nextParent.children.get(0).children.size());
 						}
 					}
 					lastParen--;
 				}
-				
-
 			}
 
 			else {
 				Node childNode = new Node();
+				childNode.id = nodeId;
+				nodeId++;
 				childNode.data = treeTokens[i];
 				childNode.parent = parentStack.peek();
 
@@ -351,7 +335,7 @@ public class FlatTree {
 			for (Node n: curParent.children) {
 				TextInBox childBox = new TextInBox(n.data, 200, 50);
 				treeLayout.addChild(curParentBox, childBox);
-				//				System.out.println(n.data + " " + nodeStack.peek().data);
+				
 				if (n.children.size() > 0) {
 					nodeStack.push(n);
 					boxStack.push(childBox);
@@ -378,15 +362,13 @@ public class FlatTree {
 			for (Node n: curParent.children) {
 				if (!leafless || n.children.size() != 0) {
 					treeLayout.addChild(curParent, n);
-					//					System.out.println(n.data + " " + nodeStack.peek().data);
+					
 					if (n.children.size() > 0) {
 						nodeStack.push(n);
 					}
 				}
 			}
 		}
-
-
 		return treeLayout;
 	}
 
@@ -479,12 +461,20 @@ public class FlatTree {
 	}
 
 	// Create the set of all children subtrees within the tree
+	// Also, assign the ids for all children
 	public void allChildren(Node n) {
-		if (n.getChildCount() == 0)
+		if (n.getChildCount() == 0) {
+			n.id = nodeCount;
+			nodeCount++;
+
 			allChildren.add(n);
+		}
 		else {
 			for (Node c: n.children)
 				allChildren(c);
+			
+			n.id = nodeCount;
+			nodeCount++;
 			allChildren.add(n);
 		}
 	}
@@ -494,6 +484,64 @@ public class FlatTree {
 			for (Node nChild : n.children)
 				assignPositions(nChild);
 			n.assignPosition();
+		}
+	}
+	
+	public void createJavascriptTree(Node n, String userFolder) throws IOException {
+		File treeFile = new File(userFolder + "/trees/" + originFile.substring(originFile.lastIndexOf(File.separator) + 1, originFile.lastIndexOf('.')) + ".txt");
+		FileWriter myWriter = new FileWriter(treeFile);
+		
+		String escapedStr = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(n.data));
+		String escapedStr2 = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(n.hashVal.toString()));
+		
+		myWriter.write("[{" + "\"name\":\"" + escapedStr + "\"," +
+						"\"nid\": " + n.id + "," +
+						"\"hashVal\": \"" + escapedStr2 + "\"," +
+						"\"start\": " + n.startLine + "," +
+						"\"end\": " + n.endLine + ", " +
+						"\"weight\": \"ln(" + 
+						Math.round(n.TF_g*10000.0)/10000.0 + " * " + 
+						Math.round(n.IDF_g*10000.0)/10000.0 + ") = " + 
+						Math.round(n.weight*10000.0)/10000.0 + "\"");
+		
+		StringBuilder childString = new StringBuilder();
+		
+		createChildArrayJS(n, childString);
+		
+		myWriter.write(childString.toString() + "]");
+		
+		myWriter.close();
+	}
+	
+	public void createChildArrayJS(Node n, StringBuilder myString) {
+		if (n.getChildCount() == 0) {
+			myString.append("}");
+		}
+		else {
+			myString.append(",\"children\":[");
+			int c_size = n.children.size();
+			int count = 0;
+			for (Node c:n.children) {
+				count++;
+				String escapedStr = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(c.data));
+				String escapedStr2 = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(c.hashVal.toString()));
+				
+//				System.out.println(c.id);
+				
+				myString.append("{\"name\":\"" + escapedStr + "\", ");
+				myString.append("\"nid\": " + c.id + ", ");
+				myString.append("\"hashVal\": \"" + escapedStr2 + "\", ");
+				myString.append("\"start\": " + c.startLine + ", ");
+				myString.append("\"end\": " + c.endLine + ", ");
+				myString.append("\"weight\": \"ln(" + 
+						Math.round(c.TF_g*10000.0)/10000.0 + " * " +
+						Math.round(c.IDF_g*10000.0)/10000.0 + ") = " + 
+						Math.round(c.weight*10000.0)/10000.0 + "\"");
+				createChildArrayJS(c,myString);
+				if (count < c_size)
+					myString.append(",");
+			}
+			myString.append("]}");
 		}
 	}
 

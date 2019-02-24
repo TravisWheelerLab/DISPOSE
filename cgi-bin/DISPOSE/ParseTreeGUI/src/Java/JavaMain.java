@@ -1,6 +1,6 @@
 package Java;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +27,8 @@ public class JavaMain {
 
 	public final static double MIN_MATCH = 0.30;
 	static JavaMain ref = new JavaMain();
+	
+	static String userFolder;
 
 	public static void main(String[] args) throws IOException {
 
@@ -39,8 +41,8 @@ public class JavaMain {
 //		boolean intFlag = true;
 //		String subDir = "assign3";
 //		String pastDir = "???";
-//		String sourcesDir = "GithubResults";
-//		String userFolder = "../../../workFiles/nohbodyz@gmail.com";
+//		String sourcesDir = "???";
+//		userFolder = "../../../workFiles/nohbodyz@gmail.com";
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
 		    paths
@@ -83,26 +85,24 @@ public class JavaMain {
 
 		for (FlatTree ft: allTrees) {
 			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
+			ft.allChildren(ft.firstNode);
+			ft.createJavascriptTree(ft.firstNode, userFolder);
 		}
 
 		ArrayList<PairValue> myScores = new ArrayList<PairValue>(); 
 
-		HashMap<String, Double> scoreHistory = new HashMap<String, Double>();
-		HashMap<String, HashMap<String, Double>> scoreHistory2 = new HashMap<String, HashMap<String, Double>>();
-
-
 		FlatTree tree1, tree2;
 
-		//		long startTime = System.nanoTime();
+		long startTime = System.nanoTime();
 		
 		PairValue minScore = new PairValue("aaa", "bbb", 0);
 		myScores.add(minScore);
 		
 		HashMap<FlatTree, Double> selfScore = new HashMap<FlatTree, Double>();
 		double record = 0;
+		
 		for (int i=0; i<allTrees.size(); i++) {
 			tree1 = allTrees.get(i);
-			tree1.allChildren(tree1.firstNode);
 			record = minScore.assignSimilarity2(tree1, tree1, true, selfScore);
 			selfScore.put(tree1, record);
 			System.out.println("Self score: " + tree1.originFile + " " + record);
@@ -122,9 +122,9 @@ public class JavaMain {
 		
 						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
 						System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
-						//next.score = next.assignSimilarity(tree1, tree2, scoreHistory, false);
 						next.score = next.assignSimilarity2(tree1, tree2, false, selfScore);
-						//next.score = next.assignSimilarity4(tree1, tree2, scoreHistory2, false);
+						// next.makeScoreFile(userFolder);
+						// next.makePathFile(userFolder);
 		
 						if (!Double.isNaN(next.score)) {
 							if (next.score > MIN_MATCH) {
@@ -150,9 +150,9 @@ public class JavaMain {
 			}
 		}
 
-		//		long endTime = System.nanoTime();
-		//		
-		//		System.out.println("TEST TIME: " + (endTime-startTime)/1000000000.0 + "\n");
+		long endTime = System.nanoTime();
+				
+		System.out.println("TEST TIME: " + (endTime-startTime)/1000000000.0 + "\n");
 
 		if (myScores.size() < 250) {
 			myScores.remove(minScore);
@@ -161,11 +161,14 @@ public class JavaMain {
 		Collections.sort(myScores);
 		
 		int reportLim = Math.min(250, myScores.size());
+		
+		PairValue next;
 
 		for (int i=0; i<reportLim; i++) {
-			System.out.println(myScores.get(i).file1 + " " + myScores.get(i).file2 + " " + myScores.get(i).score);
-			myScores.get(i).makeMatchFile(userFolder);
-			//myScores.get(i).makeMatchFile(".");
+			next = myScores.get(i);
+			System.out.println(next.file1 + " " + next.file2 + " " + next.score);
+			next.makeMatchFile(userFolder);
+			next.makeScoreFile(userFolder);
 		}
 	}
 	
@@ -205,7 +208,9 @@ public class JavaMain {
 		nodesList = new ArrayList<Node>(1000);
 
 		fileName = filePath.toString();
-		filePathSplit = fileName.split("/");
+		System.out.println(fileName);
+		String splitter = File.separator.replace("\\","\\\\");
+		filePathSplit = fileName.split(splitter);
 		fileDirSource = filePathSplit[5];
 		subSource = filePathSplit[7];
 		subSourceSplit = subSource.split("_");
@@ -258,8 +263,6 @@ public class JavaMain {
 					startPos.set(i, myToken.getStartIndex());
 					endPos.set(i, myToken.getStopIndex());
 					line.set(i, myToken.getLine());
-					//            	System.out.println(myToken.getStartIndex() + ":" + myToken.getStopIndex() + " " + myToken.getLine()
-					//	            		+ " " + myToken.getText() + " " + myVocab.getSymbolicName(myToken.getType()));
 					nodeCount++;
 				}
 				else {
@@ -279,7 +282,6 @@ public class JavaMain {
 			// FlatTree myLeaflessTree = new FlatTree(tree.toStringTree(parser)); 
 			// myLeaflessTree.leafless = true;
 			treeString = tree.toStringTree(parser);
-			parser = null; tree = null;
 			
 			myTree = new FlatTree(treeString);
 			System.out.println("Made tree");
@@ -302,7 +304,7 @@ public class JavaMain {
 			for (int i = 0; i < nodeCount; i++) {
 				
 				// nodesList contains only the nodes not ignored so
-				// the index needs to be realligned to the position lists
+				// the index needs to be realigned to the position lists
 				while(startPos.get(j) == -1)
 					j++;
 				myNode = nodesList.get(i);
@@ -325,11 +327,7 @@ public class JavaMain {
 
 			// Replace the subtree of an expressionStatement with in-order
 			// traversal string of leaves
-			// myTree.replaceExpr(myTree.firstNode);
-
-			// Create image representations of the trees
-			//generateAntlrTreeImage(parser, tree, fileName.substring(fileName.lastIndexOf('/')+1, fileName.lastIndexOf('.')) + "_antlr.png");
-			//generateFlatTreeImage(parser, myTree, "./trees/" + fileName.substring(fileName.lastIndexOf('/')+1, fileName.lastIndexOf('.')) + ".png");
+			myTree.replaceExpr(myTree.firstNode);
 
 			// Create hash values to count subtrees
 			// Note: children are no longer in-order afterwards
@@ -342,11 +340,15 @@ public class JavaMain {
 			myTree.updateAllCounts(myTree.firstNode);
 			System.out.println("Counted!");
 			//myTree.firstNode.printCounts();
+			
+			// Create image representations of the trees
+//			generateAntlrTreeImage(parser, tree, "./trees/" + fileName.substring(fileName.lastIndexOf('/')+1, fileName.lastIndexOf('.')) + "_antlr.png");
+//			generateFlatTreeImage(parser, myTree, "./trees/" + fileName.substring(fileName.lastIndexOf('/')+1, fileName.lastIndexOf('.')) + ".png");
 
 			allTrees.add(myTree);
 			
 		} catch (Exception e) {
-			System.out.println("FAILED");
+			e.printStackTrace();
 		}
 	}
 

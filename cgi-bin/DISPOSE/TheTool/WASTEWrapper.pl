@@ -44,7 +44,6 @@ chdir($mainDir);
 
 mkdir "$userFolder\/matchFiles2" unless -d "$userFolder\/matchFiles2";
 mkdir "$userFolder\/trees" unless -d "$userFolder\/trees";
-mkdir "$userFolder\/pathFiles" unless -d "$userFolder\/pathFiles";
 mkdir "$userFolder\/scoreFiles" unless -d "$userFolder\/scoreFiles";
 
 my @langs = `find $userFolder\/$origin -mindepth 1 -maxdepth 1 -type d | awk -F"/" '{print \$NF}'`;

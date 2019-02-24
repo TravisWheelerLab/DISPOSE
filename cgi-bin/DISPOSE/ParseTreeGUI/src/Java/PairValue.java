@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import Java.FlatTree.Node;
+import org.apache.commons.text.StringEscapeUtils;
+
 
 public class PairValue implements Comparable<PairValue>{
 	String file1;
@@ -34,75 +40,66 @@ public class PairValue implements Comparable<PairValue>{
 		return 0;
 	}
 	
-	// TODO: Remove slower method 
-//	public double assignSimilarity(FlatTree tree1, FlatTree tree2, HashMap<String, Double> scoreHistory, boolean recurse) {
-//		double score = 0;
-//		
-//		//long startTime = System.nanoTime();
-//		
-//		for (FlatTree.Node s1 : tree1.allChildren) {
-//			for (FlatTree.Node s2: tree2.allChildren) {
-//				String combinedHash;
-//				if (s1.compareTo(s2) == -1)
-//					combinedHash = s1.hashVal + s2.hashVal;
-//				else
-//					combinedHash = s2.hashVal + s1.hashVal;
-//				
-//				
-//				if (scoreHistory.get(combinedHash) != null) {
-//					score += scoreHistory.get(combinedHash);
-//				}
-//				else {
-//					//long startTime = System.nanoTime();
-//					Double nextScore = nScore(s1, s2);
-//					//long endTime = System.nanoTime();
-//					//System.out.println((endTime-startTime)/1000000000.0);
-//					score += nextScore;
-//					scoreHistory.put(combinedHash, nextScore);
-//				}
-//				
-//			}
-//		}
-//		
-//		//long endTime = System.nanoTime();
-//		
-//		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
-//		
-//		if (!recurse)
-//			score /= Math.sqrt(assignSimilarity(tree1, tree1, scoreHistory, true) * assignSimilarity(tree2, tree2, scoreHistory, true));
-//		
-//		return score;
-//	}
+	@Override
+	public String toString() {
+		String escapedStr = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(this.file1));
+		String escapedStr2 = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeJson(this.file2));
+		return "[\"" + escapedStr+ "\", \"" + escapedStr2 + "\"," + this.score +  "]";
+	}
 	
 	double nextScore;
+	ArrayList<PairValue> nodePath;
 	PairValue nextPair;
+	
+	int R, C;
+	double[] scoreHist;
+	boolean[] checked;
+	
+	FlatTree t1, t2;
 	
 	// TODO: Remove test method for all subtree calculations again
 	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse, HashMap<FlatTree, Double> selfScore) {
 		double totalScore = 0;
 		
+		t1 = tree1;
+		t2 = tree2;
+		
 		//long startTime = System.nanoTime();
+		
+		R = tree1.allChildren.size(); // num rows
+		C = tree2.allChildren.size(); // num cols
+		
+		scoreHist = new double[R*C+1];
+		checked = new boolean[R*C+1]; // flags for pair scoring computation
 		
 		for (FlatTree.Node s1 : tree1.allChildren) {
 			for (FlatTree.Node s2: tree2.allChildren) {
-					nextScore = nScore(s1, s2);
-					totalScore += nextScore;
-					
-//					if (!recurse && s1.hashVal.equals(s2.hashVal))
-//						System.out.println(s1.hashVal + " " + nextScore);
-					
-					if (!recurse && nextScore>0) {
-						nextPair = new PairValue(s1.hashVal.toString(), s2.hashVal.toString(), nextScore);
-						nextPair.startPos1 = s1.startPos;
-						nextPair.startPos2 = s2.startPos;
-						nextPair.endPos1 = s1.endPos;
-						nextPair.endPos2 = s2.endPos;
-						nextPair.startLine1 = s1.startLine;
-						nextPair.startLine2 = s2.startLine;
-						nextPair.endLine1 = s1.endLine;
-						nextPair.endLine2 = s2.endLine;
-						scoreList.add(nextPair);
-					}
+//				nodePath = new ArrayList<PairValue>();
+				
+				if (checked[C*s1.id+s2.id] == true) {
+					nextScore = scoreHist[C*s1.id+s2.id];
+				}
+				else  {
+					nextScore = nScore(s1, s2, scoreHist, checked, C);
+					scoreHist[C*s1.id+s2.id] = nextScore;
+					checked[C*s1.id+s2.id] = true; 
+					nextScore *= -1;
+				}
+				
+				totalScore += nextScore;
+				
+				if (!recurse && nextScore>0) {
+					nextPair = new PairValue(s1.hashVal.toString(), s2.hashVal.toString(), nextScore);
+					nextPair.startPos1 = s1.startPos;
+					nextPair.startPos2 = s2.startPos;
+					nextPair.endPos1 = s1.endPos;
+					nextPair.endPos2 = s2.endPos;
+					nextPair.startLine1 = s1.startLine;
+					nextPair.startLine2 = s2.startLine;
+					nextPair.endLine1 = s1.endLine;
+					nextPair.endLine2 = s2.endLine;
+					scoreList.add(nextPair);
+				}
 			}
 		}
 		
@@ -116,72 +113,12 @@ public class PairValue implements Comparable<PairValue>{
 			totalScore /= Math.sqrt(treeVal1 * treeVal2);
 			System.out.println(treeVal1 + " " + treeVal2 + " " + totalScore + "\n");
 		}
-		return totalScore;
+		return Math.abs(totalScore);
 	}
-	
-//	public double assignSimilarity4(FlatTree tree1, FlatTree tree2, HashMap<String, HashMap<String, Double>> scoreHistory, boolean recurse) {
-//		double score = 0;
-//		
-//		//long startTime = System.nanoTime();
-//		
-//		for (FlatTree.Node s1 : tree1.allChildren) {
-//			for (FlatTree.Node s2: tree2.allChildren) {
-//				
-//				Double nextScore = 0.0;
-//				
-//				if (scoreHistory.get(s1.hashVal) != null) {
-//					if (scoreHistory.get(s1.hashVal).get(s2.hashVal) != null)
-//						score += scoreHistory.get(s1.hashVal).get(s2.hashVal);
-//					else {
-//						nextScore = nScore(s1, s2);
-//						score += nextScore;
-//						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-//					}
-//				}
-//				else {
-//					scoreHistory.put(s1.hashVal, new HashMap<String, Double>());
-//					
-//					if (scoreHistory.get(s2.hashVal) != null) {
-//						if (scoreHistory.get(s2.hashVal).get(s1.hashVal) != null) {
-//							nextScore = scoreHistory.get(s2.hashVal).get(s1.hashVal);
-//							score += nextScore;
-//						}
-//						else {
-//							nextScore = nScore(s1, s2);
-//							score += nextScore;
-//							scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-//						}
-//					}
-//					else {
-//						//long startTime = System.nanoTime();
-//						nextScore = nScore(s1, s2);
-//						//long endTime = System.nanoTime();
-//						//System.out.println((endTime-startTime)/1000000000.0);
-//						score += nextScore;
-//						scoreHistory.get(s1.hashVal).put(s2.hashVal, nextScore);
-//					}
-//				}
-//				
-//				System.out.println(score);
-//				
-//				if (nextScore > 0)
-//					scoreList.add(new PairValue(s1.hashVal, s2.hashVal, nextScore));
-//			}
-//		}
-//		
-//		//long endTime = System.nanoTime();
-//		
-//		//System.out.println("TEST3: " + (endTime-startTime)/1000000000.0);
-//		
-//		if (!recurse)
-//			score /= Math.sqrt(assignSimilarity4(tree1, tree1, scoreHistory, true) * assignSimilarity4(tree2, tree2, scoreHistory, true));
-//		
-//		return score;
-//	}
 	
 	double decayFactor;
 	
-	public double nScore(FlatTree.Node s1, FlatTree.Node s2) {
+	public double nScore(FlatTree.Node s1, FlatTree.Node s2, double[] scoreHist, boolean[] checked, int C) {
 		double nodeScore = 0;
 		decayFactor = 1;
 		
@@ -189,7 +126,7 @@ public class PairValue implements Comparable<PairValue>{
 		
 		// If both subtrees are the leaves of an expr statement
 		if (s1.isExpr() && s2.isExpr()) {
-			nodeScore = Math.log(editDistance(s1.data, s2.data)) + s1.weight + s2.weight;
+			nodeScore = Math.max(0, Math.log(editDistance(s1.data, s2.data))) + s1.weight + s2.weight;
 		}
 		// If both subtrees' roots are different
 		else if (!s1.data.equals(s2.data)) {
@@ -198,39 +135,41 @@ public class PairValue implements Comparable<PairValue>{
 		// If both subtrees are leaves
 		else if (s1.isLeaf() && s2.isLeaf()) {
 			nodeScore = s1.weight+s2.weight;
-			
-//			if (s1.data.equals("String"))
-//				System.out.println(". SCORE: " + s1.weight + " " + s2.weight + " " + nodeScore);
 		}
 		
 		
 		// Otherwise
 		else {
-			//String testString = "";
 			double maxScore, testScore;
+			int tied;
+			Node c1, c2;
+//			ArrayList<PairValue> maxPair = new ArrayList<PairValue>();
 			for (int i = 0; i < s1.getChildCount(); i++) {
 				maxScore = 0;
-				//String high1 = "";
-				//String high2 = "";
+				tied = 1;
 				for (int j=0; j<s2.getChildCount(); j++) {
-					testScore = nScore(s1.getChild(i), s2.getChild(j));
-//					if (s1.getChild(i).hashVal.equals(s2.getChild(j).hashVal))
-//						System.out.println("TEST: " + s1.getChild(i).hashVal + " " + s2.getChild(j).hashVal + " " + testScore);
-					if (testScore > maxScore) {
+					c1 = s1.getChild(i);
+					c2 = s2.getChild(j);
+					if (checked[c1.id*C+c2.id] == true) {
+						testScore = scoreHist[c1.id*C+c2.id] ;
+					}
+					else{
+						testScore = nScore(c1, c2, scoreHist, checked, C);
+						scoreHist[c1.id*C+c2.id] = testScore;
+						checked[c1.id*C+c2.id] = true;
+					}
+					if (testScore < maxScore) {
 						maxScore = testScore;
-						//high1 = s1.getChild(i).hashVal;
-						//high2 = s2.getChild(j).hashVal;
+						tied = 1;
+					}
+					else if (testScore == maxScore) {
+						tied++;
 					}
 				}
-//				if (s1.hashVal.equals(testString))
-//					System.out.println(s1.getChild(i).data + " " + i + "th score: " + maxScore + " " + high1 + " " + high2);
-				prodScore += (1 + maxScore);
+				
+				prodScore += (1 + maxScore*tied);
 			}
 			nodeScore = prodScore+s1.weight+s2.weight;
-			
-//			if (s1.hashVal.equals(testString))
-//				System.out.println("SCORE: " + decayFactor + " " + prodScore + " " + s1.weight + " " + s2.weight + " " + nodeScore*decayFactor + "\n");
-			
 		}
 		
 		return decayFactor*nodeScore;
@@ -256,7 +195,7 @@ public class PairValue implements Comparable<PairValue>{
 		
 		score = optMatrix[str1.length()][str2.length()];
 	
-		return score / Math.max(str1.length(), str2.length());
+		return Math.max(0, score / Math.max(str1.length(), str2.length()));
 	}
 
 	public int charScore(char a, char b) {
@@ -267,22 +206,60 @@ public class PairValue implements Comparable<PairValue>{
 	}
 	
 	public void makeMatchFile(String userFolder) throws IOException {
-		File matchFile = new File(userFolder + "/matchFiles2/" + file1.substring(file1.lastIndexOf('/') + 1, file1.lastIndexOf('.')) + "_" + file2.substring(file2.lastIndexOf('/') + 1, file2.lastIndexOf('.')) + ".txt");
+		File matchFile = new File(userFolder + "/matchFiles2/" + file1.substring(file1.lastIndexOf(File.separatorChar) + 1, file1.lastIndexOf('.')) + "_" + file2.substring(file2.lastIndexOf(File.separatorChar) + 1, file2.lastIndexOf('.')) + ".txt");
 		FileWriter myWriter = new FileWriter(matchFile);
 		
 		Collections.sort(scoreList);
-		
-		myWriter.write("'" + file1.substring(file1.lastIndexOf('/') + 1) + "' '" + file1  + "' '" + file2.substring(file2.lastIndexOf('/') + 1) + "' '" + file2 + "' '" + score + "' \n");
+
+		myWriter.write("'" + file1.substring(file1.lastIndexOf(File.separatorChar) + 1) + "' '" + file1  + "' '" + file2.substring(file2.lastIndexOf(File.separatorChar) + 1) + "' '" + file2 + "' '" + score + "' \n");
 		
 		for (int i=0; i<scoreList.size(); i++) {
 			PairValue next = scoreList.get(i);
 			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
 			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
 			myWriter.write(next.score + "\n\n");
-			//myWriter.write(next.file1 + " " + next.file2 + " " + next.score + "\n");
 		}
 		
 		myWriter.close();
+	}
+	
+	public void makeScoreFile(String userFolder) throws IOException {
+		File scoreFile = new File(userFolder + "/scoreFiles/" + file1.substring(file1.lastIndexOf(File.separatorChar) + 1, file1.lastIndexOf('.')) + "_" + file2.substring(file2.lastIndexOf(File.separatorChar) + 1, file2.lastIndexOf('.')) + ".txt");
+		FileWriter myWriter = new FileWriter(scoreFile);
 		
+		ArrayList<String> matches;
+		
+		myWriter.write("{");
+		
+		boolean hasMatch = false;
+		
+		for (int i=0; i < R; i++) {
+			
+			hasMatch = false;
+			matches = new ArrayList<String>();
+			
+			for (int j=0; j < C; j++) {
+				if (scoreHist[i*C+j] != 0) {
+					matches.add("\"" + j +"\": " + Math.floor(-100*scoreHist[i*C+j])/100);
+					hasMatch = true;
+				}
+			}
+			
+			if (hasMatch) {
+				myWriter.write("\"" + i + "\": {");
+				myWriter.write(String.join(", ", matches) + "}");
+
+				if (i < R-1)
+					myWriter.write(",");
+			}
+		}
+		
+		myWriter.write("}");
+		
+		myWriter.close();
+		
+
+		scoreHist = null;
+		checked = null;
 	}
 }

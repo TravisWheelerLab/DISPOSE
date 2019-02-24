@@ -21,10 +21,8 @@ my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
 
 my $matchFile = $userFolder . "/matchFiles2/" . $file;
 my $scoreFile;
-my $pathFile;
 if ($DATA eq '1') {
 	$scoreFile = $userFolder . "/scoreFiles/" . $file;
-	$pathFile = $userFolder . "/pathFiles/" . $file;
 }
 
 open(my $fh, "<", $matchFile)
@@ -172,7 +170,6 @@ close $fh;
 
 my $tree1;
 my $tree2;
-my $paths;
 my $scores;
 
 if ($DATA eq '1') {
@@ -182,13 +179,10 @@ if ($DATA eq '1') {
 		or die "Failed to open file: '$treeFile2'!\n";
 	open(my $fh5, $scoreFile)
 		or die "Failed to open file: '$scoreFile'!\n";
-	open(my $fh6, $pathFile)
-		or die "Failed to open file: '$pathFile'!\n";
 
 	$tree1 = <$fh3>;
 	$tree2 = <$fh4>;
 	$scores = <$fh5>;
-	$paths = <$fh6>;
 }
 
 my $fullTextLink = "?lang=$curLang&id=$matchIndex&type=text";
@@ -221,7 +215,6 @@ if ($DATA eq '1') {
 		    file2 => {name => $name2, fullName => "$fullName2", text => $file2Text},
 		    tree1 => $tree1,
 		    tree2 => $tree2,
-		    paths => $paths,
 		    scores => $scores,
 		    tempFolder => $tempFolder
 	};
