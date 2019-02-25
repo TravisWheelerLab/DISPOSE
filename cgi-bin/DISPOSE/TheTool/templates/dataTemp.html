@@ -87,12 +87,22 @@
             Click a node in one tree to see the total contribution.<br>
             This will highlight matching nodes in the other tree.<br>
             Select a node in the other tree to see the paired score<br>
-            Remaining highlights are a contributed percentile heatmap of the pair.<br>
+            Dynamic heatmap highlights are a contributed percentile of the pair's score.<br>
+            Otherwise, the heatmap is calculated on the highest pair score.</br>
             <br>
             Right-click to collapse subtree on node.<br>
             Ctrl + scroll to zoom.<br>
             Alt + drag to pan.<br>
             <br>
+
+            Toggle Dynamic Heatmap:<br>
+            
+            <label class="switch">
+              <input id="baseSwitch" type="checkbox" onclick="toggleChoice();">
+              <span class="slider round"></span>
+            </label>
+            <br>
+
             <img alt="color scale" src="../../../img/colorbar.png"></img>
         </center>
 
