@@ -1,4 +1,6 @@
 <?php
+	error_reporting(E_ERROR | E_PARSE);
+
 	session_start();
 	require('./login/db.php');
 
@@ -13,11 +15,7 @@
 	    $email = $_SESSION['email'];
 	    $active = $_SESSION['active'];
 
-	    $result = $mysqli->query("SELECT last_job FROM users WHERE email='$email'") or die($mysqli->error());
-
-	    $row = mysqli_fetch_row($result);
-
-		if ($row[0] === NULL) {
+		if (file_exists('../results/'.$email.'/results.php') == false) {
 			$_SESSION['error'] = "No submission results waiting!";
 		  	header("location: /login/profile.php");
 		}
