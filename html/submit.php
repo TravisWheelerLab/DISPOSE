@@ -24,6 +24,9 @@
 			input[type="submit"] {
 				display: none;
 			}
+			input[type=number]{
+			    width: 80px;
+			} 
 			.custom-but {
 				border: 1px solid #ccc;
 				padding: 6px 12px;
@@ -142,6 +145,7 @@
 				$('#subHeader').css('visibility', 'hidden');
 
 				$('#queriesChoice').css('visibility', 'hidden');
+				$('#paramsWASTED').css('display', 'none');
 
 				$("#submitButton").attr('disabled', true);
 				$("#submitLabel").css('cursor', 'default');
@@ -342,6 +346,7 @@
 			};
 
 			function withMOSSClick() {
+				$('#paramsWASTED').css('display', 'none');
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('1');
 				$('#withMOSSBut').attr('class', 'custom-but accepted');
@@ -357,6 +362,7 @@
 			};
 
 			function withWASTEClick() {
+				$('#paramsWASTED').css('display', 'none');
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('2');
 				$('#withWASTEBut').attr('class', 'custom-but accepted');
@@ -372,6 +378,7 @@
 			};
 
 			function withWASTEDClick() {
+				$('#paramsWASTED').css('display', 'block');
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('3');
 				$('#withWASTEDBut').attr('class', 'custom-but accepted');
@@ -479,6 +486,7 @@
 			</div>
 		</center>
 
+
 		<center>
 			<div id="queriesChoice">
 				<h3>Choose your submission type:</h3>
@@ -495,15 +503,15 @@
 		<center>
 	
 			<form id="subForm" action="../cgi-bin/upload.pl" method="post" enctype="multipart/form-data">
-				<!-- <fieldset>
-					<legend>Queries</legend>
-					<input type="text" name="queries1" />
-					<input type="text" name="queries2" />
-					<input type="text" name="queries3" />
-					<input type="text" name="queries4" />
-					<input type="text" name="queries5" />
-				</fieldset>
-				<br> -->
+				<div id="paramsWASTED">
+					<h3>Pick your parameters:</h3>
+
+					Decay factor:
+	  				<input type="number" name="decayFactor" min="1" value="1">
+
+	  				<input type='hidden' value='0' name='useITF'>
+					<input type="checkbox" name="useITF" value="1"> Use ITF
+				</div>
 
 				<h3 id="subHeader">Required files:</h3>
 

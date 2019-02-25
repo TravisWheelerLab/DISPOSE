@@ -37,12 +37,18 @@ public class JavaMain {
 		String sourcesDir = args[2];
 		String pastDir = args[3];
 		String userFolder = args[4];
+		double decayFactor = Double.parseDouble(args[5]);
+		boolean useITF = args[6].equals("1");
+		
+		System.out.println("TEST PARAMS:" + useITF + " " + decayFactor);
 		
 //		boolean intFlag = true;
-//		String subDir = "assign3";
+//		String subDir = "example";
 //		String pastDir = "???";
 //		String sourcesDir = "???";
 //		userFolder = "../../../workFiles/nohbodyz@gmail.com";
+//		boolean useITF = false;
+//		double decayFactor = 1.0;
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
 		    paths
@@ -84,9 +90,9 @@ public class JavaMain {
 		List<String> stopWords = Arrays.asList(")", "(", "[", "]", "{", "}", ";", ",");
 
 		for (FlatTree ft: allTrees) {
-			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size());
+			ft.assignWeights(ft.firstNode, stopWords, fileCounts, ft.firstNode, allTrees.size(), useITF);
 			ft.allChildren(ft.firstNode);
-			ft.createJavascriptTree(ft.firstNode, userFolder);
+//			ft.createJavascriptTree(ft.firstNode, userFolder);
 		}
 
 		ArrayList<PairValue> myScores = new ArrayList<PairValue>(); 
@@ -103,7 +109,7 @@ public class JavaMain {
 		
 		for (int i=0; i<allTrees.size(); i++) {
 			tree1 = allTrees.get(i);
-			record = minScore.assignSimilarity2(tree1, tree1, true, selfScore);
+			record = minScore.assignSimilarity2(tree1, tree1, true, selfScore, decayFactor);
 			selfScore.put(tree1, record);
 			System.out.println("Self score: " + tree1.originFile + " " + record);
 		}
@@ -122,7 +128,7 @@ public class JavaMain {
 		
 						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
 						System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
-						next.score = next.assignSimilarity2(tree1, tree2, false, selfScore);
+						next.score = next.assignSimilarity2(tree1, tree2, false, selfScore, decayFactor);
 						// next.makeScoreFile(userFolder);
 						// next.makePathFile(userFolder);
 		
@@ -163,9 +169,18 @@ public class JavaMain {
 		int reportLim = Math.min(250, myScores.size());
 		
 		PairValue next;
+		FlatTree t1, t2;
 
 		for (int i=0; i<reportLim; i++) {
 			next = myScores.get(i);
+			t1 = next.t1;
+			t2 = next.t2;
+			
+			if (t1.treeMade != true)
+				t1.createJavascriptTree(t1.firstNode, userFolder);
+			if (t2.treeMade != true)
+				t2.createJavascriptTree(t2.firstNode, userFolder);
+			
 			System.out.println(next.file1 + " " + next.file2 + " " + next.score);
 			next.makeMatchFile(userFolder);
 			next.makeScoreFile(userFolder);

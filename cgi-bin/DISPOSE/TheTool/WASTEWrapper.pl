@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user] [data_flag]
+# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user] [data_flag] [decay] [ITF_flag]
 
 use warnings;
 use strict;
@@ -11,6 +11,8 @@ use Template;
 my $userFolder = $ARGV[3];
 my $user = $ARGV[4];
 my $DATA = $ARGV[5];
+my $decayFactor = $ARGV[6];
+my $USE_ITF = $ARGV[7];
 
 my $matchIndex = 0;
 my @suspects_hashes;
@@ -67,7 +69,7 @@ foreach my $curLang (@langs) {
 	# Experimental
 	if ($DATA eq '1') {
 		if ($curLang eq "Java") {
-			system("java -Xmx10000M -jar WASTED.jar 1 $origin $sourcesParam $pastParam $userFolder");
+			system("java -Xmx10000M -jar WASTED.jar 1 $origin $sourcesParam $pastParam $userFolder $decayFactor $USE_ITF");
 			@matchFiles = `ls $userFolder\/matchFiles2`;
 		}
 	}

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl TheTool.pl [queries file] [ignore file] [past file] [submissions archive file] [user] [method]
+# Usage: perl TheTool.pl [queries file] [ignore file] [past file] [submissions archive file] [user] [method] [decay] [ITF_flag]
 
 use warnings;
 use strict;
@@ -11,6 +11,9 @@ my $pastFile = $ARGV[2];
 my $submissions = $ARGV[3];
 my $user = $ARGV[4];
 my $method = $ARGV[5];
+my $decayFactor = $ARGV[6];
+my $useITF = $ARGV[7];
+
 my $userFolder = "../../../workFiles/$user";
 
 # ??? is the no file param set in upload.pl. Allows for files to be optional.
@@ -51,10 +54,10 @@ elsif ($method eq "2") {
 
 elsif ($method eq "3") {
 	if ($queryFile eq "???") {
-		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 1");
+		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 1 $decayFactor $useITF");
 	}
 	else {
-		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 1");
+		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 1 $decayFactor $useITF");
 	}
 }
 

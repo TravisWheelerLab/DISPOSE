@@ -27,7 +27,7 @@ public class FlatTree {
 		int size;
 		Node parent;
 		double weight = 1;
-		double ITF_g, TF_g, IDF_g;
+		double freqTerm_g, IDF_g;
 		ArrayList<Node> children = new ArrayList<Node>();
 		HashMap<String, Integer> treeCounts = new HashMap<String, Integer>();
 
@@ -109,26 +109,27 @@ public class FlatTree {
 			System.out.println("\nTotal subtrees: " + total);
 		}
 
-		public void assignWeight(List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+		public void assignWeight(List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount, boolean useITF) {
 			if (stopWords.contains(data)) {
 				weight = 0;
 			}
 			else {
-				double TF = (double) root.treeCounts.get(hashVal.toString()) /  root.size;
-				double ITF = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal.toString()))) / Math.log(2);
+				double freqTerm;
+				
+				if (useITF)
+					freqTerm = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal.toString()))) / Math.log(2);
+				else
+					freqTerm = (double) root.treeCounts.get(hashVal.toString()) /  root.size;
 
-				//double ITF = Math.log((double) root.size / root.treeCounts.get(hashVal.toString())) / Math.log (root.size);
 				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal.toString()))) / Math.log(2);
-				// double IDF = Math.log((double) totalFileCount / fileCounts.get(hashVal)) / Math.log(totalFileCount);
 
 //				if (hashVal.equals
 //						("0\"Scribbleblah()blah\""))
 //					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
 //							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
 				// weight = Math.log(TF * IDF);
-				weight = Math.log(TF * IDF);
-				TF_g = TF;
-				ITF_g = ITF;
+				weight = Math.log(freqTerm * IDF);
+				freqTerm_g = freqTerm;
 				IDF_g = IDF;
 			}
 		}
@@ -174,6 +175,7 @@ public class FlatTree {
 	int nodeCount = 0;
 
 	boolean leafless = false;
+	boolean treeMade = false;
 
 	String originFile;
 	String fileDirSouce;
@@ -449,14 +451,14 @@ public class FlatTree {
 	}
 
 	// Assign the node-by-node weight starting at the leaves
-	public void assignWeights(Node n, List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount) {
+	public void assignWeights(Node n, List<String> stopWords, HashMap<String, Integer> fileCounts, Node root, int totalFileCount, boolean useITF) {
 		if (n.getChildCount() == 0) {
-			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
+			n.assignWeight(stopWords, fileCounts, root, totalFileCount, useITF);
 		}
 		else {
 			for (Node nChild : n.children)
-				assignWeights(nChild, stopWords, fileCounts, root, totalFileCount);
-			n.assignWeight(stopWords, fileCounts, root, totalFileCount);
+				assignWeights(nChild, stopWords, fileCounts, root, totalFileCount, useITF);
+			n.assignWeight(stopWords, fileCounts, root, totalFileCount, useITF);
 		}
 	}
 
@@ -500,7 +502,7 @@ public class FlatTree {
 						"\"start\": " + n.startLine + "," +
 						"\"end\": " + n.endLine + ", " +
 						"\"weight\": \"ln(" + 
-						Math.round(n.TF_g*10000.0)/10000.0 + " * " + 
+						Math.round(n.freqTerm_g*10000.0)/10000.0 + " * " + 
 						Math.round(n.IDF_g*10000.0)/10000.0 + ") = " + 
 						Math.round(n.weight*10000.0)/10000.0 + "\"");
 		
@@ -511,6 +513,8 @@ public class FlatTree {
 		myWriter.write(childString.toString() + "]");
 		
 		myWriter.close();
+		
+		treeMade = true;
 	}
 	
 	public void createChildArrayJS(Node n, StringBuilder myString) {
@@ -534,7 +538,7 @@ public class FlatTree {
 				myString.append("\"start\": " + c.startLine + ", ");
 				myString.append("\"end\": " + c.endLine + ", ");
 				myString.append("\"weight\": \"ln(" + 
-						Math.round(c.TF_g*10000.0)/10000.0 + " * " +
+						Math.round(c.freqTerm_g*10000.0)/10000.0 + " * " +
 						Math.round(c.IDF_g*10000.0)/10000.0 + ") = " + 
 						Math.round(c.weight*10000.0)/10000.0 + "\"");
 				createChildArrayJS(c,myString);

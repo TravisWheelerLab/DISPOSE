@@ -37,6 +37,9 @@ if ($ignoreBool eq "TRUE") {
 	$ignoreFile = $query->param("ignoreList");
 }
 
+my $decayFactor = $query->param("decayFactor");
+my $useITF = $query->param("useITF");
+
 my $subsFile = $query->param("submissions");
 my $email = $query->param("email");
 
@@ -183,7 +186,7 @@ if (fork()){
 	}
 
 	chdir("./DISPOSE/TheTool");
-	system("perl TheTool.pl $queriesFile $ignoreFile $pastFile $subsFile $email $method");
+	system("perl TheTool.pl $queriesFile $ignoreFile $pastFile $subsFile $email $method $decayFactor $useITF");
 
 	chdir($cgibin);
 	system("perl email.pl $email");

@@ -58,7 +58,7 @@ public class PairValue implements Comparable<PairValue>{
 	FlatTree t1, t2;
 	
 	// TODO: Remove test method for all subtree calculations again
-	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse, HashMap<FlatTree, Double> selfScore) {
+	public double assignSimilarity2(FlatTree tree1, FlatTree tree2, boolean recurse, HashMap<FlatTree, Double> selfScore, double decayFactor) {
 		double totalScore = 0;
 		
 		t1 = tree1;
@@ -80,7 +80,7 @@ public class PairValue implements Comparable<PairValue>{
 					nextScore = scoreHist[C*s1.id+s2.id];
 				}
 				else  {
-					nextScore = nScore(s1, s2, scoreHist, checked, C);
+					nextScore = nScore(s1, s2, scoreHist, checked, C, decayFactor);
 					scoreHist[C*s1.id+s2.id] = nextScore;
 					checked[C*s1.id+s2.id] = true; 
 					nextScore *= -1;
@@ -116,11 +116,8 @@ public class PairValue implements Comparable<PairValue>{
 		return Math.abs(totalScore);
 	}
 	
-	double decayFactor;
-	
-	public double nScore(FlatTree.Node s1, FlatTree.Node s2, double[] scoreHist, boolean[] checked, int C) {
+	public double nScore(FlatTree.Node s1, FlatTree.Node s2, double[] scoreHist, boolean[] checked, int C, double decayFactor) {
 		double nodeScore = 0;
-		decayFactor = 1;
 		
 		double prodScore = 0;
 		
@@ -154,7 +151,7 @@ public class PairValue implements Comparable<PairValue>{
 						testScore = scoreHist[c1.id*C+c2.id] ;
 					}
 					else{
-						testScore = nScore(c1, c2, scoreHist, checked, C);
+						testScore = nScore(c1, c2, scoreHist, checked, C, decayFactor);
 						scoreHist[c1.id*C+c2.id] = testScore;
 						checked[c1.id*C+c2.id] = true;
 					}
