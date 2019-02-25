@@ -226,8 +226,10 @@ function treeCompare(treeData, treeData2, nScore) {
     var curFirstChildren = [];
     var curSecChildren = [];
 
-    function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nScore) {
+    var pathList = [];
+    var pathList2 = [];
 
+    function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nScore) {
         // Compute the new tree layout.
         var newTreeData = tree(hRootA);
 
@@ -251,6 +253,7 @@ function treeCompare(treeData, treeData2, nScore) {
             .attr("transform", function(d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
             })
+            // right-click collapse tree
             .on("contextmenu", function(d) {
                 d3.event.preventDefault();
                 if (d.children) {
@@ -262,8 +265,9 @@ function treeCompare(treeData, treeData2, nScore) {
                 }
                 update(d, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nScore);
             })
+            // left-click find matches and total scores
             .on("click", function(d) {
-
+                // First tree
                 if (Object.is(source_svg, svg)) {
                     var nameLabel1 = `
                     <div id='shortHash1' class="hasTooltip">` + escapeHtml(d.data.name) +
@@ -281,6 +285,8 @@ function treeCompare(treeData, treeData2, nScore) {
 
                     curFirstChildren = [];
                     curFirstChildren = getDescendants(curFirst, curFirstChildren);
+
+                    findPath(curFirst, pathList, 1);
 
                     // Update node total
                     var nScores = nScore[curFirstVal];
@@ -301,8 +307,7 @@ function treeCompare(treeData, treeData2, nScore) {
                         select = "#line1_" + i;
                         $(select).addClass("highlighted");
                     }
-
-
+                // Second tree
                 } else {
                     var nameLabel2 = `
                     <div id='shortHash2' class="hasTooltip">` + escapeHtml(d.data.name) +
@@ -318,6 +323,8 @@ function treeCompare(treeData, treeData2, nScore) {
 
                     curSecChildren = [];
                     curSecChildren = getDescendants(curSec, curSecChildren);
+
+                    findPath(curSec, pathList2, 2);
 
                     // Update node total
                     var nTotal = 0;
@@ -347,11 +354,6 @@ function treeCompare(treeData, treeData2, nScore) {
             })
             .on("mouseover", function(d) {
                 if (curFirstVal != null && curSecVal != null) {
-                    var pathList = [];
-                    var pathList2 = [];
-                    findPath(curFirst, pathList, 1);
-                    findPath(curSec, pathList2, 2);
-
                     if (pathList.length != 0) {
                         if (Object.is(source_svg, svg)) {
                             for (var i = 0; i < pathList.length; i++) {
@@ -448,14 +450,6 @@ function treeCompare(treeData, treeData2, nScore) {
                 var colorGrad = ["#0600E5", "#5402E6", "#A005E8", "#EA07E8", "#EC0AA0", "#ED0D59", "#EF1012", "#F15913", "#F3A316", "#F5ED19"];
 
                 if (curFirstVal != null && curSecVal != null) {
-                    var pathList = [];
-                    var pathList2 = [];
-                    findPath(curFirst, pathList, 1);
-                    findPath(curSec, pathList2, 2);
-
-                    // console.log("TEST: " + pathList);
-                    // console.log("TEST2: " + pathList2);
-
                     if (pathList.length != 0) {
                         if (Object.is(source_svg, svg)) {
                             for (var i = 0; i < pathList.length; i++) {
