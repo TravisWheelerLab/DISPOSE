@@ -64,8 +64,6 @@ public class PairValue implements Comparable<PairValue>{
 		t1 = tree1;
 		t2 = tree2;
 		
-		//long startTime = System.nanoTime();
-		
 		R = tree1.allChildren.size(); // num rows
 		C = tree2.allChildren.size(); // num cols
 		
@@ -74,16 +72,13 @@ public class PairValue implements Comparable<PairValue>{
 		
 		for (FlatTree.Node s1 : tree1.allChildren) {
 			for (FlatTree.Node s2: tree2.allChildren) {
-//				nodePath = new ArrayList<PairValue>();
-				
 				if (checked[C*s1.id+s2.id] == true) {
 					nextScore = scoreHist[C*s1.id+s2.id];
 				}
 				else  {
 					nextScore = nScore(s1, s2, scoreHist, checked, C, decayFactor);
 					scoreHist[C*s1.id+s2.id] = nextScore;
-					checked[C*s1.id+s2.id] = true; 
-					nextScore *= -1;
+					checked[C*s1.id+s2.id] = true;
 				}
 				
 				totalScore += nextScore;
@@ -103,10 +98,6 @@ public class PairValue implements Comparable<PairValue>{
 			}
 		}
 		
-		//long endTime = System.nanoTime();
-		
-		//System.out.println("TEST2: " + (endTime-startTime)/1000000000.0);
-		
 		if (!recurse) {
 			double treeVal1 = selfScore.get(tree1);
 			double treeVal2 = selfScore.get(tree2);
@@ -119,11 +110,11 @@ public class PairValue implements Comparable<PairValue>{
 	public double nScore(FlatTree.Node s1, FlatTree.Node s2, double[] scoreHist, boolean[] checked, int C, double decayFactor) {
 		double nodeScore = 0;
 		
-		double prodScore = 0;
+		double prodScore = 1;
 		
 		// If both subtrees are the leaves of an expr statement
 		if (s1.isExpr() && s2.isExpr()) {
-			nodeScore = Math.max(0, Math.log(editDistance(s1.data, s2.data))) + s1.weight + s2.weight;
+			nodeScore = Math.max(0, editDistance(s1.data, s2.data)) * s1.weight * s2.weight;
 		}
 		// If both subtrees' roots are different
 		else if (!s1.data.equals(s2.data)) {
@@ -131,7 +122,7 @@ public class PairValue implements Comparable<PairValue>{
 		}
 		// If both subtrees are leaves
 		else if (s1.isLeaf() && s2.isLeaf()) {
-			nodeScore = s1.weight+s2.weight;
+			nodeScore = s1.weight*s2.weight;
 		}
 		
 		
@@ -155,7 +146,7 @@ public class PairValue implements Comparable<PairValue>{
 						scoreHist[c1.id*C+c2.id] = testScore;
 						checked[c1.id*C+c2.id] = true;
 					}
-					if (testScore < maxScore) {
+					if (testScore > maxScore) {
 						maxScore = testScore;
 						tied = 1;
 					}
@@ -164,9 +155,9 @@ public class PairValue implements Comparable<PairValue>{
 					}
 				}
 				
-				prodScore += (1 + maxScore*tied);
+				prodScore *= (1 + maxScore*tied);
 			}
-			nodeScore = prodScore+s1.weight+s2.weight;
+			nodeScore = prodScore*s1.weight*s2.weight;
 		}
 		
 		return decayFactor*nodeScore;
@@ -229,6 +220,7 @@ public class PairValue implements Comparable<PairValue>{
 		myWriter.write("{");
 		
 		boolean hasMatch = false;
+		boolean firstMatch = true;
 		
 		for (int i=0; i < R; i++) {
 			
@@ -237,17 +229,20 @@ public class PairValue implements Comparable<PairValue>{
 			
 			for (int j=0; j < C; j++) {
 				if (scoreHist[i*C+j] != 0) {
-					matches.add("\"" + j +"\": " + Math.floor(-100*scoreHist[i*C+j])/100);
+					matches.add("\"" + j +"\": " + Math.round(1000000.0*scoreHist[i*C+j]));
 					hasMatch = true;
 				}
 			}
 			
 			if (hasMatch) {
-				myWriter.write("\"" + i + "\": {");
+				if (firstMatch) {
+					myWriter.write("\"" + i + "\": {");
+					firstMatch = false;
+				}
+				else {
+					myWriter.write(",\"" + i + "\": {");
+				}
 				myWriter.write(String.join(", ", matches) + "}");
-
-				if (i < R-1)
-					myWriter.write(",");
 			}
 		}
 		

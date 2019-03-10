@@ -128,7 +128,7 @@ public class FlatTree {
 //					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
 //							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
 				// weight = Math.log(TF * IDF);
-				weight = Math.log(freqTerm * IDF);
+				weight = freqTerm * IDF;
 				freqTerm_g = freqTerm;
 				IDF_g = IDF;
 			}
@@ -537,9 +537,9 @@ public class FlatTree {
 				myString.append("\"hashVal\": \"" + escapedStr2 + "\", ");
 				myString.append("\"start\": " + c.startLine + ", ");
 				myString.append("\"end\": " + c.endLine + ", ");
-				myString.append("\"weight\": \"ln(" + 
+				myString.append("\"weight\": \"" + 
 						Math.round(c.freqTerm_g*10000.0)/10000.0 + " * " +
-						Math.round(c.IDF_g*10000.0)/10000.0 + ") = " + 
+						Math.round(c.IDF_g*10000.0)/10000.0 + " = " + 
 						Math.round(c.weight*10000.0)/10000.0 + "\"");
 				createChildArrayJS(c,myString);
 				if (count < c_size)

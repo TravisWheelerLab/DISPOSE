@@ -507,7 +507,7 @@
 					<h3>Pick your parameters:</h3>
 
 					Decay factor:
-	  				<input type="number" name="decayFactor" min="1" value="1">
+	  				<input type="number" name="decayFactor" min="0.01" max="1" step="0.01" value="0.3">
 
 	  				<input type='hidden' value='0' name='useITF'>
 					<input type="checkbox" name="useITF" value="1"> Use ITF
