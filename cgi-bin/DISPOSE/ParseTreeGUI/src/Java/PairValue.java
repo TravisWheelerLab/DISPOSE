@@ -148,14 +148,14 @@ public class PairValue implements Comparable<PairValue>{
 					}
 					if (testScore > maxScore) {
 						maxScore = testScore;
-						tied = 1;
+//						tied = 1;
 					}
-					else if (testScore == maxScore) {
-						tied++;
-					}
+//					else if (testScore == maxScore) {
+//						tied++;
+//					}
 				}
 				
-				prodScore *= (1 + maxScore*tied);
+				prodScore *= (1 + maxScore);
 			}
 			nodeScore = prodScore*s1.weight*s2.weight;
 		}

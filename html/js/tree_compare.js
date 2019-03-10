@@ -224,10 +224,17 @@ function findPath(node, list, tree) {
 
     if (tree == 1) {
         var nScores = nScore[node.data.nid];
+        var maxId = 0;
+        var maxVal = 0;
         if (nScores != null) {
             for (const [key, value] of Object.entries(nScores)) {
-                list.push([node.data.nid, value]);
+                if (value > maxVal) {
+                    maxId = node.data.nid;
+                    maxVal = value;
+                }
             }
+
+            list.push([maxId, maxVal]);
 
             if (node.children != null) {
                 node.children.forEach(function(d) {
@@ -238,10 +245,18 @@ function findPath(node, list, tree) {
     }
     else {
         var nScores2 = nScore2[node.data.nid];
+        var maxId = 0;
+        var maxVal = 0;
+
         if (nScores2 != null) {
             for (const [key, value] of Object.entries(nScores2)) {
-                list.push([node.data.nid, value]);
+                if (value > maxVal) {
+                    maxId = node.data.nid;
+                    maxVal = value;
+                }
             }
+
+            list.push([maxId, maxVal]);
 
             if (node.children != null) {
                 node.children.forEach(function(d) {
@@ -328,7 +343,8 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
                 var nScores = nScore[curFirstVal];
                 var nTotal = 0;
                 for (const [key, value] of Object.entries(nScores)) {
-                    nTotal += value;
+                    if (value > nTotal)
+                        nTotal = value;
                 }
                 d3.select("#nodeTotal1").text(nTotal);
 
@@ -366,8 +382,10 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
                 // Update node total
                 var nTotal = 0;
                 for (const [key, value] of Object.entries(nScore)) {
-                    if (value[curSecVal] != null)
-                        nTotal += value[curSecVal];
+                    if (value[curSecVal] != null) {
+                        if (value[curSecVal] > nTotal)
+                        nTotal = value[curSecVal];
+                    }
                 }
                 d3.select("#nodeTotal2").text(nTotal);
 
@@ -510,7 +528,8 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
                     var nTotal = 0;
                     if (nScores != null) {
                         for (const [key, value] of Object.entries(nScores)) {
-                            nTotal += value;
+                            if (value > nTotal)
+                                nTotal = value;
                         }
                     }
                     if (nTotal == maxScore)
@@ -524,7 +543,8 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
                     var nTotal = 0;
                     if (nScores != null) {
                         for (const [key, value] of Object.entries(nScores)) {
-                            nTotal += value;
+                            if (value > nTotal)
+                                nTotal = value;
                         }
                     }
 

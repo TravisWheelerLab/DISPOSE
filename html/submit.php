@@ -420,6 +420,15 @@
 				}
 			}
 
+			function toggleDefaultIDF() {
+				if (document.getElementById("checkIDF").checked) {
+					document.getElementById("defaultIDF").disabled = true;
+				}
+				else {
+					document.getElementById("defaultIDF").disabled = false;
+				}
+			}
+
 		</script>
 	</head>
 
@@ -509,8 +518,8 @@
 					Decay factor:
 	  				<input type="number" name="decayFactor" min="0.01" max="1" step="0.01" value="0.3">
 
-	  				<input type='hidden' value='0' name='useITF'>
-					<input type="checkbox" name="useITF" value="1"> Use ITF
+	  				<input id="defaultIDF" type='hidden' value='0' name='useITF'>
+					<input id="checkIDF" type="checkbox" name="useITF" value="1" onclick="toggleDefaultIDF();"> Use ITF
 				</div>
 
 				<h3 id="subHeader">Required files:</h3>

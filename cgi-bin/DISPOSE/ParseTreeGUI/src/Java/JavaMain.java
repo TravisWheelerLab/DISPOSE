@@ -45,7 +45,7 @@ public class JavaMain {
 //		String pastDir = "???";
 //		String sourcesDir = "???";
 //		userFolder = "../../../workFiles/nohbodyz@gmail.com";
-//		boolean useITF = false;
+//		boolean useITF = true;
 //		double decayFactor = Double.parseDouble("1.0");
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {

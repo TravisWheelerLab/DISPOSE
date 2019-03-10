@@ -115,19 +115,21 @@ public class FlatTree {
 			}
 			else {
 				double freqTerm;
+				double IDF;
 				
-				if (useITF)
-					freqTerm = Math.log(1 + ((double) root.size / root.treeCounts.get(hashVal.toString()))) / Math.log(2);
-				else
+				if (useITF) {
+					freqTerm = Math.log(1 + root.size / (double) root.treeCounts.get(hashVal.toString())) / Math.log(root.size + 1);
+					IDF = Math.log(1 + (double) totalFileCount / fileCounts.get(hashVal.toString())) / Math.log(totalFileCount + 1);
+				}
+				else {
 					freqTerm = (double) root.treeCounts.get(hashVal.toString()) /  root.size;
-
-				double IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal.toString()))) / Math.log(2);
-
+					IDF = Math.log(1 + ((double) totalFileCount / fileCounts.get(hashVal.toString()))) / Math.log(2);
+				}
+				
 //				if (hashVal.equals
 //						("0\"Scribbleblah()blah\""))
 //					System.out.println("WEIGHT: " + root.treeCounts.get(hashVal) + " " + root.size
 //							+ " " + totalFileCount + " " + fileCounts.get(hashVal));
-				// weight = Math.log(TF * IDF);
 				weight = freqTerm * IDF;
 				freqTerm_g = freqTerm;
 				IDF_g = IDF;
@@ -501,9 +503,9 @@ public class FlatTree {
 						"\"hashVal\": \"" + escapedStr2 + "\"," +
 						"\"start\": " + n.startLine + "," +
 						"\"end\": " + n.endLine + ", " +
-						"\"weight\": \"ln(" + 
+						"\"weight\": \"" + 
 						Math.round(n.freqTerm_g*10000.0)/10000.0 + " * " + 
-						Math.round(n.IDF_g*10000.0)/10000.0 + ") = " + 
+						Math.round(n.IDF_g*10000.0)/10000.0 + " = " + 
 						Math.round(n.weight*10000.0)/10000.0 + "\"");
 		
 		StringBuilder childString = new StringBuilder();
