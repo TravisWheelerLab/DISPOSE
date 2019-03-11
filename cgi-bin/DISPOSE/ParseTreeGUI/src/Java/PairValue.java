@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.regex.Pattern;
 
 import Java.FlatTree.Node;
@@ -23,6 +25,9 @@ public class PairValue implements Comparable<PairValue>{
 	int endPos1, endPos2;
 	int startLine1, startLine2;
 	int endLine1, endLine2;
+	
+	int globalEnd1 = 0;
+	int globalEnd2 = 0;
 	
 	ArrayList<PairValue> scoreList = new ArrayList<PairValue>();
 	
@@ -71,7 +76,13 @@ public class PairValue implements Comparable<PairValue>{
 		checked = new boolean[R*C+1]; // flags for pair scoring computation
 		
 		for (FlatTree.Node s1 : tree1.allChildren) {
+				if (s1.endPos > globalEnd1)
+					globalEnd1 = s1.endPos;
 			for (FlatTree.Node s2: tree2.allChildren) {
+				
+				if (s2.endPos > globalEnd2)
+					globalEnd2 = s2.endPos;
+				
 				if (checked[C*s1.id+s2.id] == true) {
 					nextScore = scoreHist[C*s1.id+s2.id];
 				}
@@ -196,16 +207,43 @@ public class PairValue implements Comparable<PairValue>{
 	public void makeMatchFile(String userFolder) throws IOException {
 		File matchFile = new File(userFolder + "/matchFiles2/" + file1.substring(file1.lastIndexOf(File.separatorChar) + 1, file1.lastIndexOf('.')) + "_" + file2.substring(file2.lastIndexOf(File.separatorChar) + 1, file2.lastIndexOf('.')) + ".txt");
 		FileWriter myWriter = new FileWriter(matchFile);
-		
-		Collections.sort(scoreList);
 
 		myWriter.write("'" + file1.substring(file1.lastIndexOf(File.separatorChar) + 1) + "' '" + file1  + "' '" + file2.substring(file2.lastIndexOf(File.separatorChar) + 1) + "' '" + file2 + "' '" + score + "' \n");
 		
-		for (int i=0; i<scoreList.size(); i++) {
-			PairValue next = scoreList.get(i);
-			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
-			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
-			myWriter.write(next.score + "\n\n");
+		PriorityQueue<PairValue> prq = new PriorityQueue<PairValue>();
+		prq.addAll(scoreList);
+		
+		boolean[] marked1 = new boolean[globalEnd1];
+		boolean[] marked2 = new boolean[globalEnd2];
+		
+//		for (int i=0; i<scoreList.size(); i++) {
+//			PairValue next = scoreList.get(i);
+//			myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
+//			myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
+//			myWriter.write(next.score + "\n\n");
+//		}
+		
+		while (prq.size() != 0) {
+			PairValue next = prq.poll();
+			boolean prevMarked1 = true;
+			boolean prevMarked2 = true;
+			for (int i = next.startPos1; i < next.endPos1; i++) {
+				prevMarked1 &= marked1[i];
+				marked1[i] = true;
+			}
+			for (int i = next.startPos2; i < next.endPos2; i++) {
+				prevMarked2 &= marked2[i];
+				marked2[i] = true;
+			}
+			
+//			System.out.println(next.startPos1 + ":" + next.endPos1 + " " + next.startPos2 + ":" +
+//					next.endPos2 + " " + prevMarked1 + " " + prevMarked2 + " " + next.score);
+			
+			if ((prevMarked1 || prevMarked2) == false) {
+				myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
+				myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
+				myWriter.write(next.score + "\n\n");
+			}
 		}
 		
 		myWriter.close();
