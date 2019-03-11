@@ -18,6 +18,9 @@ h1, h2 {
 	text-align: center;
 }
 
+.scaleImg {
+    height: 1em;
+}
 
 .hasTooltip span {
     display: none;

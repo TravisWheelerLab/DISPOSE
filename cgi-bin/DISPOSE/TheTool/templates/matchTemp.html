@@ -38,8 +38,15 @@
 		</tr>
 		[%  FOREACH match IN matches %]
 		<tr>
-			<td><h3>[% match.linestext1 %]</h3></td>
-			<td><h3>[% match.linestext2 %]</h3></td>
+			<td><h3>[% match.linestext1 %]
+			[% IF data == "1" %]
+				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data&n1=[% match.n1 %]&n2=[% match.n2 %]"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+			[% END %]
+			</h3></td>
+			<td><h3>[% match.linestext2 %]
+			[% IF data == "1" %]
+				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data&n1=[% match.n1 %]&n2=[% match.n2 %]"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+			[% END %]</h3></td>
 		</tr>
 		<tr>
 			<td><pre><code>[% match.text1 %]</code></pre></td>

@@ -1,5 +1,21 @@
 var baseChoice = 0;
+
+var globalFirst = -1;
+var globalSecond = -1;
+
+var url_string = window.location.href;
+var url = new URL(url_string);
+var n1 = url.searchParams.get("n1");
+var n2 = url.searchParams.get("n2");
+if (n1 != null)
+    globalFirst = n1;
+if (n2 != null)
+    globalSecond = n2;
+console.log(globalFirst + " " + globalSecond);
+
 var maxScore = 0;
+var max1 = -1;
+var max2 = -1;
 
 function toggleChoice() {
     baseChoice ^= 1;
@@ -51,8 +67,11 @@ function swapJsonKeyValues(input) {
 function findMax(nScore) {
     for (const [k1, v1] of Object.entries(nScore)) {
         for (const [k2, v2] of Object.entries(v1)) {
-            if (v2 > maxScore)
+            if (v2 > maxScore) {
                 maxScore = v2;
+                max1 = k1;
+                max2 = k2;
+            }
         }
     }
 }
@@ -94,8 +113,8 @@ function treeCompare(treeData, treeData2, t_nScore) {
 
     findMax(nScore);
 
-    console.log(nScore);
-    console.log(nScore2);
+    // console.log(nScore);
+    // console.log(nScore2);
 
     $('#tree1').html('');
     $('#tree2').html('');
@@ -184,6 +203,16 @@ function treeCompare(treeData, treeData2, t_nScore) {
 
     update(root1, hRoot1, hRoot2, svg, svg2, root1, root2, nScore);
     update(root2, hRoot2, hRoot1, svg2, svg, root2, root1, nScore);
+
+    // Click on max scoring nodes by default:
+    d3.select("[id='1_" + max1 + "']").dispatch('click');
+    d3.select("[id='2_" + max2 + "']").dispatch('click');
+
+    // If default nodes are chosen, click on instead:
+    if (globalFirst != -1)
+        d3.select("[id='1_" + globalFirst + "']").dispatch('click');
+    if (globalSecond != -1)
+        d3.select("[id='2_" + globalSecond + "']").dispatch('click');
 }
 
 function updateScore(nScore) {
@@ -299,6 +328,12 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
+        .attr("id", function(d) {
+            if (Object.is(source_svg, svg))
+                return "1_" + d.data.nid;
+            else
+                return "2_" + d.data.nid;
+        })
         .attr("class", "node")
         .attr("transform", function(d) {
             return "translate(" + source.x0 + "," + source.y0 + ")";
@@ -472,7 +507,45 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
         });
 
     nodeUpdate.select("circle.node")
-        .attr("r", 10)
+        // Change radius if the node is selected
+        .attr("r", function(d) {
+            if (Object.is(source_svg, svg)) {
+                if (d.data.nid == curFirstVal)
+                    return 20;
+                else
+                    return 10;
+            }
+            else {
+                if (d.data.nid == curSecVal)
+                    return 20;
+                else
+                    return 10;
+            }
+        })
+        .style("stroke-width", function(d) {
+            if (Object.is(source_svg, svg)) {
+                if (d.data.nid == curFirstVal)
+                    return 7;
+                else
+                    return 2;
+            }
+            else {
+                if (d.data.nid == curSecVal)
+                    return 7;
+                else
+                    return 2;
+            }
+        })
+        .style("stroke", function(d) {
+            if (Object.is(source_svg, svg)) {
+                if (d.data.nid == curFirstVal)
+                    return "black";
+            }
+            else {
+                if (d.data.nid == curSecVal)
+                    return "black";
+            }
+        })
         .attr('cursor', 'pointer')
         .style("fill", function(d) {
             if (Object.is(source_svg, svg2)) {
@@ -560,7 +633,21 @@ function update(source, hRootA, hRootB, source_svg, other_svg, rootA, rootB, nSc
         });
 
     nodeUpdate.select("text")
-        .style("fill-opacity", 1);
+        .style("fill-opacity", 1)
+        .attr("y", function(d) {
+            if (Object.is(source_svg, svg)) {
+                if (d.data.nid == curFirstVal)
+                    return d.children || d._children ? -28 : 28;
+                else
+                    return d.children || d._children ? -18 : 18;
+            }
+            else {
+                if (d.data.nid == curSecVal)
+                    return d.children || d._children ? -28 : 28;
+                else
+                    return d.children || d._children ? -18 : 18;
+            }
+        });
 
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()

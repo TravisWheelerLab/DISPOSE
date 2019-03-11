@@ -100,10 +100,12 @@ while (<$fh>) {
 	my @matchParams1 = split(/ /, $posInfo1);
 	my @posParams1_1 = split(/:/, $matchParams1[0]);
 	my @posParams1_2 = split(/:/, $matchParams1[1]);
+	my $n1 = $matchParams1[2];
 
 	my @matchParams2 = split(/ /, $posInfo2);
 	my @posParams2_1 = split(/:/, $matchParams2[0]);
 	my @posParams2_2 = split(/:/, $matchParams2[1]);
+	my $n2 = $matchParams2[2];
 
 	my $treePos1 = $posParams1_1[0];
 	my $treeEnd1 = $posParams1_2[0];
@@ -133,7 +135,7 @@ while (<$fh>) {
 	my $score = <$fh>; chomp $score;
 
 	if ($score > $MINSCORE) {
-		my $linesText1 = "$treePos1:$linePos1 " . "$treeEnd1:$lineEnd1 $score";
+		my $linesText1 = "$n1 $treePos1:$linePos1 " . "$treeEnd1:$lineEnd1 $score";
 
 		my $text1 = "";
 		my $text2 = "";
@@ -147,7 +149,7 @@ while (<$fh>) {
 			}
 		}
 
-		my $linesText2 = "$treePos2:$linePos2 " . "$treeEnd2:$lineEnd2 $score";
+		my $linesText2 = "$n2 $treePos2:$linePos2 " . "$treeEnd2:$lineEnd2 $score";
 
 		for (my $j = $linePos2; $j <= $lineEnd2; $j = $j+1) {
 			if (defined $lineHash2{$j}) {
@@ -160,7 +162,8 @@ while (<$fh>) {
 
 		push @matches, {text1 => $text1, text2 => $text2, 
 			linestext1 => $linesText1, linestext2 => $linesText2,
-			size => $score};
+			size => $score, n1 => $n1, n2 => $n2, lang => $curLang,
+			matchIndex => $matchIndex};
 	}
 
 	my $empty = <$fh>;
@@ -196,7 +199,8 @@ my $vars = {
       fullTextLink => $fullTextLink,
       file1 => {name => $name1, fullName => "$fullName1"},
       file2 => {name => $name2, fullName => "$fullName2"},
-      tempFolder => $tempFolder
+      tempFolder => $tempFolder,
+      data => $DATA
 };
 
 # Full text vars

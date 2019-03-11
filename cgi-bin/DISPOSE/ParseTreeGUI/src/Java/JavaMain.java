@@ -32,21 +32,21 @@ public class JavaMain {
 
 	public static void main(String[] args) throws IOException {
 
-		boolean intFlag = args[0].equals("1");
-		String subDir = args[1];
-		String sourcesDir = args[2];
-		String pastDir = args[3];
-		String userFolder = args[4];
-		double decayFactor = Double.parseDouble(args[5]);
-		boolean useITF = args[6].equals("1");
+//		boolean intFlag = args[0].equals("1");
+//		String subDir = args[1];
+//		String sourcesDir = args[2];
+//		String pastDir = args[3];
+//		String userFolder = args[4];
+//		double decayFactor = Double.parseDouble(args[5]);
+//		boolean useITF = args[6].equals("1");
 		
-//		boolean intFlag = true;
-//		String subDir = "example";
-//		String pastDir = "???";
-//		String sourcesDir = "???";
-//		userFolder = "../../../workFiles/nohbodyz@gmail.com";
-//		boolean useITF = false;
-//		double decayFactor = Double.parseDouble("1.0");
+		boolean intFlag = true;
+		String subDir = "example";
+		String pastDir = "???";
+		String sourcesDir = "???";
+		userFolder = "../../../workFiles/nohbodyz@gmail.com";
+		boolean useITF = false;
+		double decayFactor = Double.parseDouble("1.0");
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
 		    paths
@@ -98,7 +98,7 @@ public class JavaMain {
 
 		long startTime = System.nanoTime();
 		
-		PairValue minScore = new PairValue("aaa", "bbb", 0);
+		PairValue minScore = new PairValue("aaa", "bbb", 0, -1, -1);
 		myScores.add(minScore);
 		
 		HashMap<FlatTree, Double> selfScore = new HashMap<FlatTree, Double>();
@@ -123,7 +123,7 @@ public class JavaMain {
 					if ((tree1.subSource.equals(tree2.subSource) && intFlag) 
 							|| !tree1.subSource.equals(tree2.subSource)) {
 		
-						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0);
+						PairValue next = new PairValue(tree1.originFile, tree2.originFile, 0, tree1.firstNode.id, tree2.firstNode.id);
 						System.out.println("Calculating: " + tree1.originFile + " " + tree2.originFile);
 						next.score = next.assignSimilarity2(tree1, tree2, false, selfScore, decayFactor);
 		

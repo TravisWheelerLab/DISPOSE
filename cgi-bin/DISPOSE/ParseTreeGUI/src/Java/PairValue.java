@@ -21,6 +21,9 @@ public class PairValue implements Comparable<PairValue>{
 	String file2;
 	double score;
 	
+	int n1 = -1;
+	int n2 = -1;
+	
 	int startPos1, startPos2;
 	int endPos1, endPos2;
 	int startLine1, startLine2;
@@ -31,10 +34,12 @@ public class PairValue implements Comparable<PairValue>{
 	
 	ArrayList<PairValue> scoreList = new ArrayList<PairValue>();
 	
-	public PairValue (String file1, String file2, double score) {
+	public PairValue (String file1, String file2, double score, int n1, int n2) {
 		this.file1 = file1;
 		this.file2 = file2;
 		this.score = score;
+		this.n1 = n1;
+		this.n2 = n2;
 	}
 	@Override
 	public int compareTo(PairValue o) {
@@ -95,7 +100,7 @@ public class PairValue implements Comparable<PairValue>{
 				totalScore += nextScore;
 				
 				if (!recurse && nextScore>0) {
-					nextPair = new PairValue(s1.hashVal.toString(), s2.hashVal.toString(), nextScore);
+					nextPair = new PairValue(s1.hashVal.toString(), s2.hashVal.toString(), nextScore, s1.id, s2.id);
 					nextPair.startPos1 = s1.startPos;
 					nextPair.startPos2 = s2.startPos;
 					nextPair.endPos1 = s1.endPos;
@@ -240,8 +245,8 @@ public class PairValue implements Comparable<PairValue>{
 //					next.endPos2 + " " + prevMarked1 + " " + prevMarked2 + " " + next.score);
 			
 			if ((prevMarked1 || prevMarked2) == false) {
-				myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.file1 + "\n");
-				myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.file2 + "\n");
+				myWriter.write(next.startPos1 + ":" + next.startLine1 + " " + next.endPos1 + ":" + next.endLine1 + " " + next.n1 + "\n");
+				myWriter.write(next.startPos2 + ":" + next.startLine2 + " " + next.endPos2 + ":" + next.endLine2 + " " + next.n2 + "\n");
 				myWriter.write(next.score + "\n\n");
 			}
 		}
