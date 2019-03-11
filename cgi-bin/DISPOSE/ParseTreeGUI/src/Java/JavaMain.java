@@ -32,21 +32,21 @@ public class JavaMain {
 
 	public static void main(String[] args) throws IOException {
 
-//		boolean intFlag = args[0].equals("1");
-//		String subDir = args[1];
-//		String sourcesDir = args[2];
-//		String pastDir = args[3];
-//		String userFolder = args[4];
-//		double decayFactor = Double.parseDouble(args[5]);
-//		boolean useITF = args[6].equals("1");
+		boolean intFlag = args[0].equals("1");
+		String subDir = args[1];
+		String sourcesDir = args[2];
+		String pastDir = args[3];
+		String userFolder = args[4];
+		double decayFactor = Double.parseDouble(args[5]);
+		boolean useITF = args[6].equals("1");
 		
-		boolean intFlag = true;
-		String subDir = "example";
-		String pastDir = "???";
-		String sourcesDir = "???";
-		userFolder = "../../../workFiles/nohbodyz@gmail.com";
-		boolean useITF = false;
-		double decayFactor = Double.parseDouble("1.0");
+//		boolean intFlag = true;
+//		String subDir = "example";
+//		String pastDir = "???";
+//		String sourcesDir = "???";
+//		userFolder = "../../../workFiles/nohbodyz@gmail.com";
+//		boolean useITF = false;
+//		double decayFactor = Double.parseDouble("1.0");
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(userFolder + "/" + subDir + "/Java"))) {
 		    paths
