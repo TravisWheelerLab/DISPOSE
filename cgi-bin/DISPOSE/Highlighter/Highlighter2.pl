@@ -17,7 +17,7 @@ my $DATA = $ARGV[6];
 my $MINSCORE = 0;
 my $userFolder =  "../../../workFiles/$user";
 
-my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
+my $tempFolder = "../../cgi-bin/DISPOSE/Highlighter/templates/";
 
 my $matchFile = $userFolder . "/matchFiles2/" . $file;
 my $scoreFile;

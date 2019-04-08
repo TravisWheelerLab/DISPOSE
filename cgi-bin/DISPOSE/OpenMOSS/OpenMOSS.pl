@@ -49,7 +49,7 @@ mkdir "matchFiles" unless -d "matchFiles";
 opendir(my $dh, $origin);
 my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
-my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
+my $tempFolder = "../Highlighter/templates/";
 
 my $fileTemp = $tempFolder . "suspectsTemp.php";
 my $mainOut = "../../results/$user/results.php";

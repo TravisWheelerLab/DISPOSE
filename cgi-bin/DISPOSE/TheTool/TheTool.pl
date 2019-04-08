@@ -18,12 +18,17 @@ my $userFolder = "../../../workFiles/$user";
 
 # ??? is the no file param set in upload.pl. Allows for files to be optional.
 unless ($queryFile eq "???") {
+	chdir("../GithubGrabber");
 	system("perl GithubGrabber3.pl $queryFile $userFolder");
+	chdir("../Unzipper");
 	system("perl Unzipper.pl GithubResults 1 1 1 $userFolder $ignoreFile");
 }
 unless ($pastFile eq "???") {
+	chdir("../Unzipper");
 	system("perl Unzipper.pl $pastFile 1 1 3 $userFolder $ignoreFile");
 }
+
+chdir("../Unzipper");
 system("perl Unzipper.pl $submissions 1 1 2 $userFolder $ignoreFile");
 
 (my $archiveDir, my $archiveExt) = ($submissions =~ /(.+)\.(.+)$/);
@@ -36,27 +41,33 @@ unless ($pastFile eq "???") {
 }
 if ($method eq "1") {
 	if ($queryFile eq "???") {
+		chdir("../OpenMOSS");
 		system("perl OpenMOSS.pl 1 $archiveDir ??? $pastDir $userFolder $user");
 	}
 	else {
+		chdir("../OpenMOSS");
 		system("perl OpenMOSS.pl 1 $archiveDir GithubResults $pastDir $userFolder $user");
 	}
 }
 
 elsif ($method eq "2") {
 	if ($queryFile eq "???") {
+		chdir("../WASTE");
 		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 0");
 	}
 	else {
+		chdir("../WASTE");
 		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 0");
 	}
 }
 
 elsif ($method eq "3") {
 	if ($queryFile eq "???") {
+		chdir("../WASTE");
 		system("perl WASTEWrapper.pl $archiveDir ??? $pastDir $userFolder $user 1 $decayFactor $useITF");
 	}
 	else {
+		chdir("../WASTE");
 		system("perl WASTEWrapper.pl $archiveDir GithubResults $pastDir $userFolder $user 1 $decayFactor $useITF");
 	}
 }

@@ -41,7 +41,7 @@ public class JavaMain {
 		boolean useITF = args[6].equals("1");
 		
 //		boolean intFlag = true;
-//		String subDir = "example";
+//		String subDir = "assign3";
 //		String pastDir = "???";
 //		String sourcesDir = "???";
 //		userFolder = "../../../workFiles/nohbodyz@gmail.com";

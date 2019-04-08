@@ -1,4 +1,4 @@
-[%  INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/header2.html'
+[%  INCLUDE '../../cgi-bin/DISPOSE/Highlighter/templates/header2.html'
 	title = 'DISPOSE | Match Results';
 %]
 
@@ -139,4 +139,4 @@
     </script>
 
 
-[% INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/footer.html' %]
+[% INCLUDE '../../cgi-bin/DISPOSE/Highlighter/templates/footer.html' %]

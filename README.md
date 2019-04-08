@@ -31,6 +31,54 @@ In addition, the following Perl modules must be installed:
 
 To use the web portal and user access system, first you must [set up an apache2 webserver](https://www.maketecheasier.com/setup-local-web-server-all-platforms/) on the desired machine. For user management, DISPOSE connects PHP requests using [mysqli](https://www.php.net/manual/en/book.mysqli.php) so MySQL must also be functioning in connection to your apache2 server. [Here](https://dev.mysql.com/doc/mysql-getting-started/en/) is a quick start guide for getting MySQL up and running.
 
-Now you should have a web server running with DISPOSE cloned into the web server's main folder ('www' by default). Navigate to the /sql/ folder and run the sql_import.php script to create the necessary MySQL tables. Please note that you should change the host, user, and password in the script to the proper credentials to connect to your database. Likewise, these credentials need to be edited in /html/login/db.php to match.
+Now you should have a web server running with DISPOSE cloned into the web server's main folder ('www' by default).
+```
+   % cd ~/www
+   % git clone https://github.com/TravisWheelerLab/DISPOSE.git
+``` 
 
-From here you should be ready to use DISPOSE! Launch your server, navigate to the homepage, create an account for your database, and make a submission. If your server has been additionally configured to be able to send emails, then the server will email the user's address when the results are ready to be viewed.
+ Navigate to the /sql/ folder and run the sql_import.php script to create the necessary MySQL tables. Please note that you should change the host, user, and password in the script to the proper credentials to connect to your database. 
+
+```
+   % cd ./sql/
+   % vi sql_import.php
+    
+    3  // connection variables
+    4  $host = 'localhost';
+	5  $user = 'root';
+	6  $password = 'mypass123';
+
+   % php ./sql_import.php
+```
+
+ Likewise, these credentials need to be edited in /html/login/db.php to match.
+```
+   % cd ./cgi-bin/DISPOSE/GithubGrabber/
+   % vi db.php
+    
+    3  $host = 'localhost';
+	4  $user = 'root';
+	5  $pass = 'mypass123';
+```
+
+Next, you'll have to set up a personal Google API key here:
+https://console.developers.google.com/apis/credentials
+Insert your generated key into GithubGrabber3.pl.
+```
+   % cd ./html/login/
+   % vi GithubGrabber3.pl
+    
+    12  # Generate an API key here:
+	13  # https://console.developers.google.com/apis/credentials
+	14  my $key = "";
+```
+
+From here you should be ready to use DISPOSE! Launch your server:
+```
+   % sudo service apache2 start
+   % sudo service mysql start
+```
+
+Navigate to the homepage (localhost) in browser, create an account for your database using the form, and make a submission. Feel free to read the 'Help' page to learn the features of the submission portal and results output.
+
+If your server has been additionally configured to be able to send emails, then the server will email the user's address when the results are ready to be viewed.

@@ -53,7 +53,7 @@ chomp @langs;
 
 chdir($workDir);
 
-my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
+my $tempFolder = "../../cgi-bin/DISPOSE/Highlighter/templates/";
 
 my $fileTemp = $tempFolder . "suspectsTemp.php";
 my $mainOut = "../../results/$user/results.php";
@@ -241,7 +241,7 @@ foreach my $curLang (@langs) {
 			fullName1 => $fullName1, fullName2 => $fullName2, matchScore => $score, matchIndex => $matchIndex, lang => $curLang,
 			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
 
-		
+		chdir("../Highlighter");
 		system("perl Highlighter2.pl $fileName $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2' $DATA");
 
 		$matchIndex++;

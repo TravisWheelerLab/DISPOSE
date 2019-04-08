@@ -18,8 +18,7 @@ my $user = $ARGV[6];
 
 chdir($userFolder);
 
-my $tempFolder = "../../cgi-bin/DISPOSE/TheTool/templates/";
-
+my $tempFolder = "../../cgi-bin/DISPOSE/Highlighter/templates/";
 
 open(my $fh, "<", $file)
 	or die "Failed to open file: '$file'!\n";
