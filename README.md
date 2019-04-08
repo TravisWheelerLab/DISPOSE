@@ -43,10 +43,10 @@ Now you should have a web server running with DISPOSE cloned into the web server
    % cd ./sql/
    % vi sql_import.php
     
-    3  // connection variables
-    4  $host = 'localhost';
-	5  $user = 'root';
-	6  $password = 'mypass123';
+     3  // connection variables
+     4  $host = 'localhost';
+     5  $user = 'root';
+	 6  $password = 'mypass123';
 
    % php ./sql_import.php
 ```
@@ -56,21 +56,22 @@ Now you should have a web server running with DISPOSE cloned into the web server
    % cd ./cgi-bin/DISPOSE/GithubGrabber/
    % vi db.php
     
-    3  $host = 'localhost';
-	4  $user = 'root';
-	5  $pass = 'mypass123';
+     3  $host = 'localhost';
+     4  $user = 'root';
+     5  $pass = 'mypass123';
 ```
 
 Next, you'll have to set up a personal Google API key here:
 https://console.developers.google.com/apis/credentials
+
 Insert your generated key into GithubGrabber3.pl.
 ```
    % cd ./html/login/
    % vi GithubGrabber3.pl
     
-    12  # Generate an API key here:
-	13  # https://console.developers.google.com/apis/credentials
-	14  my $key = "";
+     12  # Generate an API key here:
+     13  # https://console.developers.google.com/apis/credentials
+     14  my $key = "";
 ```
 
 From here you should be ready to use DISPOSE! Launch your server:
@@ -79,6 +80,6 @@ From here you should be ready to use DISPOSE! Launch your server:
    % sudo service mysql start
 ```
 
-Navigate to the homepage (localhost) in browser, create an account for your database using the form, and make a submission. Feel free to read the 'Help' page to learn the features of the submission portal and results output.
+Navigate to the homepage (localhost) in browser, create an account for your database using the sign-up form, and make a submission. Feel free to read the 'Help' page to learn the features of the submission portal and results output.
 
 If your server has been additionally configured to be able to send emails, then the server will email the user's address when the results are ready to be viewed.
