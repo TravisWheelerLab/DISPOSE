@@ -74,6 +74,13 @@ Insert your generated key into GithubGrabber3.pl.
      14  my $key = "";
 ```
 
+You can re-compile the WASTED jar by running the following:
+```
+   % cd ./cgi-bin/DISPOSE/WASTE
+   % javac -cp "./project/lib/*" -d ./project/bin/ ./project/src/Java/*.java
+   % jar cfe WASTED.jar Java.JavaMain -C ./project/bin/ .
+```
+
 From here you should be ready to use DISPOSE! Launch your server:
 ```
    % sudo service apache2 start
