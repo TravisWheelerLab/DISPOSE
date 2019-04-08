@@ -6,11 +6,9 @@ use warnings;
 use strict;
 
 use File::Path;
-use POSIX;
 
 my $queryFile = $ARGV[0];
 my @queries;
-my $counter = 0;
 
 open(my $fh, "<", "$queryFile")
     or die "Failed to open file: $!\n";
@@ -50,7 +48,7 @@ foreach my $query(@queries) {
 	}
 	# ------
 
-	# $numPages = 5; # Temp limiter
+	$numPages = 5; # Temp limiter
 
 	for (my $i=1; $i <= $numPages; $i++) {
 		print("\n<--------------------On page $i of $numPages--------------------> \n");
@@ -81,9 +79,7 @@ foreach my $query(@queries) {
 
 				mkpath($repoName);
 				chdir($repoName);
-				# system("curl -LOk https://github.com/$repoName/archive/master.zip");
-				$counter++;
-
+				system("curl -LOk https://github.com/$repoName/archive/master.zip");
 				chdir("..");
 				chdir("..");
 			}
@@ -91,8 +87,6 @@ foreach my $query(@queries) {
 			$offset = $nextRepoPos + 1;
 			$nextRepoPos = index($rawSource, $sourceFlag, $offset) + $charOffset;
 		}
-		sleep(10);
+		# ------
 	}
 }
-
-print($counter);

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder]
+# Usage: perl Unzipper.pl [source archive file] [single_directory_flag] [separate_lang_flag] [dir num] [user folder] [ignore file]
 
 use strict;
 use warnings;
@@ -15,10 +15,24 @@ my $SINGLE_DIR = $ARGV[1];
 my $SEPARATE_LANG = $ARGV[2];
 my $dirNum = $ARGV[3];
 my $userFolder = $ARGV[4];
+my $ignoreFile = $ARGV[5];
+
 
 chdir($userFolder);
 
-my @targetTypes = ("c","java","py");
+my %ignores;
+
+unless ($ignoreFile eq "???") {
+    open(my $fh, "<", "$ignoreFile")
+        or die "Failed to open file: $!\n";
+    while(<$fh>) { 
+        chomp; 
+        $ignores{$_} = 1;
+    } 
+    close $fh;
+}
+
+my @targetTypes = ("c","java","py", "cs");
 my $archiveDir;
 my $archiveExt;
 
@@ -56,14 +70,14 @@ foreach (@submissions) {
     # Looking for more archive files buried
     while($foundMore) {
         $foundMore = 0;
-        @moreArchives = `find`;
+        @moreArchives = `find .`;
         foreach(@moreArchives) {
             s/\s*$//;
             my $candidate = "$_";
             unless (-d $candidate) {
                 my @testFields = split('((\.[^.\s]+)+)$', $candidate, 2);
                    if ($testFields[1] =~ m/(7z|zip|tar|gz|bz2|rar)$/) {
-                            handleArchive("$_");
+                            handleArchive("$candidate");
                             system("rm -f \"$candidate\"");
                             $foundMore = 1;
                    }
@@ -71,7 +85,7 @@ foreach (@submissions) {
         }
     }
     
-    my @rawFiles = `find`;
+    my @rawFiles = `find .`;
 
     # Getting target file type
     foreach (@rawFiles) {
@@ -98,8 +112,11 @@ foreach (@submissions) {
                 elsif ($type eq "py") {
                     $filterFolder = "Python";
                 }
+                elsif ($type eq "cs") {
+                    $filterFolder = "CSharp";
+                }
 
-                if ($suffix eq $type and -T $candidate) {
+                if ($suffix eq $type and $ext eq $type and -T $candidate) {
                     print($candidate . " " . " " . $name . " " . $suffix . " " . $type . "\n");
 
                     chdir("..");
@@ -112,30 +129,32 @@ foreach (@submissions) {
 
                     my $newName = $dirNum . "_" . $subIndex . "_" . $subIndex2 . "_" . $name . $suffix;
 
-                    if ($SINGLE_DIR) {
+                    unless (defined $ignores{$name . $suffix}) {
+                        if ($SINGLE_DIR) {
 
-                        chdir("..");
+                            chdir("..");
 
-                        if ($SEPARATE_LANG) {
-                            mkdir $filterFolder unless -d $filterFolder;
-                            rename(getcwd . "/$subIndex/" . substr($candidate,2), getcwd . "/$filterFolder" . "/$newName");
+                            if ($SEPARATE_LANG) {
+                                mkdir $filterFolder unless -d $filterFolder;
+                                rename(getcwd . "/$subIndex/" . substr($candidate,2), getcwd . "/$filterFolder" . "/$newName");
+                            }
+                            else {
+                                rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+                            }
+                            chdir($subIndex);
                         }
                         else {
-                            rename(getcwd . "/$subIndex/". substr($candidate,2), getcwd . "/$newName");
+                            if ($SEPARATE_LANG) {
+                                mkdir $filterFolder unless -d $filterFolder;
+                                rename($candidate, getcwd . "/$filterFolder" . "/$newName");
+                            }
+                            else {
+                                rename($candidate, getcwd . "/$newName");
+                            }
                         }
-                        chdir($subIndex);
+                        $subIndex2++;
                     }
-                    else {
-                        if ($SEPARATE_LANG) {
-                            mkdir $filterFolder unless -d $filterFolder;
-                            rename($candidate, getcwd . "/$filterFolder" . "/$newName");
-                        }
-                        else {
-                            rename($candidate, getcwd . "/$newName");
-                        }
-                    }
-                    $subIndex2++;
-               }
+                }
             }
        }
     }
@@ -145,7 +164,7 @@ foreach (@submissions) {
         my @junk = `ls`;
         foreach(@junk) {
             s/\s*$//;
-            if (-d "$_" && "$_" ne "Java" && "$_" ne "C" && "$_" ne "Python") {
+            if (-d "$_" && "$_" ne "Java" && "$_" ne "C" && "$_" ne "Python" && "$_" ne "CSharp") {
                 system("rm -rf \"$_\"");
             }
         }

@@ -1,16 +1,28 @@
-[%  INCLUDE templates/header2.html
-	title = 'DISPOSE Results';
+[%  INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/header2.html'
+	title = 'DISPOSE | Match Results';
 %]
 
-	<h1>Your DISPOSE Results</h1>
+	<h1>Your (Offline) DISPOSE Results</h1>
 
 	<h2>Language: </h2>
 	<select id="langSelect">
-        <option disabled selected> -- select an option -- </option>
-        <option value="all">[All]</option>
-        [%  FOREACH lang IN langs %]
-        <option value="[% lang %]">[% lang %]</option>
-        [%  END %]
+        <option disabled value="none"> -- select an option -- </option>
+        <script>
+        	var urlString = new URL(window.location.href);
+			var searchParams = new URLSearchParams(urlString.search);
+			var lang = searchParams.get("lang");
+
+	        document.write('<option ');
+	        if (lang == "all")
+	        	document.write('selected ');
+	        document.write('value="all">[All]</option>');
+	        [%  FOREACH lang IN langs %]
+	        document.write('<option ');
+	        if (lang == "[% lang %]")
+	        	document.write('selected ');
+	        document.write('value="[% lang %]">[% lang %]</option>');
+	        [%  END %]
+    	</script>
     </select>
 
     <br><br>
@@ -19,58 +31,149 @@
 		<thead>
 		<tr>
 			<th><h2>File 1</h2></th>
+			<th><h2>Author</h2></th>
 			<th><h2>File 2</h2></th>
+			<th><h2>Author</h2></th>
 			<th><h2>Score</h2></th>
 		</tr>
 		</thead>
 
 		<tbody>
 		[%  FOREACH match IN matches %]
-		<tr class="[% match.lang %]_result">
+		<tr class="[% match.lang %]_result lang_result">
 			<td>
-				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html">
+				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
 					[% match.file1 %]
+					<span>[% match.fullName1 %]</span>
 				</a>
+
+				[% IF match.srcType1 == "1" %]
+				<script>
+				var fullName1 = "[% match.fullName1 %]";
+				var regex = /\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\/[^\/]+\/[^\/]+\/(.+)/;
+				var matches = regex.exec(fullName1);
+				var repoName = matches[1];
+				var directFile = matches[2];
+				document.write('[<sub><a href="https://github.com/' + repoName + '/blob/master/' + directFile + '"><img src="../img/link.png" class="scaleImg" /></a></sub>]');
+				</script>
+				[% END %]
 			</td>
 			<td>
-				<a href="./outFiles/[% match.lang %]/match[% match.matchIndex %]_match.html">
-					[% match.file2 %]
-				</a>
+				[% match.authName1 %]
 			</td>
-			<td>[% match.matchNum %]</td>
+			<td>
+				<a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=match" class="hasTooltip">
+					[% match.file2 %]
+					<span>[% match.fullName2 %]</span>
+				</a>
+				[% IF match.srcType2 == "1" %]
+				<script>
+				var fullName2 = "[% match.fullName2 %]";
+				var regex = /\.\/GithubResults\/[^\/]+\/([^\/]+\/[^\/]+)\/[^\/]+\/[^\/]+\/(.+)/;
+				var matches = regex.exec(fullName2);
+				var repoName = matches[1];
+				var directFile = matches[2];
+				document.write('[<sub><a href="https://github.com/' + repoName + '/blob/master/' + directFile + '"><img src="../img/link.png" class="scaleImg" /></a></sub>]');
+				</script>
+				[% END %]
+
+				[% IF match.srcType2 == "2" || match.srcType2 == "3" %]
+				<script>
+				document.write('[<sub><a href="');
+				var link = 'download.php?source=[% match.file2 %]&lang=[% match.lang %]")&user=[% user %]&sourceLoc="[% match.dirName2 %]"';
+				var res = encodeURI(link);
+				document.write(res);
+				document.write('"><img src="../img/download.png" class="scaleImg" /></a></sub>]');
+				</script>
+				[% END %]
+			</td>
+			<td>
+				[% match.authName2 %]
+			</td>
+			<td>
+				[% match.matchScore %] 
+				[% IF data == "1" %]
+				[<sub><a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+				[% END %]
+			</td>
 		</tr>
 		[%  END %]
 		</tbody>
 	</table>
 
 	<script>
-		$().ready(function() {
-			$("table#resultsTable").tablesorter( {sortList: [[2,1]]} ); 
+		var urlString = new URL(window.location.href);
+		var searchParams = new URLSearchParams(urlString.search);
+		var lang = searchParams.get("lang");
 
-			[%  FOREACH lang IN langs %]
-			$(".[% lang %]_result").css("display","none");
-			[%  END %]
-		});
+		var id = searchParams.get("id");
+		var type = searchParams.get("type");
 
-		$( "select#langSelect" ).change(function() {
-			if ($("select#langSelect").val() == "all") {
-				[%  FOREACH lang IN langs %]
-				$(".[% lang2 %]_result").css("display","none");
-				$(".[% lang %]_result").toggle();
-				[%  END %]
+		var iframeBorder = "<style>iframe{border:0}</style>";
+
+		if (id) {
+			if (type) {
+				$("html").html(iframeBorder + '<iframe width=100% height=100% src="' + "./outFiles/" + lang + "/match" + id + "_" + type + '.html"' + "></object>");
+			}
+			else {
+				$("html").html(iframeBorder + '<iframe width=100% height=100% src="' + "./outFiles/" + lang + "/match" + id + "_match" + '.html"' + "></object>");
 			}
 
-			[%  FOREACH lang IN langs %]
-			if ($("select#langSelect").val() == "[% lang %]") {
-				[%  FOREACH lang2 IN langs %]
-				$(".[% lang2 %]_result").css("display","none");
-				[%  END %]
-				$(".[% lang %]_result").toggle();
-			}
-			[%  END %]
+			var url = window.location.href;
+			var path = url.substring(0, url.lastIndexOf("/")) + "/results.html";
+			console.log(path);
+			
+			setTimeout(function() {
+				var match_file = document.getElementsByTagName("iframe")[0].contentWindow;
+				match_file.postMessage(path, "*");
+			}, 1000);
+			
+		}
 
-		});
+		else {
+
+			$().ready(function() {
+				$("table#resultsTable").tablesorter( {sortList: [[4,1]]} ); 
+				$("select#langSelect").val("none");
+
+				if (lang) {
+					$("select#langSelect").val(lang);
+
+					if ($("select#langSelect").val() == "all") {
+						[%  FOREACH lang IN langs %]
+						$(".[% lang %]_result").toggle();
+						[%  END %]
+					}
+
+					[%  FOREACH lang IN langs %]
+					else if ($("select#langSelect").val() == "[% lang %]") {
+						$(".[% lang %]_result").toggle();
+					}
+					[%  END %]
+
+					else {
+						window.location.href="results.html";
+					}
+				}
+
+				$("select#langSelect").trigger('change');
+
+			});
+
+			$("select#langSelect").change(function() {
+
+				if ($("select#langSelect").val().length == 0) {
+						window.location.href="results.html";
+					}
+
+				if (lang !== $("select#langSelect").val()) {
+					window.location.href="results.html?lang="+$("select#langSelect").val();
+				}
+
+
+			});
+		}
     </script>
 
 
-[% INCLUDE templates/footer.html %]
+[% INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/footer.html' %]

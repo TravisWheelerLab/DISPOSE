@@ -1,17 +1,52 @@
-[%  INCLUDE templates/header.html
-	title = 'DISPOSE Match Results';
+[%  INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/header.html'
+	title = 'DISPOSE | Match Results';
 %]
 
+	<script>
+		var loc;
+		function receiveMessage(event)
+		{
+		  loc = event.data;
+		  console.log("HELLO " + loc);
+
+		  $("a.fullLink").click(function(event) {
+		  	event.preventDefault();
+		  	window.top.location.href = loc + '[% fullTextLink %]';
+		  });
+
+		  $("a.fullLink").attr("href", loc + '[% fullTextLink %]');
+		}
+		window.addEventListener("message", receiveMessage, false);
+	</script>
+
+	<a href="javascript:history.back()">< Back</a>
 	<h1>Some Interesting Matches</h1>
 	<table>
 		<tr>
-			<td><h2><a href="[% fullTextLink %]">[% file1.name %]</a></h2></td>
-			<td><h2><a href="[% fullTextLink %]">[% file2.name %]</a></h2></td>
+			<td><h2>
+				<a href="/results.php[% fullTextLink %]" class="hasTooltip fullLink">
+					[% file1.name %]
+					<span>[% file1.fullName %]</span>
+				</a>
+			</h2></td>
+			<td><h2>
+				<a href="/results.php[% fullTextLink %]" class="hasTooltip fullLink">
+					[% file2.name %]
+					<span>[% file2.fullName %]</span>
+				</a>
+			</h2></td>
 		</tr>
 		[%  FOREACH match IN matches %]
 		<tr>
-			<td><h3>[% match.linestext1 %]</h3></td>
-			<td><h3>[% match.linestext2 %]</h3></td>
+			<td><h3>[% match.linestext1 %]
+			[% IF data == "1" %]
+				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data&n1=[% match.n1 %]&n2=[% match.n2 %]"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+			[% END %]
+			</h3></td>
+			<td><h3>[% match.linestext2 %]
+			[% IF data == "1" %]
+				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data&n1=[% match.n1 %]&n2=[% match.n2 %]"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+			[% END %]</h3></td>
 		</tr>
 		<tr>
 			<td><pre><code>[% match.text1 %]</code></pre></td>
@@ -20,4 +55,4 @@
 		[%  END %]
 	</table>
 
-[% INCLUDE templates/footer.html %]
+[% INCLUDE '../../cgi-bin/DISPOSE/TheTool/templates/footer.html' %]

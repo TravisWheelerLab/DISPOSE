@@ -4,14 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.regex.Pattern;
-
 import Java.FlatTree.Node;
 import org.apache.commons.text.StringEscapeUtils;
 

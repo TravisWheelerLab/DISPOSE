@@ -9,7 +9,9 @@ use File::Path;
 use JSON qw( decode_json );
 use POSIX;
 
-my $key = "AIzaSyDcx1joF8K2Mrte35dOg8bMDVi4ZjKdrSc";
+# Generate an API key here:
+# https://console.developers.google.com/apis/credentials
+my $key = "";
 
 my $userFolder = $ARGV[1];
 
