@@ -46,7 +46,7 @@ Now you should have a web server running with DISPOSE cloned into the web server
      3  // connection variables
      4  $host = 'localhost';
      5  $user = 'root';
-	 6  $password = 'mypass123';
+     6  $password = 'mypass123';
 
    % php ./sql_import.php
 ```
