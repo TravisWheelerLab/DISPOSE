@@ -92,7 +92,9 @@
 			</td>
 			<td>
 				[% match.matchScore %]
+				[% IF method == 2 %]
 				[<sub><a href="results.html?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data"><img src="../img/link.png" class="scaleImg" /></a></sub>]
+				[% END %]
 			</td>
 		</tr>
 		[%  END %]

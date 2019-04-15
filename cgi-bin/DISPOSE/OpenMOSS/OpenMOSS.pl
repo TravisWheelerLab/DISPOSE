@@ -49,7 +49,7 @@ mkdir "matchFiles" unless -d "matchFiles";
 opendir(my $dh, $origin);
 my @langs = grep {-d "$origin/$_" && ! /^\.{1,2}$/} readdir($dh);
 
-my $tempFolder = "../Highlighter/templates/";
+my $tempFolder = "../../cgi-bin/DISPOSE/Highlighter/templates/";
 
 my $fileTemp = $tempFolder . "suspectsTemp.php";
 my $mainOut = "../../results/$user/results.php";
@@ -95,12 +95,12 @@ foreach my $curLang (@langs) {
 	}
 
 	# Use ANTLR to determine tokens
-	system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
+	system("java -jar ../../cgi-bin/DISPOSE/OpenMOSS/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$origin/$curLang");
 	if (-d "$sourcesDir/$curLang") {
-		system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
+		system("java -jar ../../cgi-bin/DISPOSE/OpenMOSS/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$sourcesDir/$curLang");
 	}
 	if (-d "$pastDir/$curLang") {
-		system("java -jar ../../cgi-bin/DISPOSE/TheTool/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$pastDir/$curLang");
+		system("java -jar ../../cgi-bin/DISPOSE/OpenMOSS/tokenizers/$curLang/DISPOSE_tokenizer.jar ./$pastDir/$curLang");
 	}
 
 	my %tokPos;
@@ -435,9 +435,11 @@ foreach my $curLang (@langs) {
 		my $matchFile = "./matchFiles/$curLang/" . $shortName1 . "_" . $shortName2 . "_match.txt";
 		push (@suspects_hashes, {file1 => $name1, file2 => $name2, srcType1 => $srcType1, srcType2 => $srcType2, 
 			fullName1 => $fullName1, fullName2 => $fullName2, matchNum => $score, matchIndex => $i, lang => $curLang,
-			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
+			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2,
+			matchScore => $score});
 
-		system("perl Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN $userFolder $user");
+
+		system("perl ../Highlighter/Highlighter.pl \'$matchFile\' $origin $curLang $i $MINRUN $userFolder $user");
 	}
 }
 
@@ -449,7 +451,8 @@ my $vars = {
       matches => \@suspects_hashes,
       langs => \@langs,
       tempFolder => $tempFolder,
-      user => $user
+      user => $user,
+      method => 1
 };
 
 chdir($workDir);

@@ -243,7 +243,8 @@ my $vars = {
   matches => \@suspects_hashes,
   langs => \@langs,
   tempFolder => $tempFolder,
-  user => $user
+  user => $user,
+  method => 2
 };
 
 my $template = Template->new(RELATIVE => 1);

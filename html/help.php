@@ -47,37 +47,50 @@
 
 	    <!-- Submission tab -->
     	<div id="submission" class="tabcontent">
-	        <h2>
-	        	<center>
+	        <center>
+		        <h2>
 	            	<a href="./submit.php" target="_blank">
 	            		Submission Help
 	            	</a>
-	    		</center>
-	        </h2>
+		        </h2>
+		        <img src="./img/submit_example.png" alt="screenshot of submission page" width="25%" border="2px"></img>
+	        </center>
+
 	        What do those buttons do, etc.
     	</div>
 
     	<!-- Results tab -->
     	<div id="results" class="tabcontent">
-	        <h2>
-	            <center>
+	        <center>
+		        <h2>
 	            	<a href="./results.php" target="_blank">
 	            		Results Help
 	            	</a>
-	        	</center>
-	        </h2>
-	        What do those numbers mean, etc.
+		        </h2>
+		        <img src="./img/results_example.png" alt="screenshot of results page" width="50%" border="2px"></img>
+	        </center>
+
+	        <h3>Languages</h3>
+	        <p>DISPOSE currently only supports Java 8, but the methods are extendable to using other ANTLR-defined grammars. Use the selector at the top of the page to filter results based on the desired language.</p>
+
+	        <h3>File and Author Names</h3>
+	        <p>The file names in the list will be abbreviated by ids at their start in this order: groupID_submissionID_fileID_name. Group ID is determined by the origin of the files (e.g. "2" for user-provided files). Submission ID is determined by the ordering of the folder or archive in the group list. File ID is further determined by the listing of files within the submission. The full original path the source material came from is provided upon hovering the cursor above the abbreviated name.</p>
+	        <p>Author names will match with a submission ID. The names are truncated to fit the results list. Full names can be viewed by hovering the cursor above the abbreviated name.</p>
+
+	        <h3>Score</h3>
+	        <p>The relative similarity metric is listed for the pair of files shown by the rest of the columns. For MOSS, this score is an accumulation of total consecutive hash window matches. For WASTE, this is the cosine similarity between unique scorings for tree comparisons. There's an arrow next to WASTE pairs linking to the overall tree comparison view.</p>
     	</div>
 
     	<!-- WASTE tab -->
     	<div id="waste" class="tabcontent">
-	        <h2>
-	            <center>
+	        <center>
+		        <h2>
 	            	<a href="./results.php" target="_blank">
 	            		WASTE Help
 	            	</a>
-	        	</center>
-	        </h2>
+		        </h2>
+		        <img src="./img/waste_example.png" alt="screenshot of WASTE page" width="80%" border="2px"></img>
+	        </center>
 	        How does this visual work, etc.
     	</div>
 
