@@ -21,6 +21,8 @@ else {
 </head>
 
 <body>
+  <a href="../../" class="linkout">&#8592; Home</a> 
+
   <div class="form">
 
           <h1>Profile</h1>
@@ -62,13 +64,13 @@ else {
           <p><?= $email ?></p>
 
           <div class="butSpan">
-            <a href="../submit.php"><button class="btn half-button" name="submitJob"/>Submit Job</button></a>
-            <a href="../results.php"><button class="btn half-button test" name="results"/>Results</button></a>
+            <a class="special" href="../submit.php"><button class="btn half-button" name="submitJob"/>Submit Job</button></a>
+            <a class="special" href="../results.php"><button class="btn half-button test" name="results"/>Results</button></a>
           </div>
 
           <br><br>
 
-          <a href="logout.php"><button class="button button-block" name="logout"/>Log Out</button></a>
+          <a class="special" href="logout.php"><button class="button button-block" name="logout"/>Log Out</button></a>
 
     </div>
     

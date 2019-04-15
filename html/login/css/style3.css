@@ -11,13 +11,13 @@ body {
   font-family: 'Titillium Web', sans-serif;
 }
 
-a {
+a.special {
   text-decoration: none;
   color: #1ab188;
   -webkit-transition: .5s ease;
   transition: .5s ease;
 }
-a:hover {
+a.special:hover {
   color: #179b77;
 }
 
@@ -235,4 +235,10 @@ textarea {
 
 .test {
   float:right;
+}
+
+.linkout {
+  display:inline-block;
+  padding-top: 7px !important;
+  padding-left: 7px !important;
 }

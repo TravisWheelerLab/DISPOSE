@@ -415,6 +415,8 @@
 	</head>
 
 	<body>
+		<a href="../login/profile.php">&#8592; Profile</a> 
+
 		<div id="instructMethod1" class="instructPanel leftPanel">
 			<b>DISPOSE MOSS</b> is based on the <a href="http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf">winnowing algorithm</a> used in <a href="https://theory.stanford.edu/~aiken/moss/">MOSS</a>. Scoring is computed from consecutive fingerprints that are representative of document sections.
 		</div>
