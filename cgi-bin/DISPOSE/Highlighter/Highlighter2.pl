@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl Highlighter2.pl [match file] [index] [user] [lang] [fullName1] [fullName2] [data_flag]
+# Usage: perl Highlighter2.pl [match file] [index] [user] [lang] [fullName1] [fullName2]
 
 use warnings;
 use strict;
@@ -13,17 +13,13 @@ my $matchIndex = $ARGV[1];
 my $file = $ARGV[0];
 my $curLang = $ARGV[3];
 my $user = $ARGV[2];
-my $DATA = $ARGV[6];
 my $MINSCORE = 0;
 my $userFolder =  "../../../workFiles/$user";
 
 my $tempFolder = "../../cgi-bin/DISPOSE/Highlighter/templates/";
 
 my $matchFile = $userFolder . "/matchFiles2/" . $file;
-my $scoreFile;
-if ($DATA eq '1') {
-	$scoreFile = $userFolder . "/scoreFiles/" . $file;
-}
+my $scoreFile = $userFolder . "/scoreFiles/" . $file;
 
 open(my $fh, "<", $matchFile)
 	or die "Failed to open file: '$matchFile'!\n";
@@ -33,20 +29,15 @@ $score =~ s/^\s+|\s+$//g;
 my $treeFile1;
 my $treeFile2; 
 
-if ($DATA eq '1') {
-	($treeFile1) = ($name1 =~ /(.+)\..+/ );
-	($treeFile2) = ($name2 =~ /(.+)\..+/ );
-	$treeFile1 = $userFolder . "/trees/" . $treeFile1 . '.txt';
-	$treeFile2 = $userFolder . "/trees/" . $treeFile2 . '.txt';
-}
+($treeFile1) = ($name1 =~ /(.+)\..+/ );
+($treeFile2) = ($name2 =~ /(.+)\..+/ );
+$treeFile1 = $userFolder . "/trees/" . $treeFile1 . '.txt';
+$treeFile2 = $userFolder . "/trees/" . $treeFile2 . '.txt';
 
 mkdir "../../results/$user/outFiles" unless -d "../../results/$user/outFiles";
 my $outFile = "outFiles/$curLang/match" . "$matchIndex" . "_match.html";
 my $outFile2 = "outFiles/$curLang/match" . "$matchIndex" . "_text.html";
-my $outFile3;
-if ($DATA eq '1') {
-	$outFile3 = "outFiles/$curLang/match" . "$matchIndex" . "_data.html";
-}
+my $outFile3 = "outFiles/$curLang/match" . "$matchIndex" . "_data.html";
 
 my $fileTemp = $tempFolder . "matchTemp.html";
 my $fullTextTemp = $tempFolder . "fullTextTemp.html";
@@ -175,18 +166,16 @@ my $tree1;
 my $tree2;
 my $scores;
 
-if ($DATA eq '1') {
-	open(my $fh3, $treeFile1)
-		or die "Failed to open file: '$treeFile1'!\n";
-	open(my $fh4, $treeFile2)
-		or die "Failed to open file: '$treeFile2'!\n";
-	open(my $fh5, $scoreFile)
-		or die "Failed to open file: '$scoreFile'!\n";
+open(my $fh3, $treeFile1)
+	or die "Failed to open file: '$treeFile1'!\n";
+open(my $fh4, $treeFile2)
+	or die "Failed to open file: '$treeFile2'!\n";
+open(my $fh5, $scoreFile)
+	or die "Failed to open file: '$scoreFile'!\n";
 
-	$tree1 = <$fh3>;
-	$tree2 = <$fh4>;
-	$scores = <$fh5>;
-}
+$tree1 = <$fh3>;
+$tree2 = <$fh4>;
+$scores = <$fh5>;
 
 my $fullTextLink = "?lang=$curLang&id=$matchIndex&type=text";
 
@@ -199,8 +188,7 @@ my $vars = {
       fullTextLink => $fullTextLink,
       file1 => {name => $name1, fullName => "$fullName1"},
       file2 => {name => $name2, fullName => "$fullName2"},
-      tempFolder => $tempFolder,
-      data => $DATA
+      tempFolder => $tempFolder
 };
 
 # Full text vars
@@ -210,19 +198,15 @@ my $vars2 = {
 	    tempFolder => $tempFolder
 };
 
-my $vars3;
-
-if ($DATA eq '1') {
-	# Data vars
-	$vars3 = {
-			file1 => {name => $name1, fullName => "$fullName1", text => $file1Text},
-		    file2 => {name => $name2, fullName => "$fullName2", text => $file2Text},
-		    tree1 => $tree1,
-		    tree2 => $tree2,
-		    scores => $scores,
-		    tempFolder => $tempFolder
-	};
-}
+# Data vars
+my $vars3 = {
+		file1 => {name => $name1, fullName => "$fullName1", text => $file1Text},
+	    file2 => {name => $name2, fullName => "$fullName2", text => $file2Text},
+	    tree1 => $tree1,
+	    tree2 => $tree2,
+	    scores => $scores,
+	    tempFolder => $tempFolder
+};
 
 chdir($userFolder);
 
@@ -236,7 +220,5 @@ $template->process($fileTemp, $vars, "../../results/$user/" . $outFile)
 $template2->process($fullTextTemp, $vars2, "../../results/$user/" . $outFile2)
     || die "Template process failed: ", $template2->error(), "\n";
 
-if ($DATA eq '1') {
-	$template3->process($dataTemp, $vars3, "../../results/$user/" . $outFile3)
-	    || die "Template process failed: ", $template3->error(), "\n";
-}
+$template3->process($dataTemp, $vars3, "../../results/$user/" . $outFile3)
+    || die "Template process failed: ", $template3->error(), "\n";

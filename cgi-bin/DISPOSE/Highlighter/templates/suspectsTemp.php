@@ -83,10 +83,8 @@
 				[% match.authName2 %]
 			</td>
 			<td>
-				[% match.matchScore %] 
-				[% IF data == "1" %]
+				[% match.matchScore %]
 				[<sub><a href="results.php?lang=[% match.lang %]&id=[% match.matchIndex %]&type=data"><img src="../img/link.png" class="scaleImg" /></a></sub>]
-				[% END %]
 			</td>
 		</tr>
 		[%  END %]

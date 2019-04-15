@@ -20,5 +20,7 @@
 				echo  "To get started, please <a href='/login/index.php'>log in.</a>";
 			}
 		?>
+		<br>
+		For advice on how to use this website, check the <a href='./help.php'>help</a> page.
 	</body>
 </html>

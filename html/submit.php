@@ -346,12 +346,11 @@
 			};
 
 			function withMOSSClick() {
-				$('#paramsWASTED').css('display', 'none');
+				$('#paramsWASTE').css('display', 'none');
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('1');
 				$('#withMOSSBut').attr('class', 'custom-but accepted');
 				$('#withWASTEBut').attr('class', 'custom-but unselected');
-				$('#withWASTEDBut').attr('class', 'custom-but unselected');
 
 				showInstructQueries = true;
 
@@ -362,27 +361,10 @@
 			};
 
 			function withWASTEClick() {
-				$('#paramsWASTED').css('display', 'none');
+				$('#paramsWASTE').css('display', 'block');
 				$('#queriesChoice').css('visibility', 'visible');
 				$('#methodInput').val('2');
 				$('#withWASTEBut').attr('class', 'custom-but accepted');
-				$('#withWASTEDBut').attr('class', 'custom-but unselected');
-				$('#withMOSSBut').attr('class', 'custom-but unselected');
-
-				showInstructQueries = true;
-
-				if (showInstruct) {
-					showInstruct = false;
-					toggleInstruct();
-				}
-			};
-
-			function withWASTEDClick() {
-				$('#paramsWASTED').css('display', 'block');
-				$('#queriesChoice').css('visibility', 'visible');
-				$('#methodInput').val('3');
-				$('#withWASTEDBut').attr('class', 'custom-but accepted');
-				$('#withWASTEBut').attr('class', 'custom-but unselected');
 				$('#withMOSSBut').attr('class', 'custom-but unselected');
 
 				showInstructQueries = true;
@@ -482,16 +464,6 @@
 				<button id="withWASTEBut" class="custom-but needed" onclick="withWASTEClick()">
 					DISPOSE WASTE
 				</button>
-				<?php
-					if ($_SESSION['email'] == "nohbodyz@gmail.com" || $_SESSION['email'] == "travis.wheeler@umontana.edu" ) {
-						$buttonHTML = '
-						<br>
-						<button id="withWASTEDBut" class="custom-but needed" onclick="withWASTEDClick()">
-							DISPOSE WASTED
-						</button>';
-						echo $buttonHTML;
-					}
-				?>
 			</div>
 		</center>
 
@@ -512,7 +484,7 @@
 		<center>
 	
 			<form id="subForm" action="../cgi-bin/upload.pl" method="post" enctype="multipart/form-data">
-				<div id="paramsWASTED">
+				<div id="paramsWASTE">
 					<h3>Pick your parameters:</h3>
 
 					Decay factor:

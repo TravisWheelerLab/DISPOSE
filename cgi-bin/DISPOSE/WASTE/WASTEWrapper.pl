@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user] [data_flag] [decay] [ITF_flag]
+# Usage: perl WASTEWrapper.pl [file_dir detect] [file_dir sources] [file_dir past] [user folder] [user] [decay] [ITF_flag]
 
 use warnings;
 use strict;
@@ -10,9 +10,8 @@ use Template;
 
 my $userFolder = $ARGV[3];
 my $user = $ARGV[4];
-my $DATA = $ARGV[5];
-my $decayFactor = $ARGV[6];
-my $USE_ITF = $ARGV[7];
+my $decayFactor = $ARGV[5];
+my $USE_ITF = $ARGV[6];
 
 my $matchIndex = 0;
 my @suspects_hashes;
@@ -66,20 +65,10 @@ foreach my $curLang (@langs) {
 
 	chdir($mainDir);
 
-	# Experimental
-	if ($DATA eq '1') {
-		if ($curLang eq "Java") {
-			system("java -Xmx10000M -jar WASTED.jar 1 $origin $sourcesParam $pastParam $userFolder $decayFactor $USE_ITF");
-			@matchFiles = `ls $userFolder\/matchFiles2`;
-		}
-	}
-
-	else {
-		# Choose specific WASTE jar for each language
-		if ($curLang eq "Java") {
-			system("java -Xmx10000M -jar WASTE.jar 1 $origin $sourcesParam $pastParam $userFolder");
-			@matchFiles = `ls $userFolder\/matchFiles2`;
-		}
+	# Choose specific WASTE jar for each language
+	if ($curLang eq "Java") {
+		system("java -Xmx10000M -jar WASTE.jar 1 $origin $sourcesParam $pastParam $userFolder $decayFactor $USE_ITF");
+		@matchFiles = `ls $userFolder\/matchFiles2`;
 	}
 
 
@@ -242,7 +231,7 @@ foreach my $curLang (@langs) {
 			authName1 => $authName1, authName2 => $authName2, dirName1 => $dirName1, dirName2 => $dirName2});
 
 		chdir("../Highlighter");
-		system("perl Highlighter2.pl $fileName $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2' $DATA");
+		system("perl Highlighter2.pl $fileName $matchIndex nohbodyz\@gmail.com $curLang '$fullName1' '$fullName2'");
 
 		$matchIndex++;
 	}
@@ -254,8 +243,7 @@ my $vars = {
   matches => \@suspects_hashes,
   langs => \@langs,
   tempFolder => $tempFolder,
-  user => $user,
-  data => $DATA
+  user => $user
 };
 
 my $template = Template->new(RELATIVE => 1);
