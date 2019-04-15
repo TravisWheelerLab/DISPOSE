@@ -451,10 +451,14 @@
 
 		<center>
 			<h1>Make your submissions here!</h1>
-
+			<!-- 
+			TODO: Remove all mentions of previous intructions
 			<div id="instructText" onclick="toggleInstruct()">
 				Show instructions
-			</div>
+			</div> 
+			-->
+
+			<b><a href="./help.php#sub" target="_blank" rel="help">Help Page</a></b>
 
 			<br>
 			<div id="methodChoice">

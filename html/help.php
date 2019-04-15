@@ -136,7 +136,7 @@
 	        </center>
 
 	        <h3>How to Access</h3>
-	        <p>In order to access this visual you must first run a <a href="./submit.php">submission</a> using the DISPOSE WASTE option as your comparison method. Once you've been notified that your results are ready, head over to the <a href="./results.php">results</a> page. All WASTE data pages have been generated for the top scoring matches presented here. They can be accessed with the arrows next to the numerical score in the Score column.</p>
+	        <p>In order to access this visual you must first run a <a href="./submit.php" target="_blank">submission</a> using the DISPOSE WASTE option as your comparison method. Once you've been notified that your results are ready, head over to the <a href="./results.php" target="_blank">results</a> page. All WASTE data pages have been generated for the top scoring matches presented here. They can be accessed with the arrows next to the numerical score in the Score column.</p>
 	        <hr>
 	        <h3>Files Tab</h3>
 	        <p>The Files Tab represents the source code for the files in the current pair being visualized. For convenience, the source code is labeled with line numbers. These lines are highlighted to show where the current selected nodes in the Trees tab correspond.</p>

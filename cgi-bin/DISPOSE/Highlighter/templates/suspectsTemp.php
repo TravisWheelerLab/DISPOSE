@@ -6,6 +6,8 @@
 	<?php echo '<a href="./save.php">'; ?>Save &#8594;</a>
 	<h1>Your DISPOSE Results</h1>
 
+	<b><a href="./help.php#res" target="_blank" rel="help">Help Page</a></b>
+
 	<h2>Language: </h2>
 	<select id="langSelect">
         <option disabled value="none"> -- select an option -- </option>
