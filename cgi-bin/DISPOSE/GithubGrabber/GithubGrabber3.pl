@@ -70,7 +70,10 @@ foreach my $query(@queries) {
 			# my $urlTest = $metatagsTest[0];
 
 			my $repoLink = @{$result->{'pagemap'}->{'metatags'}}[0]->{"og:url"};
-			my $repoName = substr($repoLink, 19); # Start where "http://github.com/" ends
+			if (substr($repoLink, 0, 19) ne "https://github.com/") {
+				next;
+			}
+			my $repoName = substr($repoLink, 19); # Start where "https://github.com/" ends
 			print ("\n$repoName\n");
 
 			if (defined $repositories{$repoName}) {
