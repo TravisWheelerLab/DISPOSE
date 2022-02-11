@@ -83,8 +83,9 @@ You can re-compile the WASTED jar by running the following:
 
 From here you should be ready to use DISPOSE! Launch your server:
 ```
-   % sudo service apache2 start
+   % sudo service apache2 start   (or 'sudo service httpd start' - depends on system)
    % sudo service mysql start
+   (may also need to start sendmail)
 ```
 
 Navigate to the homepage (localhost) in browser, create an account for your database using the sign-up form, and make a submission. Feel free to read the 'Help' page to learn the features of the submission portal and results output.
